@@ -467,18 +467,6 @@ class CUBEfile(Structure):
             msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty PLY. Set a smaller isovalue."
             raise ValueError(msg)
 
-        pytessel = PyTessel()
-
-        unitCell = self._volumetricAxisVectors * self._volumetricData.shape
-
-        # Flatten the volumetric data such that X is the fastest moving index, according to the PyTessel documentation.
-        # vertices, normals, indices = pytessel.marching_cubes(
-        #     self._volumetricData.flatten(order="F"),
-        #     reversed(self._volumetricData.shape),
-        #     unitCell.flatten(),
-        #     isovalue,
-        # )
-
         vertices, faces, normals, values = marching_cubes(
             self._volumetricData,
             level=isovalue,
