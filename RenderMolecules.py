@@ -3,28 +3,12 @@ import os
 import sys
 from copy import deepcopy
 
+import bpy
 import numpy as np
 from pytessel import PyTessel
 
 from ElementData import *
-
-
-def getElementFromAtomicNumber(atomicNumber: int) -> str:
-    try:
-        element = elementList[atomicNumber - 1]
-    except ValueError:
-        msg = f"Could not determine element from atomic number {atomicNumber}"
-        raise ValueError(msg)
-    return element
-
-
-def getAtomicNumberFromElement(element: str) -> int:
-    try:
-        atomicNumber = elementList.index(element) + 1
-    except ValueError:
-        msg = f"Could not determine atomic number from element {element}"
-        raise ValueError()
-    return atomicNumber
+from utils import *
 
 
 class Atom:
@@ -68,7 +52,7 @@ class Atom:
         splitString = string.split()
         element = splitString[0].strip()
         atomicNumber = getAtomicNumberFromElement(element)
-        x, y, z = [float(field) for field in self._splitString[1:]]
+        x, y, z = [float(field) for field in splitString[1:]]
         isAngstrom = True  # Angstrom by default
         return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)
 
@@ -205,7 +189,33 @@ class Structure:
         """Get the lines of the file that created the structure"""
         return self._lines
 
-    def createBonds(self) -> list[Bond]:
+    def createAtoms(self, renderResolution="medium") -> None:
+        # Create a dictionary, with keys the atom element, and values a list of
+        # all positions of atoms with that element.
+        atomVertices = {}
+        for atom in self._atoms:
+            if atom.getElement() in atomVertices.keys():
+                atomVertices[atom.getElement()].append(atom.getPositionVector())
+            else:
+                atomVertices[atom.getElement()] = [atom.getPositionVector()]
+
+        # For each element, create a reference UV sphere at the origin
+        # Then, create a mesh with vertices at the positions and using vertex instancing,
+        # copy the UV sphere to each of the vertices.
+        for atomType in atomVertices.keys():
+            obj = createUVsphere(atomType, np.array([0, 0, 0]), renderResolution)
+            mat = create_material(atomType, manifest["atom_colors"][atomType])
+            obj.data.materials.append(mat)
+
+            createMeshAtoms(atomVertices[atomType], obj, atomType)
+
+        # This is an old, naive method where we create a lot more spheres
+        # for atom in atoms:
+        #    obj = createUVsphere(atom)
+        #    mat = create_material(atom.getElement(), manifest['atom_colors'][atom.getElement()])
+        #    obj.data.materials.append(mat)
+
+    def findBondsBasedOnDistance(self) -> list[Bond]:
         """Create bonds based on the geometry"""
         allAtomPositions = self.getAtomPositionVectors()
         allAtomElements = [atom.getElement() for atom in self._atoms]
@@ -230,30 +240,28 @@ class Structure:
             distSquared = dx * dx + dy * dy + dz * dz
             isBondedToCentral = np.nonzero(distSquared <= allowedBondLengthsSquared)[0]
             for atomIndex in isBondedToCentral:
-                # connectingIndices = [(a[0], a[1]) for a in bondTuples]
                 if atomIndex == i:
+                    # Do not allow atoms to bond to themselves
                     continue
-                if (i, atomIndex) not in connectingIndices and (
+                if (i, atomIndex) in connectingIndices or (
                     atomIndex,
                     i,
-                ) not in connectingIndices:
-                    bondMidpoint = (
-                        allAtomPositions[i] + allAtomPositions[atomIndex]
-                    ) / 2.0
-                    bondLength = distSquared[atomIndex] ** 0.5
-                    bondVector = allAtomPositions[i] - allAtomPositions[atomIndex]
-                    newBond = Bond(
-                        i,
-                        atomIndex,
-                        "".join(
-                            sorted(f"{centralElement}{allAtomElements[atomIndex]}")
-                        ),
-                        bondLength,
-                        bondVector,
-                        bondMidpoint,
-                    )
-                    connectingIndices.append((i, atomIndex))
-                    self._bonds.append(newBond)
+                ) in connectingIndices:
+                    # If this bond was already made, continue
+                    continue
+                bondMidpoint = (allAtomPositions[i] + allAtomPositions[atomIndex]) / 2.0
+                bondLength = distSquared[atomIndex] ** 0.5
+                bondVector = allAtomPositions[i] - allAtomPositions[atomIndex]
+                newBond = Bond(
+                    i,
+                    atomIndex,
+                    "".join(sorted(f"{centralElement}{allAtomElements[atomIndex]}")),
+                    bondLength,
+                    bondVector,
+                    bondMidpoint,
+                )
+                connectingIndices.append((i, atomIndex))
+                self._bonds.append(newBond)
 
     def generateBondOrderBond(
         self,
@@ -305,7 +313,7 @@ class Structure:
         )
         return COM
 
-    def setCOMto(self, newCOMposition):
+    def setCenterOfMass(self, newCOMposition):
         """Set the center of mass of the whole system to a new position"""
         COM = self.getCenterOfMass()
         for atom in self._atoms:
@@ -321,6 +329,28 @@ class Structure:
             atom.setPositionVector(atom.getPositionVector() - averagePosition)
         self._displacements.append(-averagePosition)
 
+    def getTotalCharge(self) -> int:
+        """Get the total charge in the system"""
+        charges = (atom.getCharge() for atom in self._atoms)
+        print(list(charges))
+        if not all(
+            isinstance(charge, int) or isinstance(charge, float) for charge in charges
+        ):
+            msg = "The charges of atoms are not all of type 'int' or 'float'"
+            raise ValueError(msg)
+        totalCharge = int(sum(charges))
+        return totalCharge
+
+    def getAmountOfElectrons(self) -> int:
+        """Get the total amount of electrons in the system"""
+        totalElectronsIfNeutral = sum(atom.getAtomicNumber() for atom in self._atoms)
+        totalElectrons = totalElectronsIfNeutral - self.getTotalCharge()
+        return totalElectrons
+
+    def isRadical(self) -> bool:
+        """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
+        return self.getAmountOfElectrons() % 2 != 0
+
 
 class CUBEfile(Structure):
     def __init__(self, filepath):
@@ -335,6 +365,7 @@ class CUBEfile(Structure):
 
         for i in range(self._nAtoms):
             self._atoms[i] = Atom.fromCUBE(self._lines[6 + i].strip())
+            print(self._lines[6 + i], self._atoms[i].getCharge())
 
             self._atoms[i].positionBohrToAngstrom()
 
@@ -356,17 +387,35 @@ class CUBEfile(Structure):
             )
             * BOHR_TO_ANGSTROM
         )
+        if np.all(
+            np.diag(np.diagonal(self._volumetricAxisVectors))
+            != self._volumetricAxisVectors
+        ):
+            warning = "WARNING: Volumetric data axis vectors are not diagonal. Not sure if this works"
+            warning += f" Volumetric data axis vectors:\n{self._volumetricAxisVectors}"
+            print(warning)
 
-        volumetricLines = " ".join(
-            line.strip() for line in self._lines[6 + self._nAtoms :]
-        ).split()
+        self._volumetricData = np.fromiter(
+            (
+                float(num)
+                for line in self._lines[6 + self._nAtoms :]
+                for num in line.split()
+            ),
+            dtype=np.float32,
+            count=-1,
+        ).reshape((self._NX, self._NY, self._NZ))
 
-        self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))
-        for ix in range(self._NX):
-            for iy in range(self._NY):
-                for iz in range(self._NZ):
-                    dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz
-                    self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])
+        # Old, much slower way to read the data.
+        # volumetricLines = " ".join(
+        #     line.strip() for line in self._lines[6 + self._nAtoms :]
+        # ).split()
+
+        # self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))
+        # for ix in range(self._NX):
+        #     for iy in range(self._NY):
+        #         for iz in range(self._NZ):
+        #             dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz
+        #             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])
 
     def getVolumetricOriginVector(self) -> np.ndarray[float]:
         """Get the origin vector of the volumetric data"""
@@ -407,20 +456,39 @@ class CUBEfile(Structure):
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
-    def getTotalCharge(self) -> int:
-        """Get the total charge in the system"""
-        totalCharge = int(sum(atom.getCharge() for atom in self._atoms))
-        return totalCharge
+    def calculateIsosurface(self, isovalue) -> tuple[np.ndarray, np.ndarray, int]:
+        from skimage.measure import marching_cubes
 
-    def getAmountOfElectrons(self) -> int:
-        """Get the total amount of electrons in the system"""
-        totalElectronsIfNeutral = sum(atom.getAtomicNumber() for atom in self._atoms)
-        totalElectrons = totalElectronsIfNeutral - self.getTotalCharge()
-        return totalElectrons
+        """Write the volumetric data to a filepath"""
+        if isovalue <= np.min(self._volumetricData):
+            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty PLY. Set a larger isovalue."
+            raise ValueError(msg)
+        if isovalue >= np.max(self._volumetricData):
+            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty PLY. Set a smaller isovalue."
+            raise ValueError(msg)
 
-    def isRadical(self) -> bool:
-        """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
-        return self.getAmountOfElectrons() % 2 != 0
+        pytessel = PyTessel()
+
+        unitCell = self._volumetricAxisVectors * self._volumetricData.shape
+
+        # Flatten the volumetric data such that X is the fastest moving index, according to the PyTessel documentation.
+        # vertices, normals, indices = pytessel.marching_cubes(
+        #     self._volumetricData.flatten(order="F"),
+        #     reversed(self._volumetricData.shape),
+        #     unitCell.flatten(),
+        #     isovalue,
+        # )
+
+        vertices, faces, normals, values = marching_cubes(
+            self._volumetricData,
+            level=isovalue,
+            spacing=np.diag(self._volumetricAxisVectors),
+        )
+
+        vertices += self._volumetricOriginVector
+        for displacement in self._displacements:
+            vertices += displacement
+        return vertices, faces, normals, values
 
 
 class XYZfile(Structure):
@@ -433,7 +501,7 @@ class XYZfile(Structure):
         self._atoms = [0] * self._nAtoms
 
         for i in range(self._nAtoms):
-            self._atoms[i] = Atom.fromXYZ(self._lines[2:])
+            self._atoms[i] = Atom.fromXYZ(self._lines[2 + i])
 
         self._displacements = []
         self._bonds = []

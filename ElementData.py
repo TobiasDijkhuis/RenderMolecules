@@ -1,3 +1,21 @@
+def getElementFromAtomicNumber(atomicNumber: int) -> str:
+    try:
+        element = elementList[atomicNumber - 1]
+    except ValueError:
+        msg = f"Could not determine element from atomic number {atomicNumber}"
+        raise ValueError(msg)
+    return element
+
+
+def getAtomicNumberFromElement(element: str) -> int:
+    try:
+        atomicNumber = elementList.index(element) + 1
+    except ValueError:
+        msg = f"Could not determine atomic number from element {element}"
+        raise ValueError()
+    return atomicNumber
+
+
 elementList = [
     "H",
     "He",
@@ -22,15 +40,34 @@ elementList = [
     "Sc",
 ]
 
+# manifest that contains atomic information
+OColor = "FF0000"
+HColor = "DDDDDD"
+NColor = "0000FF"
+manifest = {
+    "atom_colors": {
+        "C": "333333",
+        "H": HColor,
+        "O": OColor,
+        "N": NColor,
+    },
+    "bond_thickness": 0.2,
+    "bond_color": "4444444",
+    "hbond_color": "777777",
+    "hbond_thickness": 0.065,
+    "hbond_distance": 3.5,
+    "hbond_angle": 30,
+}
+
 elementMass = [
-    1.008,
+    1,
     4,
     7,
     9,
     11,
-    12.01,
-    14.007,
-    16.00,
+    12,
+    14,
+    16,
     19,
     20,
     23,
@@ -73,19 +110,19 @@ vdwRadii = [
 
 # Bond lengths in Angstrom
 bondLengths = {
-    "HO": 2.0,
-    "CO": 2.0,
-    "CH": 2.0,
-    "OO": 2.0,
-    "HH": 0.75,
+    "HO": 1.5,
+    "CO": 1.5,
+    "CH": 1.5,
+    "OO": 1.5,
+    "HH": 1.2,
     "NN": 1.5,
-    "HN": 1.0,
+    "HN": 1.5,
     "CN": 1.5,
     "CC": 1.5,
 }
-hydrogenBondLength = 3.5
-hydrogenBondAngle = 35
-sphereScale = 0.2
+hydrogenBondLength = 3.5  # Maximum hydrogen bond length is 3.5 Angstrom
+hydrogenBondAngle = 35  # Maximum hydrogen bond angle is 35 degrees
+sphereScale = 0.3  # Created atoms have a radius of 0.3*r_VDW
 
 BOHR_TO_ANGSTROM = 0.5291177249
 ANGSTROM_TO_BOHR = 1 / BOHR_TO_ANGSTROM
