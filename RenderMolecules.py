@@ -351,6 +351,25 @@ class Structure:
         """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
         return self.getAmountOfElectrons() % 2 != 0
 
+    def rotateAroundX(self, angle):
+        self.rotateAroundAxis([1, 0, 0], angle)
+
+    def rotateAroundY(self, angle):
+        self.rotateAroundAxis([0, 1, 0], angle)
+    
+    def rotateAroundZ(self, angle):
+        self.rotateAroundAxis([0, 0, 1], angle)
+    
+    def rotateAroundAxis(self, axis, angle):
+        rotMatrix = rotation_matrix(axis, angle)
+
+        for atom in self._atoms:
+            currentPos = atom.getPositionVector()
+            rotatedPos = np.dot(rotMatrix, currentPos)
+            atom.setPositionVector(rotatedPos)
+
+
+
 
 class CUBEfile(Structure):
     def __init__(self, filepath):
