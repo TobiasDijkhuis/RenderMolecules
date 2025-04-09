@@ -5,7 +5,6 @@ from copy import deepcopy
 
 import bpy
 import numpy as np
-from pytessel import PyTessel
 
 from ElementData import *
 from utils import *
@@ -431,6 +430,8 @@ class CUBEfile(Structure):
 
     def writePLY(self, filepath, isovalue) -> None:
         """Write the volumetric data to a filepath"""
+        from pytessel import PyTessel
+
         if isovalue <= np.min(self._volumetricData):
             msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty PLY. Set a larger isovalue."
             raise ValueError(msg)
@@ -495,14 +496,46 @@ class XYZfile(Structure):
         self._bonds = []
 
 
+class ORCAgeomOptFile(Structure):
+    def __init__(self, filepath):
+        self._filepath = filepath
+        with open(self._filepath, "r") as file:
+            self._lines = file.readlines()
+
+        finalEnergyEvaluationLine = 0
+        cartesianCoordStart = 0
+        for i, line in enumerate(self._lines):
+            if "*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***" in line:
+                finalEnergyEvaluationLine = i
+            elif (
+                "CARTESIAN COORDINATES (ANGSTROEM)" in line
+                and not finalEnergyEvaluationLine == 0
+            ):
+                cartesianCoordStart = i + 2
+            elif "CARTESIAN COORDINATES (A.U.)" in line and cartesianCoordStart != 0:
+                cartesianCoordEnd = i - 2
+        cartesianCoordLines = self._lines[cartesianCoordStart:cartesianCoordEnd]
+
+        self._nAtoms = len(cartesianCoordLines)
+        self._atoms = [0] * self._nAtoms
+
+        for i in range(self._nAtoms):
+            self._atoms[i] = Atom.fromXYZ(cartesianCoordLines[i])
+
+        self._displacements = []
+        self._bonds = []
+
+
 if __name__ == "__main__":
-    CUBEfilepath = "H2C3N_B3LYP-D4_spindensity.cube"
+    # CUBEfilepath = "H2C3N_B3LYP-D4_spindensity.cube"
     # CUBEfilepath = "H2O_elf.cube"
     # CUBEfilepath = "hexazine.cube"
-    CUBEfilepath_noext = os.path.splitext(CUBEfilepath)[0]
+    # CUBEfilepath_noext = os.path.splitext(CUBEfilepath)[0]
 
-    CUBE = CUBEfile(CUBEfilepath)
-    CUBE.setCOMto(np.array([0, 0, 0]))
-    CUBE.readVolumetricData()
-    value = 0.02
-    CUBE.writePLY(f"{CUBEfilepath_noext}_{value}.ply", value)
+    # CUBE = CUBEfile(CUBEfilepath)
+    # CUBE.setCOMto(np.array([0, 0, 0]))
+    # CUBE.readVolumetricData()
+    # value = 0.02
+    # CUBE.writePLY(f"{CUBEfilepath_noext}_{value}.ply", value)
+
+    ORCAfile = ORCAgeomOptFile("041.log")
