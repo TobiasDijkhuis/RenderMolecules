@@ -1,6 +1,8 @@
 import bpy
 import numpy as np
 
+import math
+
 from ElementData import *
 
 
@@ -53,7 +55,7 @@ def createUVsphere(element, position, resolution="medium"):
     obj = bpy.context.view_layer.objects.active
 
     obj.name = "atom-%s" % (element)
-    bpy.ops.object.shade_auto_smooth()
+    try_autosmooth()
     return obj
 
 
@@ -177,3 +179,28 @@ def assignIsosurfaceMaterialBasedOnSign(isosurfaceObj, isovalue):
         # Positive lobe material
         mat = create_material("Positive Lobe", "53B9FF", alpha=0.5)
         isosurfaceObj.data.materials.append(mat)
+
+def rotation_matrix(axis, theta):
+    """
+    Return the rotation matrix associated with counterclockwise rotation about
+    the given axis by theta degrees.
+    """
+    theta *= math.pi / 180.
+    axis = np.asarray(axis)
+    axis = axis / math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta / 2.0)
+    b, c, d = -axis * math.sin(theta / 2.0)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+
+def try_autosmooth():
+    try:
+        bpy.ops.object.shade_auto_smooth()
+    except AttributeError:
+        msg = "AttributeError was raised because of shade_auto_smooth. This could be due to an old version of Blender.\n"
+        msg += "Skipping smoothing. Can be applied manually."
+        print(msg)
+        pass

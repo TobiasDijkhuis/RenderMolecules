@@ -2,3 +2,4 @@
 *.ply
 *.cube
 
+__pycache__/

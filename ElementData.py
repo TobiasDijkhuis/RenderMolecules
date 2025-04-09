@@ -120,6 +120,7 @@ bondLengths = {
     "CN": 1.5,
     "CC": 1.5,
 }
+
 hydrogenBondLength = 3.5  # Maximum hydrogen bond length is 3.5 Angstrom
 hydrogenBondAngle = 35  # Maximum hydrogen bond angle is 35 degrees
 sphereScale = 0.3  # Created atoms have a radius of 0.3*r_VDW
