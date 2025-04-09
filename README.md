@@ -3,7 +3,7 @@ Easily import molecules from various filetypes, and render them in Blender.
 
 ## Supported filetypes:
  - XYZ (using XYZfile class)
- - CUBE (using XYZfile class)
+ - CUBE (using CUBEfile class)
  - ...
 
 ## Periodic Boundary Conditions:
