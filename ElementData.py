@@ -54,7 +54,7 @@ manifest = {
     "bond_thickness": 0.2,
     "bond_color": "4444444",
     "hbond_color": "777777",
-    "hbond_thickness": 0.065,
+    "hbond_thickness": 0.035,
     "hbond_distance": 3.5,
     "hbond_angle": 30,
 }
@@ -119,6 +119,7 @@ bondLengths = {
     "HN": 1.5,
     "CN": 1.5,
     "CC": 1.5,
+    "NO": 1.5,
 }
 
 hydrogenBondLength = 3.5  # Maximum hydrogen bond length is 3.5 Angstrom

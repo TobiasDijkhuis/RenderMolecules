@@ -1,3 +1,4 @@
+from __future__ import annotations
 import math
 import os
 import sys
@@ -109,6 +110,17 @@ class Atom:
     def __str__(self):
         return f"Atom with atomic number {self._atomicNumber} at position {self._positionVector}"
 
+    def findBoundAtoms(self, structure: Structure) -> list[int]:
+        boundAtomIndeces = []
+        for i, bond in enumerate(structure.getBonds()):
+            atom1Pos = bond.getAtom1Pos()
+            atom2Pos = bond.getAtom2Pos()
+            if np.all(self._positionVector == atom1Pos):
+                boundAtomIndeces.append(bond.getAtom2Index())
+            elif np.all(self._positionVector == atom2Pos):
+                boundAtomIndeces.append(bond.getAtom1Index())
+        return boundAtomIndeces
+
 
 class Bond:
     def __init__(
@@ -119,12 +131,15 @@ class Bond:
         bondLength,
         interatomicVector,
         midpointPosition,
+        atom1and2Pos,
     ):
         self._atom1Index, self._atom2Index = atom1Index, atom2Index
         self._bondType = bondType
         self._bondLength = bondLength
         self._interatomicVector = interatomicVector
         self._midpointPosition = midpointPosition
+        self._atom1Pos = atom1and2Pos[0]
+        self._atom2Pos = atom1and2Pos[1]
 
     def getAtom1Index(self) -> int:
         """Get the index of the first atom that is connected to this bond"""
@@ -157,6 +172,12 @@ class Bond:
     def getDirection(self) -> np.ndarray[float]:
         """Get the unit vector in the direction of the bond"""
         return self._interatomicVector / self._bondLength
+
+    def getAtom1Pos(self) -> np.ndarray[float]:
+        return self._atom1Pos
+
+    def getAtom2Pos(self) -> np.ndarray[float]:
+        return self._atom2Pos
 
     def getAxisAngleWithZaxis(self) -> tuple[float, float, float, float]:
         """Get the axis angle such that a created cylinder in the direction of the bond"""
@@ -258,6 +279,10 @@ class Structure:
                     bondLength,
                     bondVector,
                     bondMidpoint,
+                    (
+                        atom.getPositionVector(),
+                        self._atoms[atomIndex].getPositionVector(),
+                    ),
                 )
                 connectingIndices.append((i, atomIndex))
                 self._bonds.append(newBond)
@@ -355,10 +380,10 @@ class Structure:
 
     def rotateAroundY(self, angle):
         self.rotateAroundAxis([0, 1, 0], angle)
-    
+
     def rotateAroundZ(self, angle):
         self.rotateAroundAxis([0, 0, 1], angle)
-    
+
     def rotateAroundAxis(self, axis, angle):
         rotMatrix = rotation_matrix(axis, angle)
 
@@ -367,7 +392,123 @@ class Structure:
             rotatedPos = np.dot(rotMatrix, currentPos)
             atom.setPositionVector(rotatedPos)
 
+    def createHydrogenBonds(self):
+        """Adds hydrogen bonds to each molecule"""
+        hbondFormingElements = ["H", "O", "N"]
+        atoms = self._atoms
 
+        z = np.array([0, 0, 1])
+
+        hbondingCurves = []
+        for i, at1 in enumerate(atoms):
+            if at1.getElement() not in hbondFormingElements:
+                # If the atom is a C, it can not form a hydrogen bond (in our system at least), so skip
+                continue
+            r1 = at1.getPositionVector()
+            atom1BoundIndeces = at1.findBoundAtoms(self)
+            for j, at2 in enumerate(atoms):
+                if i == j:  # Skip same atom
+                    continue
+                if j in atom1BoundIndeces:  # If j is bound to i, skip
+                    continue
+                if (
+                    at2.getElement() not in hbondFormingElements
+                ):  # Skip if atom 2 cannot form hydrogen bonds
+                    continue
+                if (
+                    at1.getElement() == at2.getElement()
+                ):  # OO, HH or NN cannot form hydrogen bonds.
+                    continue
+                if at1.getElement() in ["C", "O", "N"] and at2.getElement() in [
+                    "C",
+                    "O",
+                    "N",
+                ]:
+                    # Assume that a C, N or O atom cannot form a hydrogen bond to another C, N or O atom
+                    continue
+                r2 = at2.getPositionVector()
+
+                dist = np.linalg.norm(r2 - r1)
+                if dist > manifest["hbond_distance"]:
+                    continue
+
+                atom2BoundIndeces = at2.findBoundAtoms(self)
+
+                if at2.getElement() == "H":
+                    # Use some boolean arithmetic to find the position of the O/C/N that the H is bonded to
+                    bondedAtomPosition = atoms[atom2BoundIndeces[0]].getPositionVector()
+
+                    # Calculate intramolecular vector
+                    intramolOwHw = bondedAtomPosition - r2
+                elif at1.getElement() == "H":
+                    bondedAtomPosition = atoms[atom1BoundIndeces[0]].getPositionVector()
+
+                    # Calculate intramolecular vector
+                    intramolOwHw = bondedAtomPosition - r1
+                else:
+                    raise NotImplementedError()
+
+                angle = angle_between(intramolOwHw, r2 - r1)
+
+                # create a hydrogen bond when the interatomic distance and O-H----O angle are less than the specified threshold value
+                if np.abs(angle) > 180 - manifest["hbond_angle"]:
+                    axis = np.cross(z, r2 - r1)
+                    if np.linalg.norm(axis) < 1e-5:
+                        axis = np.array([0, 0, 1])
+                        angle = 0.0
+                    else:
+                        axis /= np.linalg.norm(axis)
+                        angle = np.arccos(np.dot(r2 - r1, z) / dist)
+
+                    bpy.ops.curve.primitive_nurbs_path_add(
+                        enter_editmode=False,
+                        align="WORLD",
+                        location=tuple((r1 + 0.35 * r2) / 1.35),
+                    )
+
+                    obj = bpy.context.view_layer.objects.active
+                    obj.scale = (
+                        manifest["hbond_thickness"],
+                        manifest["hbond_thickness"],
+                        dist * 2.2,
+                    )
+                    obj.rotation_mode = "AXIS_ANGLE"
+                    obj.rotation_axis_angle = (angle, axis[0], axis[1], axis[2])
+
+                    obj.name = "Hbond-%s-%03i-%s-%03i" % (
+                        at1.getElement(),
+                        i,
+                        at2.getElement(),
+                        j,
+                    )
+                    hbondingCurves.append(obj)
+
+        mathbond = create_material("H-bond", manifest["hbond_color"])
+
+        for o in hbondingCurves:
+            rot_axis = o.rotation_axis_angle
+            bpy.ops.surface.primitive_nurbs_surface_cylinder_add(
+                enter_editmode=False,
+                align="WORLD",
+                location=o.location,
+            )
+            obj = bpy.context.view_layer.objects.active
+            obj.name = "Hbond_cyl"
+
+            obj.scale = (manifest["hbond_thickness"], manifest["hbond_thickness"], 0.1)
+            obj.data.materials.append(mathbond)
+
+            obj.rotation_mode = "AXIS_ANGLE"
+            obj.rotation_axis_angle = rot_axis
+
+            mod = obj.modifiers.new(name="FollowCurve", type="ARRAY")
+            bpy.context.object.modifiers["FollowCurve"].fit_type = "FIT_CURVE"
+            bpy.context.object.modifiers["FollowCurve"].curve = o
+            bpy.context.object.modifiers["FollowCurve"].relative_offset_displace[0] = 0
+            bpy.context.object.modifiers["FollowCurve"].relative_offset_displace[1] = 0
+            bpy.context.object.modifiers["FollowCurve"].relative_offset_displace[2] = (
+                1.3
+            )
 
 
 class CUBEfile(Structure):
