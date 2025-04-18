@@ -345,3 +345,19 @@ def translateObject(object, displacementVector):
     location.x += displacementVector[0]
     location.y += displacementVector[1]
     location.z += displacementVector[2]
+
+
+def createCylinder(location, angle, thickness, length):
+    scale = (thickness, thickness, length)
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=128,
+        enter_editmode=False,
+        align="WORLD",
+        location=location,
+        scale=scale,
+    )
+    obj = bpy.context.view_layer.objects.active
+    obj.rotation_mode = "AXIS_ANGLE"
+    obj.rotation_axis_angle = angle
+    try_autosmooth()
+    return obj

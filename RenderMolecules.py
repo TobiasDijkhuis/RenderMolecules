@@ -206,9 +206,14 @@ class Bond:
 
 
 class Structure:
-    def __init__(self, atomList: list[Atom]):
+    def __init__(self, atomList: list[Atom], bonds: list[Bond] | None = None):
         self._nAtoms = len(atomList)
         self._atoms = atomList
+
+        if bonds is None:
+            self._bonds = []
+        else:
+            self._bonds = bonds
 
     def getAtoms(self) -> list[Atom]:
         """Get a list of all atoms in the structure"""
@@ -311,6 +316,7 @@ class Structure:
                 )
                 connectingIndices.append((i, atomIndex))
                 self._bonds.append(newBond)
+        return self._bonds
 
     def generateBondOrderBond(
         self,
@@ -535,6 +541,81 @@ class Structure:
                 1.3
             )
 
+    def createBonds(self, bonds: list[Bond], splitBondToAtomMaterials=True):
+        allAtomElements = [atom.getElement() for atom in self._atoms]
+        allAtomVdWRadii = [atom.getVdWRadius() for atom in self._atoms]
+
+        for bond in bonds:
+            direction = bond.getDirection()
+            axisAngleWithZ = bond.getAxisAngleWithZaxis()
+            bondLength = bond.getBondLength()
+            bondMidpoint = bond.getMidpointPosition()
+
+            if splitBondToAtomMaterials:
+                # We will move the two cylinders according to their vdw radii, such that each atom
+                # has about the same of its material shown in the bond. This means that for, e.g.
+                # an O-H bond, the cylinder closer to O will move less than the cylinder closer to H
+                atom1Index = bond.getAtom1Index()
+                atom1Element = allAtomElements[atom1Index]
+
+                atom2Index = bond.getAtom2Index()
+                atom2Element = allAtomElements[atom2Index]
+
+                if atom1Element == atom2Element:
+                    mat1 = create_material(
+                        atom1Element, manifest["atom_colors"][atom1Element]
+                    )
+                    obj = createCylinder(
+                        bondMidpoint,
+                        axisAngleWithZ,
+                        manifest["bond_thickness"],
+                        bondLength / 4,
+                    )
+                    obj.data.materials.append(mat1)
+                    continue
+
+                VdWRadius1 = allAtomVdWRadii[atom1Index]
+                VdWRadius2 = allAtomVdWRadii[atom2Index]
+                sumVdWRadius = VdWRadius1 + VdWRadius2
+                fractionVdWRadius1 = VdWRadius1 / sumVdWRadius
+                fractionVdWRadius2 = VdWRadius2 / sumVdWRadius
+
+                # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
+                # from the midpoint) will be the one closest to the atom with the higher index.
+                # So, we take the element and material from that one, and assign it to the first cylinder.
+                mat2 = create_material(
+                    atom2Element, manifest["atom_colors"][atom2Element]
+                )
+
+                # First cylinder
+                obj = createCylinder(
+                    bondMidpoint - direction * bondLength / (2 / fractionVdWRadius1),
+                    axisAngleWithZ,
+                    manifest["bond_thickness"],
+                    bondLength / 4,
+                )
+                obj.data.materials.append(mat2)
+
+                mat1 = create_material(
+                    atom1Element, manifest["atom_colors"][atom1Element]
+                )
+
+                # First cylinder
+                obj = createCylinder(
+                    bondMidpoint + direction * bondLength / (2 / fractionVdWRadius2),
+                    axisAngleWithZ,
+                    manifest["bond_thickness"],
+                    bondLength / 4,
+                )
+                obj.data.materials.append(mat1)
+            else:
+                obj = createCylinder(
+                    bondMidpoint,
+                    axisAngleWithZ,
+                    manifest["bond_thickness"],
+                    bondLength / 2,
+                )
+
 
 class CUBEfile(Structure):
     def __init__(self, filepath):
@@ -748,6 +829,10 @@ class Trajectory:
         initialFrame = self._frames[0]
 
         initialFrame.createAtoms(createMesh=False)
+
+        bonds = initialFrame.findBondsBasedOnDistance()
+        initialFrame.createBonds(bonds)
+
         previousPositions = initialFrame.getAllAtomPositions()
 
         allAtomElements = [atom.getElement() for atom in initialFrame.getAtoms()]
@@ -810,6 +895,77 @@ class ORCAgeomOptFile(Trajectory):
             for j in range(_nAtoms):
                 _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
             self._frames[i] = Structure(_atoms)
+
+
+def createBondsInScene(
+    bonds: list[Bond], structure: Structure, splitBondToAtomMaterials=True
+):
+    allAtomElements = [atom.getElement() for atom in structure.getAtoms()]
+    allAtomVdWRadii = [atom.getVdWRadius() for atom in structure.getAtoms()]
+
+    for bond in bonds:
+        direction = bond.getDirection()
+        axisAngleWithZ = bond.getAxisAngleWithZaxis()
+        bondLength = bond.getBondLength()
+        bondMidpoint = bond.getMidpointPosition()
+
+        if splitBondToAtomMaterials:
+            # We will move the two cylinders according to their vdw radii, such that each atom
+            # has about the same of its material shown in the bond. This means that for, e.g.
+            # an O-H bond, the cylinder closer to O will move less than the cylinder closer to H
+            atom1Index = bond.getAtom1Index()
+            atom1Element = allAtomElements[atom1Index]
+
+            atom2Index = bond.getAtom2Index()
+            atom2Element = allAtomElements[atom2Index]
+
+            if atom1Element == atom2Element:
+                mat1 = create_material(
+                    atom1Element, manifest["atom_colors"][atom1Element]
+                )
+                obj = createCylinder(
+                    bondMidpoint,
+                    axisAngleWithZ,
+                    manifest["bond_thickness"],
+                    bondLength / 4,
+                )
+                obj.data.materials.append(mat1)
+                continue
+
+            VdWRadius1 = allAtomVdWRadii[atom1Index]
+            VdWRadius2 = allAtomVdWRadii[atom2Index]
+            sumVdWRadius = VdWRadius1 + VdWRadius2
+            fractionVdWRadius1 = VdWRadius1 / sumVdWRadius
+            fractionVdWRadius2 = VdWRadius2 / sumVdWRadius
+
+            # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
+            # from the midpoint) will be the one closest to the atom with the higher index.
+            # So, we take the element and material from that one, and assign it to the first cylinder.
+            mat2 = create_material(atom2Element, manifest["atom_colors"][atom2Element])
+
+            # First cylinder
+            obj = createCylinder(
+                bondMidpoint - direction * bondLength / (2 / fractionVdWRadius1),
+                axisAngleWithZ,
+                manifest["bond_thickness"],
+                bondLength / 4,
+            )
+            obj.data.materials.append(mat2)
+
+            mat1 = create_material(atom1Element, manifest["atom_colors"][atom1Element])
+
+            # First cylinder
+            obj = createCylinder(
+                bondMidpoint + direction * bondLength / (2 / fractionVdWRadius2),
+                axisAngleWithZ,
+                manifest["bond_thickness"],
+                bondLength / 4,
+            )
+            obj.data.materials.append(mat1)
+        else:
+            obj = createCylinder(
+                bondMidpoint, axisAngleWithZ, manifest["bond_thickness"], bondLength / 2
+            )
 
 
 if __name__ == "__main__":
