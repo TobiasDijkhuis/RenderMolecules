@@ -221,7 +221,21 @@ class Structure:
         """Get the lines of the file that created the structure"""
         return self._lines
 
-    def createAtoms(self, renderResolution="medium") -> None:
+    def createAtoms(self, renderResolution="medium", createMesh=True) -> None:
+        if not createMesh:
+            # This is an old, naive method where we create a lot more spheres
+            for atom in self._atoms:
+                obj = createUVsphere(
+                    atom.getElement(),
+                    atom.getPositionVector(),
+                    resolution=renderResolution,
+                )
+                mat = create_material(
+                    atom.getElement(), manifest["atom_colors"][atom.getElement()]
+                )
+                obj.data.materials.append(mat)
+            return
+
         # Create a dictionary, with keys the atom element, and values a list of
         # all positions of atoms with that element.
         atomVertices = {}
@@ -240,12 +254,6 @@ class Structure:
             obj.data.materials.append(mat)
 
             createMeshAtoms(atomVertices[atomType], obj, atomType)
-
-        # This is an old, naive method where we create a lot more spheres
-        # for atom in atoms:
-        #    obj = createUVsphere(atom)
-        #    mat = create_material(atom.getElement(), manifest['atom_colors'][atom.getElement()])
-        #    obj.data.materials.append(mat)
 
     def findBondsBasedOnDistance(self) -> list[Bond]:
         """Create bonds based on the geometry"""
