@@ -52,6 +52,7 @@ class Atom:
     def fromXYZ(cls, string: str):
         """Create Atom instance from a line in an XYZ file"""
         splitString = string.split()
+        print(splitString)
         element = splitString[0].strip()
         atomicNumber = getAtomicNumberFromElement(element)
         x, y, z = [float(field) for field in splitString[1:]]
@@ -117,7 +118,7 @@ class Atom:
         return self._vdwRadius
 
     def __repr__(self):
-        return f"Atom('{self._string}')"
+        return self.__str__()
 
     def __str__(self):
         return f"Atom with atomic number {self._atomicNumber} at position {self._positionVector}"
@@ -205,13 +206,17 @@ class Bond:
 
 
 class Structure:
+    def __init__(self, atomList: list[Atom]):
+        self._nAtoms = len(atomList)
+        self._atoms = atomList
+
     def getAtoms(self) -> list[Atom]:
         """Get a list of all atoms in the structure"""
         return self._atoms
 
-    def getAtomPositionVectors(self) -> list[np.ndarray]:
+    def getAllAtomPositions(self) -> list[np.ndarray]:
         """Get a list of all atom positions"""
-        return [atom.getPositionVector() for atom in self._atoms]
+        return np.array([atom.getPositionVector() for atom in self._atoms])
 
     def getFilepath(self) -> str:
         """Get the filepath of the file that created the structure"""
@@ -257,7 +262,7 @@ class Structure:
 
     def findBondsBasedOnDistance(self) -> list[Bond]:
         """Create bonds based on the geometry"""
-        allAtomPositions = self.getAtomPositionVectors()
+        allAtomPositions = self.getAllAtomPositions()
         allAtomElements = [atom.getElement() for atom in self._atoms]
         allAtomPositionsTuples = (
             np.array([v[0] for v in allAtomPositions]),
@@ -351,7 +356,7 @@ class Structure:
     def getCenterOfMass(self) -> np.ndarray[float]:
         """Get the center of mass position"""
         masses = np.array([atom.getMass() for atom in self._atoms])
-        atomPositions = self.getAtomPositionVectors()
+        atomPositions = self.getAllAtomPositions()
         COM = np.array(
             sum(masses[i] * atomPositions[i] for i in range(self._nAtoms)) / sum(masses)
         )
@@ -726,45 +731,85 @@ class Trajectory:
     def get_nframes(self) -> int:
         return self._nframes
 
-    def createAnimation(self) -> None:
+    def setCenterOfMass(self, newCOMposition, frameIndex=0):
+        originalCOM = self._frames[frameIndex].getCenterOfMass()
+        displacement = newCOMposition - originalCOM
+
         for frame in self._frames:
-            # How to maybe do this?
-            # https://github.com/durrantlab/pyrite/blob/Pyrite_1_1_1/TrajectoryProcessing.py
-            # Render each frame, and create keyframes
-            pass
+            for atom in frame.getAtoms():
+                newPosition = atom.getPositionVector() + displacement
+                atom.setPositionVector(newPosition)
+
+    def createAnimation(self) -> None:
+        frame_step = 10
+        bpy.context.scene.frame_step = frame_step
+        bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
+
+        initialFrame = self._frames[0]
+
+        initialFrame.createAtoms(createMesh=False)
+        previousPositions = initialFrame.getAllAtomPositions()
+
+        allAtomElements = [atom.getElement() for atom in initialFrame.getAtoms()]
+        allElementIndeces = [
+            allAtomElements[:i].count(allAtomElements[i])
+            for i in range(len(allAtomElements))
+        ]
+
+        for i, frame in enumerate(self._frames):
+            currentFrameNr = 1 + i * frame_step
+            currentPositions = frame.getAllAtomPositions()
+            displacements = currentPositions - previousPositions
+
+            previousPositions = currentPositions
+
+            for j, atom in enumerate(frame.getAtoms()):
+                objectName = f"atom-{allAtomElements[j]}"
+                if allElementIndeces[j] > 0:
+                    objectName += "." + str(allElementIndeces[j]).rjust(3, "0")
+
+                # Select UV sphere with correct name
+                obj = getObjectByName(objectName)
+
+                translateObject(obj, displacements[j])
+
+                obj.keyframe_insert(data_path="location", frame=currentFrameNr)
 
     def get_frame(self, frameIndex) -> Structure:
         return self._frames[frameIndex]
 
 
-class ORCAgeomOptFile(Structure):
+class ORCAgeomOptFile(Trajectory):
     def __init__(self, filepath):
         self._filepath = filepath
         with open(self._filepath, "r") as file:
             self._lines = file.readlines()
 
-        finalEnergyEvaluationLine = 0
-        cartesianCoordStart = 0
-        for i, line in enumerate(self._lines):
-            if "*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***" in line:
-                finalEnergyEvaluationLine = i
-            elif (
-                "CARTESIAN COORDINATES (ANGSTROEM)" in line
-                and not finalEnergyEvaluationLine == 0
-            ):
-                cartesianCoordStart = i + 2
-            elif "CARTESIAN COORDINATES (A.U.)" in line and cartesianCoordStart != 0:
-                cartesianCoordEnd = i - 2
-        cartesianCoordLines = self._lines[cartesianCoordStart:cartesianCoordEnd]
+        beginStructure = findAllStringInListOfStrings(
+            "CARTESIAN COORDINATES (ANGSTROEM)", self._lines
+        )
+        beginStructure = [beginIndex + 2 for beginIndex in beginStructure]
 
-        self._nAtoms = len(cartesianCoordLines)
-        self._atoms = [0] * self._nAtoms
+        endStructure = findAllStringInListOfStrings(
+            "CARTESIAN COORDINATES (A.U.)", self._lines
+        )
+        endStructure = [endIndex - 2 for endIndex in endStructure]
 
-        for i in range(self._nAtoms):
-            self._atoms[i] = Atom.fromXYZ(cartesianCoordLines[i])
+        self._nframes = len(endStructure)
+        structureLines = [
+            (beginStructure[i], endStructure[i]) for i in range(self._nframes)
+        ]
 
-        self._displacements = []
-        self._bonds = []
+        self._frames = [0] * self._nframes
+        for i, structureTuple in enumerate(structureLines):
+            cartesianCoordLines = self._lines[structureTuple[0] : structureTuple[1]]
+            print(cartesianCoordLines)
+
+            _nAtoms = len(cartesianCoordLines)
+            _atoms = [0] * _nAtoms
+            for j in range(_nAtoms):
+                _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
+            self._frames[i] = Structure(_atoms)
 
 
 if __name__ == "__main__":
