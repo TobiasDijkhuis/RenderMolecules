@@ -151,10 +151,8 @@ def createIsosurface(verts, faces, prefix, isovalue, assignMaterialBasedOnSign=T
     scene = bpy.context.scene
     scene.collection.objects.link(obj)
 
-    if not assignMaterialBasedOnSign:
-        return
-
-    assignIsosurfaceMaterialBasedOnSign(obj, isovalue)
+    if assignMaterialBasedOnSign:
+        assignIsosurfaceMaterialBasedOnSign(obj, isovalue)
 
 
 def loadPLY(filepath, assignMaterialBasedOnSign=True):
@@ -246,7 +244,7 @@ def adjustSettings(isOneRender=True, transparentBackground=True):
     scene.cycles.debug_use_spatial_slits = True
 
 
-def outlineInRender(renderOutline=True):
+def outlineInRender(renderOutline=True, thickness=5):
     if not renderOutline:
         bpy.context.scene.render.use_freestyle = False
         return
@@ -270,6 +268,7 @@ def outlineInRender(renderOutline=True):
 
     bpy.data.linestyles["LineStyle"].caps = "SQUARE"
     bpy.data.linestyles["LineStyle"].texture_spacing = 20
+    bpy.data.linestyles["LineStyle"].thickness = thickness
 
 
 def findFirstStringInListOfStrings(
@@ -347,7 +346,7 @@ def translateObject(object, displacementVector):
     location.z += displacementVector[2]
 
 
-def createCylinder(location, angle, thickness, length):
+def createCylinder(location, angle, thickness, length, name="Cylinder"):
     scale = (thickness, thickness, length)
     bpy.ops.mesh.primitive_cylinder_add(
         vertices=128,
@@ -359,5 +358,6 @@ def createCylinder(location, angle, thickness, length):
     obj = bpy.context.view_layer.objects.active
     obj.rotation_mode = "AXIS_ANGLE"
     obj.rotation_axis_angle = angle
+    obj.name = name
     try_autosmooth()
     return obj

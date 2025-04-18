@@ -215,6 +215,8 @@ class Structure:
         else:
             self._bonds = bonds
 
+        self._displacements = []
+
     def getAtoms(self) -> list[Atom]:
         """Get a list of all atoms in the structure"""
         return self._atoms
@@ -570,6 +572,7 @@ class Structure:
                         axisAngleWithZ,
                         manifest["bond_thickness"],
                         bondLength / 4,
+                        f"bond-{atom1Index}-{atom2Index}",
                     )
                     obj.data.materials.append(mat1)
                     continue
@@ -593,6 +596,7 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
+                    f"bond-{atom1Index}-{atom2Index}",
                 )
                 obj.data.materials.append(mat2)
 
@@ -606,6 +610,7 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
+                    f"bond-{atom1Index}-{atom2Index}",
                 )
                 obj.data.materials.append(mat1)
             else:
@@ -614,7 +619,36 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 2,
+                    f"bond-{atom1Index}-{atom2Index}",
                 )
+
+    @classmethod
+    def fromXYZ(cls, filepath):
+        with open(filepath, "r") as file:
+            _lines = file.readlines()
+
+        _nAtoms = int(_lines[0].strip())
+        _atoms = [0] * _nAtoms
+
+        for i in range(_nAtoms):
+            _atoms[i] = Atom.fromXYZ(_lines[2 + i])
+
+        return cls(_atoms)
+
+    @classmethod
+    def fromSDF(cls, filepath):
+        with open(_filepath, "r") as file:
+            _lines = file.readlines()
+
+        _nAtoms = int(_lines[3].split()[0].strip())
+        _atoms = [0] * _nAtoms
+
+        for i in range(_nAtoms):
+            _atoms[i] = Atom.fromSDF(_lines[4 + i])
+
+        # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
+        _bonds = []
+        return cls(_atoms, _bonds)
 
 
 class CUBEfile(Structure):
@@ -746,40 +780,6 @@ class CUBEfile(Structure):
         return vertices, faces, normals, values
 
 
-class XYZfile(Structure):
-    def __init__(self, filepath):
-        self._filepath = filepath
-        with open(self._filepath, "r") as file:
-            self._lines = file.readlines()
-
-        self._nAtoms = int(self._lines[0].strip())
-        self._atoms = [0] * self._nAtoms
-
-        for i in range(self._nAtoms):
-            self._atoms[i] = Atom.fromXYZ(self._lines[2 + i])
-
-        self._displacements = []
-        self._bonds = []
-
-
-class SDFfile(Structure):
-    def __init__(self, filepath):
-        self._filepath = filepath
-        with open(self._filepath, "r") as file:
-            self._lines = file.readlines()
-
-        self._nAtoms = int(self._lines[3].split()[0].strip())
-        self._atoms = [0] * self._nAtoms
-
-        for i in range(self._nAtoms):
-            self._atoms[i] = Atom.fromSDF(self._lines[4 + i])
-
-        self._displacements = []
-
-        # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
-        self._bonds = []
-
-
 class JSONfile(Structure):
     def __init__(self, filepath):
         self._filepath = filepath
@@ -863,6 +863,36 @@ class Trajectory:
     def get_frame(self, frameIndex) -> Structure:
         return self._frames[frameIndex]
 
+    @classmethod
+    def fromORCAgeomOpt(cls, filepath):
+        with open(filepath, "r") as file:
+            _lines = file.readlines()
+
+        beginStructure = findAllStringInListOfStrings(
+            "CARTESIAN COORDINATES (ANGSTROEM)", _lines
+        )
+        beginStructure = [beginIndex + 2 for beginIndex in beginStructure]
+
+        endStructure = findAllStringInListOfStrings(
+            "CARTESIAN COORDINATES (A.U.)", _lines
+        )
+        endStructure = [endIndex - 2 for endIndex in endStructure]
+
+        _nframes = len(endStructure)
+        structureLines = [(beginStructure[i], endStructure[i]) for i in range(_nframes)]
+
+        _frames = [0] * _nframes
+        for i, structureTuple in enumerate(structureLines):
+            cartesianCoordLines = _lines[structureTuple[0] : structureTuple[1]]
+            print(cartesianCoordLines)
+
+            _nAtoms = len(cartesianCoordLines)
+            _atoms = [0] * _nAtoms
+            for j in range(_nAtoms):
+                _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
+            _frames[i] = Structure(_atoms)
+        return cls(_frames)
+
 
 class ORCAgeomOptFile(Trajectory):
     def __init__(self, filepath):
@@ -895,77 +925,6 @@ class ORCAgeomOptFile(Trajectory):
             for j in range(_nAtoms):
                 _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
             self._frames[i] = Structure(_atoms)
-
-
-def createBondsInScene(
-    bonds: list[Bond], structure: Structure, splitBondToAtomMaterials=True
-):
-    allAtomElements = [atom.getElement() for atom in structure.getAtoms()]
-    allAtomVdWRadii = [atom.getVdWRadius() for atom in structure.getAtoms()]
-
-    for bond in bonds:
-        direction = bond.getDirection()
-        axisAngleWithZ = bond.getAxisAngleWithZaxis()
-        bondLength = bond.getBondLength()
-        bondMidpoint = bond.getMidpointPosition()
-
-        if splitBondToAtomMaterials:
-            # We will move the two cylinders according to their vdw radii, such that each atom
-            # has about the same of its material shown in the bond. This means that for, e.g.
-            # an O-H bond, the cylinder closer to O will move less than the cylinder closer to H
-            atom1Index = bond.getAtom1Index()
-            atom1Element = allAtomElements[atom1Index]
-
-            atom2Index = bond.getAtom2Index()
-            atom2Element = allAtomElements[atom2Index]
-
-            if atom1Element == atom2Element:
-                mat1 = create_material(
-                    atom1Element, manifest["atom_colors"][atom1Element]
-                )
-                obj = createCylinder(
-                    bondMidpoint,
-                    axisAngleWithZ,
-                    manifest["bond_thickness"],
-                    bondLength / 4,
-                )
-                obj.data.materials.append(mat1)
-                continue
-
-            VdWRadius1 = allAtomVdWRadii[atom1Index]
-            VdWRadius2 = allAtomVdWRadii[atom2Index]
-            sumVdWRadius = VdWRadius1 + VdWRadius2
-            fractionVdWRadius1 = VdWRadius1 / sumVdWRadius
-            fractionVdWRadius2 = VdWRadius2 / sumVdWRadius
-
-            # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
-            # from the midpoint) will be the one closest to the atom with the higher index.
-            # So, we take the element and material from that one, and assign it to the first cylinder.
-            mat2 = create_material(atom2Element, manifest["atom_colors"][atom2Element])
-
-            # First cylinder
-            obj = createCylinder(
-                bondMidpoint - direction * bondLength / (2 / fractionVdWRadius1),
-                axisAngleWithZ,
-                manifest["bond_thickness"],
-                bondLength / 4,
-            )
-            obj.data.materials.append(mat2)
-
-            mat1 = create_material(atom1Element, manifest["atom_colors"][atom1Element])
-
-            # First cylinder
-            obj = createCylinder(
-                bondMidpoint + direction * bondLength / (2 / fractionVdWRadius2),
-                axisAngleWithZ,
-                manifest["bond_thickness"],
-                bondLength / 4,
-            )
-            obj.data.materials.append(mat1)
-        else:
-            obj = createCylinder(
-                bondMidpoint, axisAngleWithZ, manifest["bond_thickness"], bondLength / 2
-            )
 
 
 if __name__ == "__main__":
