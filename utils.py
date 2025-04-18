@@ -222,3 +222,8 @@ def angle_between(vector1, vector2) -> float:
         angle = np.arccos(np.dot(vector1, vector2))
     return angle * 180 / math.pi
 
+def set_background_transparency(transparency: bool) -> None:
+    bpy.context.scene.render.film_transparent = transparency
+
+def set_background_color(RGBA: tuple[float]) -> None:
+    bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[0].default_value = RGBA

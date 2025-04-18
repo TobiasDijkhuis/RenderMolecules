@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import json
 import math
 import os
 import sys
@@ -54,6 +56,16 @@ class Atom:
         atomicNumber = getAtomicNumberFromElement(element)
         x, y, z = [float(field) for field in splitString[1:]]
         isAngstrom = True  # Angstrom by default
+        return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)
+
+    @classmethod
+    def fromSDF(cls, string: str):
+        """Create Atom instance from a line in an SDF file"""
+        splitString = string.split()
+        element = splitString[3].strip()
+        atomicNumber = getAtomicNumberFromElement(element)
+        x, y, z = [float(field) for field in splitString[:3]]
+        isAngstrom = True  # SDF is in Angstrom
         return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)
 
     def getAtomicNumber(self) -> int:
@@ -656,6 +668,67 @@ class XYZfile(Structure):
         self._bonds = []
 
 
+class SDFfile(Structure):
+    def __init__(self, filepath):
+        self._filepath = filepath
+        with open(self._filepath, "r") as file:
+            self._lines = file.readlines()
+
+        self._nAtoms = int(self._lines[3].split()[0].strip())
+        self._atoms = [0] * self._nAtoms
+
+        for i in range(self._nAtoms):
+            self._atoms[i] = Atom.fromSDF(self._lines[4 + i])
+
+        self._displacements = []
+
+        # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
+        self._bonds = []
+
+
+class JSONfile(Structure):
+    def __init__(self, filepath):
+        self._filepath = filepath
+        with open(self._filepath, "r") as file:
+            self._lines = file.readlines()
+            jsonData = json.load(file)
+
+        print(jsonData)
+
+        # self._nAtoms = int(self._lines[3].split()[0].strip())
+        # self._atoms = [0] * self._nAtoms
+
+        # for i in range(self._nAtoms):
+        #     self._atoms[i] = Atom.fromSDF(self._lines[4 + i])
+
+        # self._displacements = []
+
+        # # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
+        # self._bonds = []
+
+
+class Trajectory:
+    def __init__(self, frames: list[Structure]):
+        self._nframes = len(frames)
+        self._frames = frames
+
+    def get_frames(self) -> list[Structure]:
+        return self._frames
+
+    def get_nframes(self) -> int:
+        return self._nframes
+
+    def createAnimation(self) -> None:
+        for frame in self._frames:
+            # How to maybe do this?
+            # https://github.com/durrantlab/pyrite/blob/Pyrite_1_1_1/TrajectoryProcessing.py
+            # Render each frame, and create keyframes
+            pass
+
+    def get_frame(self, frameIndex) -> Structure:
+        return self._frames[frameIndex]
+
+
 class ORCAgeomOptFile(Structure):
     def __init__(self, filepath):
         self._filepath = filepath
@@ -687,15 +760,6 @@ class ORCAgeomOptFile(Structure):
 
 
 if __name__ == "__main__":
-    # CUBEfilepath = "H2C3N_B3LYP-D4_spindensity.cube"
-    # CUBEfilepath = "H2O_elf.cube"
-    # CUBEfilepath = "hexazine.cube"
-    # CUBEfilepath_noext = os.path.splitext(CUBEfilepath)[0]
-
-    # CUBE = CUBEfile(CUBEfilepath)
-    # CUBE.setCOMto(np.array([0, 0, 0]))
-    # CUBE.readVolumetricData()
-    # value = 0.02
-    # CUBE.writePLY(f"{CUBEfilepath_noext}_{value}.ply", value)
-
-    ORCAfile = ORCAgeomOptFile("041.log")
+    structure = JSONfile(
+        "/home/tobiasdijkhuis/Downloads/Structure2D_COMPOUND_CID_3034819.json"
+    )

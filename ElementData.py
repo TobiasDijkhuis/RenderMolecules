@@ -41,19 +41,16 @@ elementList = [
 ]
 
 # manifest that contains atomic information
-OColor = "FF0000"
-HColor = "DDDDDD"
-NColor = "0000FF"
 manifest = {
     "atom_colors": {
-        "C": "333333",
-        "H": HColor,
-        "O": OColor,
-        "N": NColor,
+        "C": "555555",
+        "H": "DDDDDD",
+        "O": "FF0000",
+        "N": "0000FF",
     },
     "bond_thickness": 0.2,
     "bond_color": "4444444",
-    "hbond_color": "777777",
+    "hbond_color": "999999",
     "hbond_thickness": 0.035,
     "hbond_distance": 3.5,
     "hbond_angle": 30,
