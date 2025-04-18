@@ -52,7 +52,6 @@ class Atom:
     def fromXYZ(cls, string: str):
         """Create Atom instance from a line in an XYZ file"""
         splitString = string.split()
-        print(splitString)
         element = splitString[0].strip()
         atomicNumber = getAtomicNumberFromElement(element)
         x, y, z = [float(field) for field in splitString[1:]]
@@ -203,6 +202,25 @@ class Bond:
             axis /= np.linalg.norm(axis)
             angle = np.arccos(np.dot(self._interatomicVector, z) / self._bondLength)
         return angle, axis[0], axis[1], axis[2]
+
+    def getVdWWeightedMidpoints(self, element1, element2):
+        element1Index = elementList.index(element1)
+        VdWRadius1 = vdwRadii[element1Index]
+
+        element2Index = elementList.index(element2)
+        VdWRadius2 = vdwRadii[element2Index]
+
+        sumVdWRadius = VdWRadius1 + VdWRadius2
+        fractionVdWRadius1 = VdWRadius1 / sumVdWRadius
+        fractionVdWRadius2 = VdWRadius2 / sumVdWRadius
+
+        loc1 = self._midpointPosition - self.getDirection() * self._bondLength / (
+            2 / fractionVdWRadius1
+        )
+        loc2 = self._midpointPosition + self.getDirection() * self._bondLength / (
+            2 / fractionVdWRadius2
+        )
+        return np.array([loc1, loc2])
 
 
 class Structure:
@@ -389,7 +407,6 @@ class Structure:
     def getTotalCharge(self) -> int:
         """Get the total charge in the system"""
         charges = (atom.getCharge() for atom in self._atoms)
-        print(list(charges))
         if not all(
             isinstance(charge, int) or isinstance(charge, float) for charge in charges
         ):
@@ -577,11 +594,9 @@ class Structure:
                     obj.data.materials.append(mat1)
                     continue
 
-                VdWRadius1 = allAtomVdWRadii[atom1Index]
-                VdWRadius2 = allAtomVdWRadii[atom2Index]
-                sumVdWRadius = VdWRadius1 + VdWRadius2
-                fractionVdWRadius1 = VdWRadius1 / sumVdWRadius
-                fractionVdWRadius2 = VdWRadius2 / sumVdWRadius
+                vdwWeightedLocations = bond.getVdWWeightedMidpoints(
+                    atom1Element, atom2Element
+                )
 
                 # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
                 # from the midpoint) will be the one closest to the atom with the higher index.
@@ -592,7 +607,7 @@ class Structure:
 
                 # First cylinder
                 obj = createCylinder(
-                    bondMidpoint - direction * bondLength / (2 / fractionVdWRadius1),
+                    vdwWeightedLocations[0],
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
@@ -606,7 +621,7 @@ class Structure:
 
                 # First cylinder
                 obj = createCylinder(
-                    bondMidpoint + direction * bondLength / (2 / fractionVdWRadius2),
+                    vdwWeightedLocations[1],
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
@@ -664,8 +679,6 @@ class CUBEfile(Structure):
 
         for i in range(self._nAtoms):
             self._atoms[i] = Atom.fromCUBE(self._lines[6 + i].strip())
-            print(self._lines[6 + i], self._atoms[i].getCharge())
-
             self._atoms[i].positionBohrToAngstrom()
 
         self._displacements = []
@@ -821,7 +834,7 @@ class Trajectory:
                 newPosition = atom.getPositionVector() + displacement
                 atom.setPositionVector(newPosition)
 
-    def createAnimation(self) -> None:
+    def createAnimation(self, createBonds=True, splitBondToAtomMaterials=True) -> None:
         frame_step = 10
         bpy.context.scene.frame_step = frame_step
         bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
@@ -830,8 +843,8 @@ class Trajectory:
 
         initialFrame.createAtoms(createMesh=False)
 
-        bonds = initialFrame.findBondsBasedOnDistance()
-        initialFrame.createBonds(bonds)
+        initialBonds = initialFrame.findBondsBasedOnDistance()
+        initialFrame.createBonds(initialBonds, splitBondToAtomMaterials)
 
         previousPositions = initialFrame.getAllAtomPositions()
 
@@ -840,6 +853,8 @@ class Trajectory:
             allAtomElements[:i].count(allAtomElements[i])
             for i in range(len(allAtomElements))
         ]
+
+        previousBondLengths = [bond.getBondLength() for bond in initialBonds]
 
         for i, frame in enumerate(self._frames):
             currentFrameNr = 1 + i * frame_step
@@ -859,6 +874,72 @@ class Trajectory:
                 translateObject(obj, displacements[j])
 
                 obj.keyframe_insert(data_path="location", frame=currentFrameNr)
+
+            # Now reposition and rerotate all the bonds.
+            if i >= 1:
+                currentBonds = frame.findBondsBasedOnDistance()
+            else:
+                currentBonds = initialBonds
+
+            for j, bond in enumerate(currentBonds):
+                atom1Index = bond.getAtom1Index()
+                atom2Index = bond.getAtom2Index()
+                try:
+                    obj = getObjectByName(f"bond-{atom1Index}-{atom2Index}")
+                except KeyError:
+                    # This bond did not exist yet, needs to be created
+                    continue
+
+                print(i, j, previousBondLengths)
+                print(i, j, len(previousBondLengths))
+
+                scale = bond.getBondLength() / previousBondLengths[j]
+                previousBondLengths[j] = bond.getBondLength()
+
+                vdwWeightedLocations = bond.getVdWWeightedMidpoints(
+                    allAtomElements[atom1Index], allAtomElements[atom2Index]
+                )
+
+                obj.location.x = vdwWeightedLocations[1, 0]
+                obj.location.y = vdwWeightedLocations[1, 1]
+                obj.location.z = vdwWeightedLocations[1, 2]
+
+                obj.scale[2] = scale
+                print(i, j, obj.scale)
+                obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
+                obj.keyframe_insert(data_path="location", frame=currentFrameNr)
+                obj.keyframe_insert(
+                    data_path="rotation_axis_angle", frame=currentFrameNr
+                )
+                obj.keyframe_insert(data_path="scale", frame=currentFrameNr)
+
+                if (
+                    not splitBondToAtomMaterials
+                    or allAtomElements[atom1Index] == allAtomElements[atom2Index]
+                ):
+                    continue
+
+                try:
+                    obj = getObjectByName(f"bond-{atom1Index}-{atom2Index}.001")
+                except KeyError:
+                    # This bond did not exist yet, needs to be created
+                    continue
+
+                obj.location.x = vdwWeightedLocations[0, 0]
+                obj.location.y = vdwWeightedLocations[0, 1]
+                obj.location.z = vdwWeightedLocations[0, 2]
+
+                obj.scale[2] = scale
+
+                obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
+
+                print(obj.scale)
+
+                obj.keyframe_insert(data_path="location", frame=currentFrameNr)
+                obj.keyframe_insert(
+                    data_path="rotation_axis_angle", frame=currentFrameNr
+                )
+                obj.keyframe_insert(data_path="scale", frame=currentFrameNr)
 
     def get_frame(self, frameIndex) -> Structure:
         return self._frames[frameIndex]
@@ -884,7 +965,6 @@ class Trajectory:
         _frames = [0] * _nframes
         for i, structureTuple in enumerate(structureLines):
             cartesianCoordLines = _lines[structureTuple[0] : structureTuple[1]]
-            print(cartesianCoordLines)
 
             _nAtoms = len(cartesianCoordLines)
             _atoms = [0] * _nAtoms
