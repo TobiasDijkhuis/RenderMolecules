@@ -259,6 +259,4 @@ def outlineInRender(renderOutline=True):
     lineset.select_contour = False
 
     bpy.data.linestyles["LineStyle"].caps = "SQUARE"
-    bpy.data.linestyles["LineStyle"].chaining = "SKETCHY"
-    bpy.data.linestyles["LineStyle"].rounds = 20
     bpy.data.linestyles["LineStyle"].texture_spacing = 20
