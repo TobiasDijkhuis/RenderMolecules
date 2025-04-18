@@ -207,9 +207,14 @@ def try_autosmooth():
         bpy.ops.object.shade_auto_smooth()
     except AttributeError:
         msg = "AttributeError was raised because of shade_auto_smooth. This could be due to an old version of Blender.\n"
-        msg += "Skipping smoothing. Can be applied manually."
+        msg += "Trying older syntax."
         print(msg)
-        pass
+        try:
+            bpy.ops.object.shade_smooth(use_auto_smooth=True)
+        except AttributeError:
+            msg = "AttributeError was raised because of shade_smooth(use_auto_smooth=True). This could be due to I DONT KNOW.\n"
+            msg += "Can still be applied manually"
+            print(msg)
 
 
 def angle_between(vector1, vector2) -> float:
@@ -222,3 +227,38 @@ def angle_between(vector1, vector2) -> float:
         angle = np.arccos(np.dot(vector1, vector2))
     return angle * 180 / math.pi
 
+
+def adjustSettings(isOneRender=True, transparentBackground=True):
+    scene = bpy.context.scene
+
+    scene.render.film_transparent = transparentBackground
+    scene.render.use_persistent_data = not isOneRender
+    scene.cycles.debug_use_spatial_slits = True
+
+
+def outlineInRender(renderOutline=True):
+    if not renderOutline:
+        bpy.context.scene.render.use_freestyle = False
+        return
+    bpy.context.scene.render.use_freestyle = True
+
+    viewLayer = bpy.data.scenes["Scene"].view_layers["ViewLayer"]
+    viewLayer.use_freestyle = True
+
+    lineset = viewLayer.freestyle_settings.linesets["LineSet"]
+
+    lineset.select_external_contour = True
+
+    lineset.select_suggestive_contour = False
+    lineset.select_edge_mark = False
+    lineset.select_material_boundary = False
+    lineset.select_silhouette = False
+    lineset.select_crease = False
+    lineset.select_border = False
+    lineset.select_ridge_valley = False
+    lineset.select_contour = False
+
+    bpy.data.linestyles["LineStyle"].caps = "SQUARE"
+    bpy.data.linestyles["LineStyle"].chaining = "SKETCHY"
+    bpy.data.linestyles["LineStyle"].rounds = 20
+    bpy.data.linestyles["LineStyle"].texture_spacing = 20
