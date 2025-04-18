@@ -894,39 +894,6 @@ class Trajectory:
         return cls(_frames)
 
 
-class ORCAgeomOptFile(Trajectory):
-    def __init__(self, filepath):
-        self._filepath = filepath
-        with open(self._filepath, "r") as file:
-            self._lines = file.readlines()
-
-        beginStructure = findAllStringInListOfStrings(
-            "CARTESIAN COORDINATES (ANGSTROEM)", self._lines
-        )
-        beginStructure = [beginIndex + 2 for beginIndex in beginStructure]
-
-        endStructure = findAllStringInListOfStrings(
-            "CARTESIAN COORDINATES (A.U.)", self._lines
-        )
-        endStructure = [endIndex - 2 for endIndex in endStructure]
-
-        self._nframes = len(endStructure)
-        structureLines = [
-            (beginStructure[i], endStructure[i]) for i in range(self._nframes)
-        ]
-
-        self._frames = [0] * self._nframes
-        for i, structureTuple in enumerate(structureLines):
-            cartesianCoordLines = self._lines[structureTuple[0] : structureTuple[1]]
-            print(cartesianCoordLines)
-
-            _nAtoms = len(cartesianCoordLines)
-            _atoms = [0] * _nAtoms
-            for j in range(_nAtoms):
-                _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
-            self._frames[i] = Structure(_atoms)
-
-
 if __name__ == "__main__":
     structure = JSONfile(
         "/home/tobiasdijkhuis/Downloads/Structure2D_COMPOUND_CID_3034819.json"
