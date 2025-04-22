@@ -1,7 +1,4 @@
 import bpy
-import numpy as np
-
-import math
 
 from ElementData import *
 
@@ -26,27 +23,12 @@ def color_srgb_to_scene_linear(c):
         return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
 
 
-def createUVsphere(element, position, resolution="medium"):
-    resolution = resolution.lower()
-    if resolution not in ["low", "medium", "high", "ultra"]:
-        msg = f"resolution should be one of 'low', 'medium', 'high' or 'ultra', but was '{resolution}'"
-        raise ValueError(msg)
-    segments = 64
-    ring_count = 32
-
-    if resolution == "low":
-        segments /= 2
-        ring_count /= 2
-    elif resolution == "high":
-        segments *= 2
-        ring_count *= 2
-    elif resolution == "ultra":
-        segments *= 4
-        ring_count *= 4
+def createUVsphere(element, position, renderResolution="medium"):
+    nsegments, nrings = scaleNvertices(64, 32, renderResolution=renderResolution)
 
     bpy.ops.mesh.primitive_uv_sphere_add(
-        segments=segments,
-        ring_count=ring_count,
+        segments=nsegments,
+        ring_count=nrings,
         radius=vdwRadii[elementList.index(element)] * sphereScale,
         enter_editmode=False,
         align="WORLD",
@@ -83,9 +65,7 @@ def create_material(name, color, alpha=1.0):
     Build a new material
     """
     # early exit if material already exists and has the same color
-    if (
-        name in bpy.data.materials
-    ):  # and np.allclose(bpy.data.materials[name].node_tree.nodes["Principled BSDF"].inputs[0].default_value, hex2rgbtuple(color)):
+    if name in bpy.data.materials:
         return bpy.data.materials[name]
 
     mat = bpy.data.materials.new(name)
@@ -179,27 +159,6 @@ def assignIsosurfaceMaterialBasedOnSign(isosurfaceObj, isovalue):
         isosurfaceObj.data.materials.append(mat)
 
 
-def rotation_matrix(axis, theta):
-    """
-    Return the rotation matrix associated with counterclockwise rotation about
-    the given axis by theta degrees.
-    """
-    theta *= math.pi / 180.0
-    axis = np.asarray(axis)
-    axis = axis / math.sqrt(np.dot(axis, axis))
-    a = math.cos(theta / 2.0)
-    b, c, d = -axis * math.sin(theta / 2.0)
-    aa, bb, cc, dd = a * a, b * b, c * c, d * d
-    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    return np.array(
-        [
-            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
-        ]
-    )
-
-
 def try_autosmooth():
     try:
         bpy.ops.object.shade_auto_smooth()
@@ -213,17 +172,6 @@ def try_autosmooth():
             msg = "AttributeError was raised because of shade_smooth(use_auto_smooth=True). This could be due to I DONT KNOW.\n"
             msg += "Can still be applied manually"
             print(msg)
-
-
-def angle_between(vector1, vector2) -> float:
-    vector1 /= np.linalg.norm(vector1)
-    vector2 /= np.linalg.norm(vector2)
-    axis = np.cross(vector1, vector2)
-    if np.linalg.norm(axis) < 1e-5:
-        angle = 0.0
-    else:
-        angle = np.arccos(np.dot(vector1, vector2))
-    return angle * 180 / math.pi
 
 
 def set_background_transparency(transparency: bool) -> None:
@@ -271,66 +219,6 @@ def outlineInRender(renderOutline=True, thickness=5):
     bpy.data.linestyles["LineStyle"].thickness = thickness
 
 
-def findFirstStringInListOfStrings(
-    stringToFind: str | list[str],
-    listOfStrings: list[str],
-    start: int = 0,
-    end: int | None = None,
-) -> int | None:
-    """Finds the first instance of a string in a list of strings."""
-    if isinstance(stringToFind, list):
-        resultForEachSubstring = np.ndarray(len(stringToFind), dtype=list)
-
-        for i, substring in enumerate(stringToFind):
-            resultForEachSubstring[i] = findAllStringInListOfStrings(
-                substring, listOfStrings, start, end
-            )
-        intersectionOfAllSubstrings = list(
-            set.intersection(*map(set, resultForEachSubstring))
-        )
-        return intersectionOfAllSubstrings[0]
-
-    seperatorString = "UNIQUE SEPERATOR STRING THAT DOES NOT OCCUR IN THE FILE ITSELF"
-    joinedList = seperatorString.join(listOfStrings[start:end])
-    try:
-        stringIndex = joinedList.index(stringToFind)
-    except ValueError:
-        return
-    listIndex = joinedList.count(seperatorString, 0, stringIndex)
-    return listIndex + start
-
-
-def findAllStringInListOfStrings(
-    stringToFind: str | list[str],
-    listOfStrings: list[str],
-    start: int = 0,
-    end: int | None = None,
-) -> list[int]:
-    """Finds all instances of a string stringToFind in a list of strings."""
-    if isinstance(stringToFind, list):
-        resultForEachSubstring = np.ndarray(len(stringToFind), dtype=list)
-
-        for i, substring in enumerate(stringToFind):
-            resultForEachSubstring[i] = findAllStringInListOfStrings(
-                substring, listOfStrings, start, end
-            )
-        intersectionOfAllSubstrings = list(
-            set.intersection(*map(set, resultForEachSubstring))
-        )
-        return intersectionOfAllSubstrings
-
-    result = []
-    newResult = start - 1
-    while newResult is not None:
-        start = newResult + 1
-        newResult = findFirstStringInListOfStrings(
-            stringToFind, listOfStrings, start, end
-        )
-        result.append(newResult)
-    result.pop()
-    return result
-
-
 def selectObjectByName(name: str, select=True):
     bpy.data.objects[name].select_set(select)
 
@@ -339,17 +227,12 @@ def getObjectByName(name: str):
     return bpy.context.scene.objects[name]
 
 
-def translateObject(object, displacementVector):
-    location = object.location
-    location.x += displacementVector[0]
-    location.y += displacementVector[1]
-    location.z += displacementVector[2]
+def createCylinder(location, angle, thickness, length, renderResolution='medium', name="Cylinder"):
+    nvertices = scaleNvertices(64, renderResolution=renderResolution)
 
-
-def createCylinder(location, angle, thickness, length, name="Cylinder"):
     scale = (thickness, thickness, length)
     bpy.ops.mesh.primitive_cylinder_add(
-        vertices=128,
+        vertices=nvertices,
         enter_editmode=False,
         align="WORLD",
         location=location,
@@ -361,3 +244,28 @@ def createCylinder(location, angle, thickness, length, name="Cylinder"):
     obj.name = name
     try_autosmooth()
     return obj
+
+def scaleNvertices(*args, renderResolution='medium'):
+    renderResolution = renderResolution.lower()
+    if renderResolution not in ['verylow', "low", "medium", "high", "veryhigh"]:
+        msg = f"renderResolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{renderResolution}'"
+        raise ValueError(msg)
+
+    if renderResolution=='verylow':
+        scale = 1/4
+    elif renderResolution == "low":
+        scale = 1/2
+    elif renderResolution == 'medium':
+        scale = 1
+    elif renderResolution == "high":
+        scale = 2
+    elif renderResolution == "veryhigh":
+        scale = 4
+
+    if len(args) == 1:
+        return int(args[0]*scale)
+    elif len(args) > 1:
+        return tuple([int(arg*scale) for arg in args])
+    else:
+        raise ValueError()
+

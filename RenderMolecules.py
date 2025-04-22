@@ -10,11 +10,13 @@ import bpy
 import numpy as np
 
 from ElementData import *
-from utils import *
+from geometryUtils import *
+from blenderUtils import *
+from otherUtils import *
 
 
 class Atom:
-    def __init__(self, atomicNumber, element, charge, x, y, z, isAngstrom):
+    def __init__(self, atomicNumber: int, element: str, charge: float, x:float, y:float, z:float, isAngstrom:bool):
         self._atomicNumber = atomicNumber
         self._element = element
         self._charge = charge
@@ -137,13 +139,13 @@ class Atom:
 class Bond:
     def __init__(
         self,
-        atom1Index,
-        atom2Index,
-        bondType,
-        bondLength,
-        interatomicVector,
-        midpointPosition,
-        atom1and2Pos,
+        atom1Index: int,
+        atom2Index: int,
+        bondType: str,
+        bondLength: float,
+        interatomicVector: np.ndarray,
+        midpointPosition: np.ndarray,
+        atom1and2Pos: np.ndarray,
     ):
         self._atom1Index, self._atom2Index = atom1Index, atom2Index
         self._bondType = bondType
@@ -203,7 +205,7 @@ class Bond:
             angle = np.arccos(np.dot(self._interatomicVector, z) / self._bondLength)
         return angle, axis[0], axis[1], axis[2]
 
-    def getVdWWeightedMidpoints(self, element1, element2):
+    def getVdWWeightedMidpoints(self, element1: str, element2: str) -> np.ndarray:
         element1Index = elementList.index(element1)
         VdWRadius1 = vdwRadii[element1Index]
 
@@ -258,7 +260,7 @@ class Structure:
                 obj = createUVsphere(
                     atom.getElement(),
                     atom.getPositionVector(),
-                    resolution=renderResolution,
+                    renderResolution=renderResolution,
                 )
                 mat = create_material(
                     atom.getElement(), manifest["atom_colors"][atom.getElement()]
@@ -279,7 +281,7 @@ class Structure:
         # Then, create a mesh with vertices at the positions and using vertex instancing,
         # copy the UV sphere to each of the vertices.
         for atomType in atomVertices.keys():
-            obj = createUVsphere(atomType, np.array([0, 0, 0]), renderResolution)
+            obj = createUVsphere(atomType, np.array([0, 0, 0]), renderResolution=renderResolution)
             mat = create_material(atomType, manifest["atom_colors"][atomType])
             obj.data.materials.append(mat)
 
@@ -425,16 +427,16 @@ class Structure:
         """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
         return self.getAmountOfElectrons() % 2 != 0
 
-    def rotateAroundX(self, angle):
+    def rotateAroundX(self, angle: float) -> None:
         self.rotateAroundAxis([1, 0, 0], angle)
 
-    def rotateAroundY(self, angle):
+    def rotateAroundY(self, angle: float) -> None:
         self.rotateAroundAxis([0, 1, 0], angle)
 
-    def rotateAroundZ(self, angle):
+    def rotateAroundZ(self, angle: float) -> None:
         self.rotateAroundAxis([0, 0, 1], angle)
 
-    def rotateAroundAxis(self, axis, angle):
+    def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
         rotMatrix = rotation_matrix(axis, angle)
 
         for atom in self._atoms:
@@ -442,7 +444,7 @@ class Structure:
             rotatedPos = np.dot(rotMatrix, currentPos)
             atom.setPositionVector(rotatedPos)
 
-    def createHydrogenBonds(self):
+    def createHydrogenBonds(self) -> None:
         """Adds hydrogen bonds to each molecule"""
         hbondFormingElements = ["H", "O", "N"]
         atoms = self._atoms
@@ -560,7 +562,7 @@ class Structure:
                 1.3
             )
 
-    def createBonds(self, bonds: list[Bond], splitBondToAtomMaterials=True):
+    def createBonds(self, bonds: list[Bond], splitBondToAtomMaterials: bool=True, renderResolution: str="medium") -> None:
         allAtomElements = [atom.getElement() for atom in self._atoms]
         allAtomVdWRadii = [atom.getVdWRadius() for atom in self._atoms]
 
@@ -611,7 +613,8 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
-                    f"bond-{atom1Index}-{atom2Index}",
+                    name = f"bond-{atom1Index}-{atom2Index}",
+                    renderResolution=renderResolution,
                 )
                 obj.data.materials.append(mat2)
 
@@ -625,7 +628,8 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
-                    f"bond-{atom1Index}-{atom2Index}",
+                    name=f"bond-{atom1Index}-{atom2Index}",
+                    renderResolution=renderResolution,
                 )
                 obj.data.materials.append(mat1)
             else:
@@ -634,11 +638,12 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 2,
-                    f"bond-{atom1Index}-{atom2Index}",
+                    name=f"bond-{atom1Index}-{atom2Index}",
+                    renderResolution=renderResolution,
                 )
 
     @classmethod
-    def fromXYZ(cls, filepath):
+    def fromXYZ(cls, filepath: str):
         with open(filepath, "r") as file:
             _lines = file.readlines()
 
@@ -651,7 +656,7 @@ class Structure:
         return cls(_atoms)
 
     @classmethod
-    def fromSDF(cls, filepath):
+    def fromSDF(cls, filepath: str):
         with open(_filepath, "r") as file:
             _lines = file.readlines()
 
@@ -667,7 +672,7 @@ class Structure:
 
 
 class CUBEfile(Structure):
-    def __init__(self, filepath):
+    def __init__(self, filepath: str):
         self._filepath = filepath
         with open(self._filepath, "r") as file:
             self._lines = file.readlines()
@@ -741,7 +746,7 @@ class CUBEfile(Structure):
         """Get the volumetric data"""
         return self._volumetricData
 
-    def writePLY(self, filepath, isovalue) -> None:
+    def writePLY(self, filepath: str, isovalue: float) -> None:
         """Write the volumetric data to a filepath"""
         from pytessel import PyTessel
 
@@ -770,7 +775,7 @@ class CUBEfile(Structure):
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
-    def calculateIsosurface(self, isovalue) -> tuple[np.ndarray, np.ndarray, int]:
+    def calculateIsosurface(self, isovalue: float) -> tuple[np.ndarray, np.ndarray, int]:
         from skimage.measure import marching_cubes
 
         """Write the volumetric data to a filepath"""
@@ -825,7 +830,7 @@ class Trajectory:
     def get_nframes(self) -> int:
         return self._nframes
 
-    def setCenterOfMass(self, newCOMposition, frameIndex=0):
+    def setCenterOfMass(self, newCOMposition: np.ndarray, frameIndex: int=0)-> None:
         originalCOM = self._frames[frameIndex].getCenterOfMass()
         displacement = newCOMposition - originalCOM
 
@@ -834,17 +839,17 @@ class Trajectory:
                 newPosition = atom.getPositionVector() + displacement
                 atom.setPositionVector(newPosition)
 
-    def createAnimation(self, createBonds=True, splitBondToAtomMaterials=True) -> None:
+    def createAnimation(self, createBonds: bool=True, renderResolution: str = "medium", splitBondToAtomMaterials:bool=True) -> None:
         frame_step = 10
         bpy.context.scene.frame_step = frame_step
         bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
 
         initialFrame = self._frames[0]
 
-        initialFrame.createAtoms(createMesh=False)
+        initialFrame.createAtoms(createMesh=False, renderResolution=renderResolution)
 
         initialBonds = initialFrame.findBondsBasedOnDistance()
-        initialFrame.createBonds(initialBonds, splitBondToAtomMaterials)
+        initialFrame.createBonds(initialBonds, splitBondToAtomMaterials, renderResolution=renderResolution)
 
         previousPositions = initialFrame.getAllAtomPositions()
 
@@ -890,9 +895,6 @@ class Trajectory:
                     # This bond did not exist yet, needs to be created
                     continue
 
-                print(i, j, previousBondLengths)
-                print(i, j, len(previousBondLengths))
-
                 scale = bond.getBondLength() / previousBondLengths[j]
                 previousBondLengths[j] = bond.getBondLength()
 
@@ -905,7 +907,6 @@ class Trajectory:
                 obj.location.z = vdwWeightedLocations[1, 2]
 
                 obj.scale[2] = scale
-                print(i, j, obj.scale)
                 obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
                 obj.keyframe_insert(data_path="location", frame=currentFrameNr)
                 obj.keyframe_insert(
@@ -933,15 +934,13 @@ class Trajectory:
 
                 obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
 
-                print(obj.scale)
-
                 obj.keyframe_insert(data_path="location", frame=currentFrameNr)
                 obj.keyframe_insert(
                     data_path="rotation_axis_angle", frame=currentFrameNr
                 )
                 obj.keyframe_insert(data_path="scale", frame=currentFrameNr)
 
-    def get_frame(self, frameIndex) -> Structure:
+    def get_frame(self, frameIndex: int) -> Structure:
         return self._frames[frameIndex]
 
     @classmethod
