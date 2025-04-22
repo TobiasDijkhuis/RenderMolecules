@@ -934,8 +934,6 @@ class Trajectory:
             initialBonds, splitBondToAtomMaterials, renderResolution=renderResolution
         )
 
-        previousPositions = initialFrame.getAllAtomPositions()
-
         allAtomElements = [atom.getElement() for atom in initialFrame.getAtoms()]
         allElementIndeces = [
             allAtomElements[:i].count(allAtomElements[i])
@@ -947,10 +945,6 @@ class Trajectory:
         for i, frame in enumerate(self._frames):
             currentFrameNr = 1 + i * frame_step
             currentPositions = frame.getAllAtomPositions()
-            displacements = currentPositions - previousPositions
-
-            previousPositions = currentPositions
-
             for j, atom in enumerate(frame.getAtoms()):
                 objectName = f"atom-{allAtomElements[j]}"
                 if allElementIndeces[j] > 0:
@@ -959,7 +953,9 @@ class Trajectory:
                 # Select UV sphere with correct name
                 obj = getObjectByName(objectName)
 
-                translateObject(obj, displacements[j])
+                obj.location.x = currentPositions[j, 0]
+                obj.location.y = currentPositions[j, 1]
+                obj.location.z = currentPositions[j, 2]
 
                 obj.keyframe_insert(data_path="location", frame=currentFrameNr)
 
