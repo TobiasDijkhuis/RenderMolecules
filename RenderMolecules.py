@@ -16,7 +16,16 @@ from otherUtils import *
 
 
 class Atom:
-    def __init__(self, atomicNumber: int, element: str, charge: float, x:float, y:float, z:float, isAngstrom:bool):
+    def __init__(
+        self,
+        atomicNumber: int,
+        element: str,
+        charge: float,
+        x: float,
+        y: float,
+        z: float,
+        isAngstrom: bool,
+    ):
         self._atomicNumber = atomicNumber
         self._element = element
         self._charge = charge
@@ -125,6 +134,7 @@ class Atom:
         return f"Atom with atomic number {self._atomicNumber} at position {self._positionVector}"
 
     def findBoundAtoms(self, structure: Structure) -> list[int]:
+        """Find which Atom indeces are bound to this Atom in the structure"""
         boundAtomIndeces = []
         for i, bond in enumerate(structure.getBonds()):
             atom1Pos = bond.getAtom1Pos()
@@ -188,9 +198,11 @@ class Bond:
         return self._interatomicVector / self._bondLength
 
     def getAtom1Pos(self) -> np.ndarray[float]:
+        """Get position of atom 1"""
         return self._atom1Pos
 
     def getAtom2Pos(self) -> np.ndarray[float]:
+        """Get position of atom 2"""
         return self._atom2Pos
 
     def getAxisAngleWithZaxis(self) -> tuple[float, float, float, float]:
@@ -206,6 +218,7 @@ class Bond:
         return angle, axis[0], axis[1], axis[2]
 
     def getVdWWeightedMidpoints(self, element1: str, element2: str) -> np.ndarray:
+        """Get the Van der Waals-radii weighted bond-midpoints"""
         element1Index = elementList.index(element1)
         VdWRadius1 = vdwRadii[element1Index]
 
@@ -254,6 +267,7 @@ class Structure:
         return self._lines
 
     def createAtoms(self, renderResolution="medium", createMesh=True) -> None:
+        """Create the atoms in the scene"""
         if not createMesh:
             # This is an old, naive method where we create a lot more spheres
             for atom in self._atoms:
@@ -281,7 +295,9 @@ class Structure:
         # Then, create a mesh with vertices at the positions and using vertex instancing,
         # copy the UV sphere to each of the vertices.
         for atomType in atomVertices.keys():
-            obj = createUVsphere(atomType, np.array([0, 0, 0]), renderResolution=renderResolution)
+            obj = createUVsphere(
+                atomType, np.array([0, 0, 0]), renderResolution=renderResolution
+            )
             mat = create_material(atomType, manifest["atom_colors"][atomType])
             obj.data.materials.append(mat)
 
@@ -382,7 +398,7 @@ class Structure:
         return self._bonds
 
     def getCenterOfMass(self) -> np.ndarray[float]:
-        """Get the center of mass position"""
+        """Get the center of mass position vector"""
         masses = np.array([atom.getMass() for atom in self._atoms])
         atomPositions = self.getAllAtomPositions()
         COM = np.array(
@@ -428,21 +444,66 @@ class Structure:
         return self.getAmountOfElectrons() % 2 != 0
 
     def rotateAroundX(self, angle: float) -> None:
+        """Rotate the structure around the x-axis counterclockwise with a certain angle in degrees"""
         self.rotateAroundAxis([1, 0, 0], angle)
 
     def rotateAroundY(self, angle: float) -> None:
+        """Rotate the structure around the y-axis counterclockwise with a certain angle in degrees"""
         self.rotateAroundAxis([0, 1, 0], angle)
 
     def rotateAroundZ(self, angle: float) -> None:
+        """Rotate the structure around the z-axis counterclockwise with a certain angle in degrees"""
         self.rotateAroundAxis([0, 0, 1], angle)
 
     def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
+        """Rotate the structure around a certain axis counterclockwise with a certain angle in degrees"""
         rotMatrix = rotation_matrix(axis, angle)
 
         for atom in self._atoms:
             currentPos = atom.getPositionVector()
             rotatedPos = np.dot(rotMatrix, currentPos)
             atom.setPositionVector(rotatedPos)
+
+    def getInertiaTensor(self) -> np.ndarray:
+        """Get the moment of inertia tensor, in kg m2"""
+        # https://en.wikipedia.org/wiki/Moment_of_inertia#Inertia_tensor
+        centerOfMass = self.getCenterOfMass()
+
+        inertiaTensor = np.zeros((3, 3))
+        for atom in self._atoms:
+            # Calculate moments of inertia to axes wrt COM
+            coords = atom.getPositionVector() - centerOfMass
+
+            mass = atom.getMass() * AMU_TO_KG  # Mass in kg
+
+            # Convert coordinates to meters
+            if atom.isAngstrom:
+                coords *= ANGSTROM_TO_METERS
+            else:
+                coords *= BOHR_TO_METERS
+
+            inertiaTensor[0, 0] += mass * (
+                coords[1] * coords[1] + coords[2] * coords[2]
+            )
+            inertiaTensor[1, 1] += mass * (
+                coords[0] * coords[0] + coords[2] * coords[2]
+            )
+            inertiaTensor[2, 2] += mass * (
+                coords[0] * coords[0] + coords[1] * coords[1]
+            )
+            inertiaTensor[0, 1] -= mass * coords[0] * coords[1]
+            inertiaTensor[0, 2] -= mass * coords[0] * coords[2]
+            inertiaTensor[1, 2] -= mass * coords[1] * coords[2]
+        inertiaTensor[1, 0] = inertiaTensor[0, 1]
+        inertiaTensor[2, 0] = inertiaTensor[0, 2]
+        inertiaTensor[2, 1] = inertiaTensor[1, 2]
+        return inertiaTensor
+
+    def getPrincipalMomentsOfInertia(self):
+        """Get the principal moments of inertia (in kg m2) and the principal axes"""
+        inertiaTensor = self.getInertiaTensor()
+        principalMoments, principalAxes = np.linalg.eig(inertiaTensor)
+        return principalMoments, principalAxes
 
     def createHydrogenBonds(self) -> None:
         """Adds hydrogen bonds to each molecule"""
@@ -562,7 +623,13 @@ class Structure:
                 1.3
             )
 
-    def createBonds(self, bonds: list[Bond], splitBondToAtomMaterials: bool=True, renderResolution: str="medium") -> None:
+    def createBonds(
+        self,
+        bonds: list[Bond],
+        splitBondToAtomMaterials: bool = True,
+        renderResolution: str = "medium",
+    ) -> None:
+        """Create the bonds in the Blender scene"""
         allAtomElements = [atom.getElement() for atom in self._atoms]
         allAtomVdWRadii = [atom.getVdWRadius() for atom in self._atoms]
 
@@ -613,7 +680,7 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
-                    name = f"bond-{atom1Index}-{atom2Index}",
+                    name=f"bond-{atom1Index}-{atom2Index}",
                     renderResolution=renderResolution,
                 )
                 obj.data.materials.append(mat2)
@@ -644,6 +711,7 @@ class Structure:
 
     @classmethod
     def fromXYZ(cls, filepath: str):
+        """Create a Structure from an XYZ file"""
         with open(filepath, "r") as file:
             _lines = file.readlines()
 
@@ -657,6 +725,7 @@ class Structure:
 
     @classmethod
     def fromSDF(cls, filepath: str):
+        """Creates a Structure from an SDF file"""
         with open(_filepath, "r") as file:
             _lines = file.readlines()
 
@@ -775,10 +844,13 @@ class CUBEfile(Structure):
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
-    def calculateIsosurface(self, isovalue: float) -> tuple[np.ndarray, np.ndarray, int]:
+    def calculateIsosurface(
+        self, isovalue: float
+    ) -> tuple[np.ndarray, np.ndarray, int]:
+        """Write the volumetric data to a filepath"""
+
         from skimage.measure import marching_cubes
 
-        """Write the volumetric data to a filepath"""
         if isovalue <= np.min(self._volumetricData):
             msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty PLY. Set a larger isovalue."
             raise ValueError(msg)
@@ -825,12 +897,15 @@ class Trajectory:
         self._frames = frames
 
     def get_frames(self) -> list[Structure]:
+        """Get all frames in the trajectory"""
         return self._frames
 
     def get_nframes(self) -> int:
+        """Get the number of frames in the trajectory"""
         return self._nframes
 
-    def setCenterOfMass(self, newCOMposition: np.ndarray, frameIndex: int=0)-> None:
+    def setCenterOfMass(self, newCOMposition: np.ndarray, frameIndex: int = 0) -> None:
+        """Set the Center Of Mass of the structure at index 'frameIndex' to a new position"""
         originalCOM = self._frames[frameIndex].getCenterOfMass()
         displacement = newCOMposition - originalCOM
 
@@ -839,7 +914,13 @@ class Trajectory:
                 newPosition = atom.getPositionVector() + displacement
                 atom.setPositionVector(newPosition)
 
-    def createAnimation(self, createBonds: bool=True, renderResolution: str = "medium", splitBondToAtomMaterials:bool=True) -> None:
+    def createAnimation(
+        self,
+        createBonds: bool = True,
+        renderResolution: str = "medium",
+        splitBondToAtomMaterials: bool = True,
+    ) -> None:
+        """Create the animation of the trajectory in the Blender scene"""
         frame_step = 10
         bpy.context.scene.frame_step = frame_step
         bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
@@ -849,7 +930,9 @@ class Trajectory:
         initialFrame.createAtoms(createMesh=False, renderResolution=renderResolution)
 
         initialBonds = initialFrame.findBondsBasedOnDistance()
-        initialFrame.createBonds(initialBonds, splitBondToAtomMaterials, renderResolution=renderResolution)
+        initialFrame.createBonds(
+            initialBonds, splitBondToAtomMaterials, renderResolution=renderResolution
+        )
 
         previousPositions = initialFrame.getAllAtomPositions()
 
@@ -941,10 +1024,29 @@ class Trajectory:
                 obj.keyframe_insert(data_path="scale", frame=currentFrameNr)
 
     def get_frame(self, frameIndex: int) -> Structure:
+        """Get the Structure at a certain frame index"""
         return self._frames[frameIndex]
+
+    def rotateAroundX(self, angle: float) -> None:
+        """Rotate all frames in the trajectory around the x-axis counterclockwise with a certain angle in degrees"""
+        self.rotateAroundAxis([1, 0, 0], angle)
+
+    def rotateAroundY(self, angle: float) -> None:
+        """Rotate all frames in the trajectory around the y-axis counterclockwise with a certain angle in degrees"""
+        self.rotateAroundAxis([0, 1, 0], angle)
+
+    def rotateAroundZ(self, angle: float) -> None:
+        """Rotate all frames in the trajectory around the z-axis counterclockwise with a certain angle in degrees"""
+        self.rotateAroundAxis([0, 0, 1], angle)
+
+    def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
+        """Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees"""
+        for frame in self._frames:
+            frame.rotateAroundAxis(axis, angle)
 
     @classmethod
     def fromORCAgeomOpt(cls, filepath):
+        """Generate a trajectory from an ORCA geometry optimzation output file"""
         with open(filepath, "r") as file:
             _lines = file.readlines()
 

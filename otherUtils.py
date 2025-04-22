@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def hex2rgbtuple(hexcode: str) -> tuple[float, float, float]:
     """
     Convert 6-digit color hexcode to a tuple of floats
