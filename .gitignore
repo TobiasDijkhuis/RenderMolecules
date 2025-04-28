@@ -1,5 +1,10 @@
 .git
 *.ply
 *.cube
+*.log
+*.xyz
+
+dist/
 
 __pycache__/
+*/*.egg-info*

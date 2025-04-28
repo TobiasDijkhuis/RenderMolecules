@@ -71,3 +71,15 @@ Rotation angle given in degrees, counterclockwise.
 > It is important that any manipulation happens before Structure.createAtoms or Structure.createBonds, as otherwise the atoms or bonds might not be in the correct positions.
 
 ## Materials:
+
+## Adding to Blender's Python interpreter
+Ideally, you should install Blender without any external tools like Snap,
+because then it becomes so much harder to install a new module.
+
+If you just installed Blender from the .zip file on Blender's website, do the following (tested on Ubuntu 24.04.02 using Blender 4.2)
+
+    '/path/to/blender/version/python/bin/python3.11.py -m pip install RenderMolecules -t /path/to/blender/version/python/lib/site-packages/'
+
+or, when in the RenderMolecules directory,
+
+    '/path/to/blender/version/python/bin/python3.11.py -m pip install -e . -t /path/to/blender/version/python/lib/site-packages/'

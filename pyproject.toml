@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools >=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RenderMolecules"
+version = "0.0.2"
+authors = [
+    { name = "Tobias Dijkhuis", email = "t.m.dijkhuis@lic.leidenuniv.nl"},
+]
+description = "A way to render molecules in Blender"
+readme = "README.md"
+dependencies = ["numpy==1.24", "scikit-image"]
+requires-python = ">=3.8, <3.12"
+keywords = ["molecules", "chemistry", "blender", "rendering", "quantum"]
