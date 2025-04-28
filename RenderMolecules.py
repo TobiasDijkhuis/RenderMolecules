@@ -658,7 +658,8 @@ class Structure:
                         axisAngleWithZ,
                         manifest["bond_thickness"],
                         bondLength / 4,
-                        f"bond-{atom1Index}-{atom2Index}",
+                        renderResolution=renderResolution,
+                        name=f"bond-{atom1Index}-{atom2Index}",
                     )
                     obj.data.materials.append(mat1)
                     continue
@@ -680,8 +681,8 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
-                    name=f"bond-{atom1Index}-{atom2Index}",
                     renderResolution=renderResolution,
+                    name=f"bond-{atom1Index}-{atom2Index}",
                 )
                 obj.data.materials.append(mat2)
 
@@ -695,8 +696,8 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 4,
-                    name=f"bond-{atom1Index}-{atom2Index}",
                     renderResolution=renderResolution,
+                    name=f"bond-{atom1Index}-{atom2Index}",
                 )
                 obj.data.materials.append(mat1)
             else:
@@ -705,8 +706,8 @@ class Structure:
                     axisAngleWithZ,
                     manifest["bond_thickness"],
                     bondLength / 2,
-                    name=f"bond-{atom1Index}-{atom2Index}",
                     renderResolution=renderResolution,
+                    name=f"bond-{atom1Index}-{atom2Index}",
                 )
 
     @classmethod
@@ -746,9 +747,11 @@ class CUBEfile(Structure):
         with open(self._filepath, "r") as file:
             self._lines = file.readlines()
         self._nAtoms = int(self._lines[2].split()[0].strip())
+    
 
         if self._nAtoms < 0:
             self._nAtoms = -self._nAtoms
+
         self._atoms = [0] * self._nAtoms
 
         for i in range(self._nAtoms):
@@ -781,7 +784,8 @@ class CUBEfile(Structure):
             warning += f" Volumetric data axis vectors:\n{self._volumetricAxisVectors}"
             print(warning)
 
-        self._volumetricData = np.fromiter(
+        try:
+            self._volumetricData = np.fromiter(
             (
                 float(num)
                 for line in self._lines[6 + self._nAtoms :]
@@ -789,7 +793,18 @@ class CUBEfile(Structure):
             ),
             dtype=np.float32,
             count=-1,
-        ).reshape((self._NX, self._NY, self._NZ))
+            ).reshape((self._NX, self._NY, self._NZ))
+        except ValueError:
+            self._volumetricData = np.fromiter(
+            (
+                float(num)
+                for line in self._lines[7 + self._nAtoms :]
+                for num in line.split()
+            ),
+            dtype=np.float32,
+            count=-1,
+            ).reshape((self._NX, self._NY, self._NZ))
+
 
         # Old, much slower way to read the data.
         # volumetricLines = " ".join(
