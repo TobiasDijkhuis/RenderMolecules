@@ -26,6 +26,7 @@ class Structure:
             self._bonds = bonds
 
         self._displacements = []
+        self._affineMatrix = np.identity(4)
 
     def getAtoms(self) -> list[Atom]:
         """Get a list of all atoms in the structure"""
@@ -186,18 +187,25 @@ class Structure:
     def setCenterOfMass(self, newCOMposition):
         """Set the center of mass of the whole system to a new position"""
         COM = self.getCenterOfMass()
-        for atom in self._atoms:
-            atom.setPositionVector(atom.getPositionVector() - (COM - newCOMposition))
-        self._displacements.append(-(COM - newCOMposition))
+        translationVector = newCOMposition - COM
+        self.translateAtoms(translationVector)
 
-    def setAveragePositionToOrigin(self):
-        """Sets the average position of all atoms to the origin (0,0,0)"""
+    def setAveragePosition(self, newAveragePosition):
+        """Sets the average position of all atoms to a new position"""
         averagePosition = np.average(
             np.array([atom.getPositionVector() for atom in self._atoms]), axis=0
         )
+        translationVector = newAveragePosition - averagePosition
+        self.translateAtoms(translationVector)
+
+    def translateAtoms(self, translationVector):
+        newTransform = np.identity(4)
+        newTransform[:3, 3] = translationVector
+        self._affineMatrix = np.matmul(self._affineMatrix, newTransform)
+
         for atom in self._atoms:
-            atom.setPositionVector(atom.getPositionVector() - averagePosition)
-        self._displacements.append(-averagePosition)
+            atom.setPositionVector(atom.getPositionVector()+translationVector)
+
 
     def getTotalCharge(self) -> int:
         """Get the total charge in the system"""
@@ -235,6 +243,10 @@ class Structure:
     def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
         """Rotate the structure around a certain axis counterclockwise with a certain angle in degrees"""
         rotMatrix = rotation_matrix(axis, angle)
+        # create 4x4 matrix from the 3x3 rotation matrix
+        newTransform = np.identity(4)
+        newTransform[:3, :3] = rotMatrix
+        self._affineMatrix =  np.matmul(newTransform, self._affineMatrix)
 
         for atom in self._atoms:
             currentPos = atom.getPositionVector()
@@ -275,6 +287,7 @@ class Structure:
         inertiaTensor[2, 0] = inertiaTensor[0, 2]
         inertiaTensor[2, 1] = inertiaTensor[1, 2]
         return inertiaTensor
+
 
     def getPrincipalMomentsOfInertia(self):
         """Get the principal moments of inertia (in kg m2) and the principal axes"""
@@ -520,22 +533,20 @@ class Structure:
 
 class CUBEfile(Structure):
     def __init__(self, filepath: str):
-        self._filepath = filepath
-        with open(self._filepath, "r") as file:
+        with open(filepath, "r") as file:
             self._lines = file.readlines()
-        self._nAtoms = int(self._lines[2].split()[0].strip())
+        nAtoms = int(self._lines[2].split()[0].strip())
 
-        if self._nAtoms < 0:
-            self._nAtoms = -self._nAtoms
+        if nAtoms < 0:
+            nAtoms = -nAtoms
 
-        self._atoms = [0] * self._nAtoms
+        atoms = [0] * nAtoms
 
-        for i in range(self._nAtoms):
-            self._atoms[i] = Atom.fromCUBE(self._lines[6 + i].strip())
-            self._atoms[i].positionBohrToAngstrom()
+        for i in range(nAtoms):
+            atoms[i] = Atom.fromCUBE(self._lines[6 + i].strip())
+            atoms[i].positionBohrToAngstrom()
 
-        self._displacements = []
-        self._bonds = []
+        super().__init__(atoms)
 
     def readVolumetricData(self) -> None:
         """Read the volumetric data in the CUBE file"""
@@ -629,8 +640,9 @@ class CUBEfile(Structure):
         )
 
         vertices += np.diag(0.5 * unitCell) + self._volumetricOriginVector
-        for displacement in self._displacements:
-            vertices += displacement
+        vertices = self._affineMatrix * vertices
+        #for displacement in self._displacements:
+        #    vertices += displacement
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
@@ -653,10 +665,13 @@ class CUBEfile(Structure):
             level=isovalue,
             spacing=np.diag(self._volumetricAxisVectors),
         )
+        
 
+        nvertices = np.shape(vertices)[0]
         vertices += self._volumetricOriginVector
-        for displacement in self._displacements:
-            vertices += displacement
+        vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
+        for i in range(nvertices):
+            vertices[i, :] = np.matmul(self._affineMatrix, vertices4D[i, :])[:3]
         return vertices, faces, normals, values
 
 
