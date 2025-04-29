@@ -11,11 +11,10 @@ from .blenderUtils import (
     createMeshAtoms,
 )
 
-from .geometryUtils import rotation_matrix
-
+from .geometry import Geometry, rotation_matrix
 from .constants import AMU_TO_KG, BOHR_TO_ANGSTROM, ANGSTROM_TO_METERS, BOHR_TO_METERS
 
-class Structure:
+class Structure(Geometry):
     def __init__(self, atomList: list[Atom], bonds: list[Bond] | None = None):
         self._nAtoms = len(atomList)
         self._atoms = atomList
@@ -188,7 +187,7 @@ class Structure:
         """Set the center of mass of the whole system to a new position"""
         COM = self.getCenterOfMass()
         translationVector = newCOMposition - COM
-        self.translateAtoms(translationVector)
+        self.translate(translationVector)
 
     def setAveragePosition(self, newAveragePosition):
         """Sets the average position of all atoms to a new position"""
@@ -196,12 +195,12 @@ class Structure:
             np.array([atom.getPositionVector() for atom in self._atoms]), axis=0
         )
         translationVector = newAveragePosition - averagePosition
-        self.translateAtoms(translationVector)
+        self.translate(translationVector)
 
-    def translateAtoms(self, translationVector):
+    def translate(self, translationVector: np.ndarray) -> None:
         newTransform = np.identity(4)
         newTransform[:3, 3] = translationVector
-        self._affineMatrix = np.matmul(self._affineMatrix, newTransform)
+        self.addTransformation(newTransform)
 
         for atom in self._atoms:
             atom.setPositionVector(atom.getPositionVector()+translationVector)
@@ -228,25 +227,13 @@ class Structure:
         """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
         return self.getAmountOfElectrons() % 2 != 0
 
-    def rotateAroundX(self, angle: float) -> None:
-        """Rotate the structure around the x-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([1, 0, 0], angle)
-
-    def rotateAroundY(self, angle: float) -> None:
-        """Rotate the structure around the y-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 1, 0], angle)
-
-    def rotateAroundZ(self, angle: float) -> None:
-        """Rotate the structure around the z-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 0, 1], angle)
-
     def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
         """Rotate the structure around a certain axis counterclockwise with a certain angle in degrees"""
         rotMatrix = rotation_matrix(axis, angle)
         # create 4x4 matrix from the 3x3 rotation matrix
         newTransform = np.identity(4)
         newTransform[:3, :3] = rotMatrix
-        self._affineMatrix =  np.matmul(newTransform, self._affineMatrix)
+        self.addTransformation(newTransform)
 
         for atom in self._atoms:
             currentPos = atom.getPositionVector()
@@ -530,6 +517,12 @@ class Structure:
         _bonds = []
         return cls(_atoms, _bonds)
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"Structure with {self._nAtoms} atoms"
+
 
 class CUBEfile(Structure):
     def __init__(self, filepath: str):
@@ -620,12 +613,7 @@ class CUBEfile(Structure):
         """Write the volumetric data to a filepath"""
         from pytessel import PyTessel
 
-        if isovalue <= np.min(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty PLY. Set a larger isovalue."
-            raise ValueError(msg)
-        if isovalue >= np.max(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty PLY. Set a smaller isovalue."
-            raise ValueError(msg)
+        self._checkIsovalue(isovalue)
 
         pytessel = PyTessel()
 
@@ -640,40 +628,43 @@ class CUBEfile(Structure):
         )
 
         vertices += np.diag(0.5 * unitCell) + self._volumetricOriginVector
-        vertices = self._affineMatrix * vertices
-        #for displacement in self._displacements:
-        #    vertices += displacement
+
+        nvertices = np.shape(vertices)[0]
+        vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
+        vertices = (self._affineMatrix @ vertices4D.T).T[:, :3]
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
     def calculateIsosurface(
         self, isovalue: float
     ) -> tuple[np.ndarray, np.ndarray, int]:
-        """Write the volumetric data to a filepath"""
-
+        """Calculate the isosurface from the volumetric data and an isovalue"""
         from skimage.measure import marching_cubes
-
-        if isovalue <= np.min(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty PLY. Set a larger isovalue."
-            raise ValueError(msg)
-        if isovalue >= np.max(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty PLY. Set a smaller isovalue."
-            raise ValueError(msg)
+        
+        self._checkIsovalue(isovalue)
 
         vertices, faces, normals, values = marching_cubes(
             self._volumetricData,
             level=isovalue,
             spacing=np.diag(self._volumetricAxisVectors),
         )
-        
 
-        nvertices = np.shape(vertices)[0]
         vertices += self._volumetricOriginVector
+        
+        nvertices = np.shape(vertices)[0]
         vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
-        for i in range(nvertices):
-            vertices[i, :] = np.matmul(self._affineMatrix, vertices4D[i, :])[:3]
+        vertices = (self._affineMatrix @ vertices4D.T).T[:, :3]
+
         return vertices, faces, normals, values
 
+    def _checkIsovalue(self, isovalue: float) -> None:
+        """Checks whether the supplied isovalue is valid"""
+        if isovalue <= np.min(self._volumetricData):
+            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty isosurface. Set a larger isovalue."
+            raise ValueError(msg)
+        if isovalue >= np.max(self._volumetricData):
+            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty isosurface. Set a smaller isovalue."
+            raise ValueError(msg)
 
 class JSONfile(Structure):
     def __init__(self, filepath):

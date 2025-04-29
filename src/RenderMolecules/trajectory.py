@@ -1,11 +1,13 @@
 from .structure import Structure
 from .atom import Atom
+from .geometry import Geometry
 import numpy as np
+import bpy
 
 from .otherUtils import findAllStringInListOfStrings, findFirstStringInListOfStrings
 
 
-class Trajectory:
+class Trajectory(Geometry):
     def __init__(self, frames: list[Structure]):
         self._nframes = len(frames)
         self._frames = frames
@@ -137,18 +139,6 @@ class Trajectory:
         """Get the Structure at a certain frame index"""
         return self._frames[frameIndex]
 
-    def rotateAroundX(self, angle: float) -> None:
-        """Rotate all frames in the trajectory around the x-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([1, 0, 0], angle)
-
-    def rotateAroundY(self, angle: float) -> None:
-        """Rotate all frames in the trajectory around the y-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 1, 0], angle)
-
-    def rotateAroundZ(self, angle: float) -> None:
-        """Rotate all frames in the trajectory around the z-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 0, 1], angle)
-
     def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
         """Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees"""
         for frame in self._frames:
@@ -183,3 +173,7 @@ class Trajectory:
                 _atoms[j] = Atom.fromXYZ(cartesianCoordLines[j])
             _frames[i] = Structure(_atoms)
         return cls(_frames)
+
+    def translate(self, translationVector) -> None:
+        for frame in self._frames:
+            frame.translate(translationVector)
