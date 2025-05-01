@@ -174,6 +174,29 @@ class Trajectory(Geometry):
             _frames[i] = Structure(_atoms)
         return cls(_frames)
 
+    def fromXYZ(cls, filepath):
+        """Generate a trajectory from an XYZ file containing multiple frames"""
+        with open(filepath, "r") as file:
+            _lines = file.readlines()
+    
+        _frames = []
+        for i, line in enumerate(_lines):
+            line = line.strip()
+            try:
+                # If the line is just an integer, it is the amount of atoms in that frame
+                _nAtoms = int(line)
+            except ValueError:
+                # If it is not, we skip the line
+                continue
+            
+            _atoms = [0] * _nAtoms
+            for j in range(_nAtoms):
+                _atoms[j] = Atom.fromXYZ(_lines[i+2+j])
+            _frames.append(Structure(_atoms))
+        return cls(_frames)
+
+
+
     def translate(self, translationVector) -> None:
         for frame in self._frames:
             frame.translate(translationVector)

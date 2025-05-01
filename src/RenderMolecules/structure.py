@@ -14,6 +14,7 @@ from .blenderUtils import (
 from .geometry import Geometry, rotation_matrix
 from .constants import AMU_TO_KG, BOHR_TO_ANGSTROM, ANGSTROM_TO_METERS, BOHR_TO_METERS
 
+
 class Structure(Geometry):
     def __init__(self, atomList: list[Atom], bonds: list[Bond] | None = None):
         self._nAtoms = len(atomList)
@@ -203,8 +204,7 @@ class Structure(Geometry):
         self.addTransformation(newTransform)
 
         for atom in self._atoms:
-            atom.setPositionVector(atom.getPositionVector()+translationVector)
-
+            atom.setPositionVector(atom.getPositionVector() + translationVector)
 
     def getTotalCharge(self) -> int:
         """Get the total charge in the system"""
@@ -275,12 +275,12 @@ class Structure(Geometry):
         inertiaTensor[2, 1] = inertiaTensor[1, 2]
         return inertiaTensor
 
-
     def getPrincipalMomentsOfInertia(self):
         """Get the principal moments of inertia (in kg m2) and the principal axes"""
         inertiaTensor = self.getInertiaTensor()
         principalMoments, principalAxes = np.linalg.eig(inertiaTensor)
-        return principalMoments, principalAxes
+        indeces = np.argsort(principalMoments)
+        return principalMoments[indeces], principalAxes[indeces]
 
     def createHydrogenBonds(self) -> None:
         """Adds hydrogen bonds to each molecule"""
@@ -640,7 +640,7 @@ class CUBEfile(Structure):
     ) -> tuple[np.ndarray, np.ndarray, int]:
         """Calculate the isosurface from the volumetric data and an isovalue"""
         from skimage.measure import marching_cubes
-        
+
         self._checkIsovalue(isovalue)
 
         vertices, faces, normals, values = marching_cubes(
@@ -650,7 +650,7 @@ class CUBEfile(Structure):
         )
 
         vertices += self._volumetricOriginVector
-        
+
         nvertices = np.shape(vertices)[0]
         vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
         vertices = (self._affineMatrix @ vertices4D.T).T[:, :3]
@@ -665,6 +665,7 @@ class CUBEfile(Structure):
         if isovalue >= np.max(self._volumetricData):
             msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty isosurface. Set a smaller isovalue."
             raise ValueError(msg)
+
 
 class JSONfile(Structure):
     def __init__(self, filepath):
