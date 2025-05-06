@@ -8,3 +8,7 @@ AMU_TO_KG = 1.66053907e-27
 KG_TO_AMU = 1 / AMU_TO_KG
 
 KGM2_TO_AMU_ANGSTROM2 = KG_TO_AMU * METERS_TO_ANGSTROM * METERS_TO_ANGSTROM
+
+hydrogenBondLength = 3.5  # Maximum hydrogen bond length is 3.5 Angstrom
+hydrogenBondAngle = 35  # Maximum hydrogen bond angle is 35 degrees
+sphereScale = 0.3  # Created atoms have a radius of 0.3*r_VDW
