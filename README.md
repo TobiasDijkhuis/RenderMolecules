@@ -29,18 +29,19 @@ density of an orbital. For this, there are two options,
 - Without writing and reading from a file, in memory:
     1. Read the volumetric data using CUBEfile.readVolumetricData 
     2. Calculate the isosurface using CUBEfile.calculateIsosurface
-    3. Create the isosurface in the Blender scene using utils.createIsosurface
+    3. Create the isosurface in the Blender scene using blenderUtils.createIsosurface
 - With writing and reading from a file:
     1. Read the volumetric data using CUBEfile.readVolumetricData 
     2. Calculate the isosurface, and write it to a .ply file using CUBEfile.writePLY
     3. Read the .ply file using utils.loadPLY
-         
+    
+    > This crashed Blender at the moment. I think it has to do with importing PyTessel.
     > Note: With this method you have to be careful that you do the same displacements and rotations as you do to the structure in your scene. Otherwise, the location of the isosurface might be incorrect.
 
 Almost always the first method will be easier. Using the second method straight from Blender (i.e. calculated the isosurface using PyTessel), I had some troubles that on my Windows machine. Blender would crash and exit. It works if I write the .ply file from the commandline directly. On my Linux machine, both work fine.
 
 ## Dependencies:
- - PyTessel
+ - PyTessel (optional)
  - scikit-image
  - numpy
  - bpy
@@ -65,9 +66,10 @@ Sometimes you might want to create a molecule with double (e.g. in benzene) or t
 
 ## Manipulating structures:
 Structures and trajectories can be manipulated (i.e. translated or rotated) using a couple of methods. These translations and rotations are also correctly applied to the isosurface, if they happen before the isosurface is calulated.
+The Geometry parent class keeps track of the transformations using an [Affine Matrix](https://en.wikipedia.org/wiki/Affine_transformation).
 
 ### Translation
-Structures can be translated using Structure.setCenterOfMass(), where the center of mass of the structure can be set to a certain position.
+Structures can be translated using Structure.setCenterOfMass(), where the center of mass of the structure can be set to a certain position, or by setting the average position of each atom, or by directly giving a translation vector.
 
 ### Rotation
 Structures can be rotated using a couple of different methods:
@@ -82,8 +84,7 @@ Rotation angle given in degrees, counterclockwise.
 Materials are handled by the manifest in src/RenderMolecules/ElementData.py. If you want to change an atom color, the shiny-ness of atoms, etc, it should be changed here.
 
 ## Adding to Blender's Python interpreter
-Ideally, you should install Blender without any external tools like Snap,
-because then it becomes so much harder to install a new module.
+Ideally, you should install Blender without any external tools like Snap, because then it becomes so much harder to install a new module.
 
 If you just installed Blender from the .zip file on Blender's website, do the following (tested on Ubuntu 24.04.02 using Blender 4.2)
 

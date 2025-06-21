@@ -1,5 +1,8 @@
+import bmesh
 import bpy
+import numpy as np
 
+from .constants import *
 from .ElementData import *
 
 
@@ -121,7 +124,9 @@ def deleteAllObjects():
     bpy.ops.object.delete()
 
 
-def createIsosurface(verts, faces, prefix, isovalue, assignMaterialBasedOnSign=True):
+def createIsosurface(
+    verts, faces, isovalue, prefix="isosurface", assignMaterialBasedOnSign=True
+):
     name = f"{prefix}_{isovalue}"
     mesh = bpy.data.meshes.new(name=name)
     mesh.from_pydata(verts, [], faces, shade_flat=False)
@@ -248,6 +253,71 @@ def createCylinder(
     return obj
 
 
+def joinTwoCylinders(cylinder1, cylinder2, centerPosition, selectWithin):
+    print(cylinder1, cylinder2)
+    deselectAllSelected()
+    cylinder1.select_set(True)
+    cylinder2.select_set(True)
+    bpy.ops.object.join()
+    mesh = bpy.context.object.data
+    # Somehow select all edges of one side of each cylinder,
+    # then bridge them.
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="DESELECT")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for vert in bm.verts:
+        vertDistance = (
+            sum([(vert.co[i] - centerPosition[i]) ** 2 for i in range(3)]) ** 0.5
+        )
+        if vertDistance <= selectWithin:
+            vert.select_set(True)
+        else:
+            vert.select_set(False)
+        print(vert.co, centerPosition, vertDistance, selectWithin, vert.select)
+    for edge in bm.edges:
+        if edge.verts[0].select and edge.verts[1].select:
+            edge.select_set(True)
+        else:
+            edge.select_set(False)
+
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.loop_select(extend=True, ring=True)
+
+    # deselectAllSelected()
+    # bpy.ops.object.editmode_toggle()
+    # bpy.ops.mesh.bridge_edge_loops(
+    #     type="CLOSED",
+    #     use_merge=False,
+    #     number_cuts=20,
+    #     smoothness=1,
+    #     interpolation="SURFACE",
+    #     profile_shape_factor=0,
+    #     profile_shape="SPHERE",
+    # )
+    # bpy.ops.object.editmode_toggle()
+    return
+    # cylinder1.select_set(False)
+    # cylinder2.select_set(False)
+    # bpy.ops.object.editmode_toggle()
+    # bm.to_mesh(mesh)
+    # bm.free()
+
+
+def joinCylinders(cylinders: list[object], atomLocation: np.ndarray, vdwRadius: float):
+    for i, cylinder in enumerate(cylinders[:-1]):
+        joinTwoCylinders(cylinder, cylinders[i + 1], atomLocation, vdwRadius)
+        return
+
+
+def putHemisphereCapOnCylinder(cylinder):
+    # If an atom is only bound on one side, the bond will have to be
+    # terminated by a hemisphere at one end. Can be done like this?
+    # https://blender.stackexchange.com/questions/84789/how-can-i-cap-a-cylinder-with-a-hemisphere
+    pass
+
+
 def scaleNvertices(*args, renderResolution="medium"):
     renderResolution = renderResolution.lower()
     if renderResolution not in ["verylow", "low", "medium", "high", "veryhigh"]:
@@ -271,3 +341,8 @@ def scaleNvertices(*args, renderResolution="medium"):
         return tuple([int(arg * scale) for arg in args])
     else:
         raise ValueError()
+
+
+def deselectAllSelected():
+    for obj in bpy.context.selected_objects:
+        obj.select_set(False)

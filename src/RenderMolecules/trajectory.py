@@ -1,10 +1,12 @@
-from .structure import Structure
-from .atom import Atom
-from .geometry import Geometry
-import numpy as np
 import bpy
+import numpy as np
 
-from .otherUtils import findAllStringInListOfStrings, findFirstStringInListOfStrings
+from .atom import Atom
+from .blenderUtils import getObjectByName
+from .geometry import Geometry
+from .otherUtils import (findAllStringInListOfStrings,
+                         findFirstStringInListOfStrings)
+from .structure import Structure
 
 
 class Trajectory(Geometry):
@@ -174,11 +176,12 @@ class Trajectory(Geometry):
             _frames[i] = Structure(_atoms)
         return cls(_frames)
 
+    @classmethod
     def fromXYZ(cls, filepath):
         """Generate a trajectory from an XYZ file containing multiple frames"""
         with open(filepath, "r") as file:
             _lines = file.readlines()
-    
+
         _frames = []
         for i, line in enumerate(_lines):
             line = line.strip()
@@ -188,14 +191,12 @@ class Trajectory(Geometry):
             except ValueError:
                 # If it is not, we skip the line
                 continue
-            
+
             _atoms = [0] * _nAtoms
             for j in range(_nAtoms):
-                _atoms[j] = Atom.fromXYZ(_lines[i+2+j])
+                _atoms[j] = Atom.fromXYZ(_lines[i + 2 + j])
             _frames.append(Structure(_atoms))
         return cls(_frames)
-
-
 
     def translate(self, translationVector) -> None:
         for frame in self._frames:

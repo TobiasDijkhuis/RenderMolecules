@@ -1,18 +1,15 @@
-from .atom import Atom
-from .bond import Bond
-from .ElementData import manifest, bondLengths
 import numpy as np
 
-from .blenderUtils import (
-    createCylinder,
-    createUVsphere,
-    create_material,
-    createIsosurface,
-    createMeshAtoms,
-)
-
-from .geometry import Geometry, rotation_matrix
-from .constants import AMU_TO_KG, BOHR_TO_ANGSTROM, ANGSTROM_TO_METERS, BOHR_TO_METERS
+from .atom import Atom
+from .blenderUtils import (create_material, createCylinder, createIsosurface,
+                           createMeshAtoms, createUVsphere,
+                           deselectAllSelected, getObjectByName, joinCylinders,
+                           putHemisphereCapOnCylinder, selectObjectByName)
+from .bond import Bond
+from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
+                        BOHR_TO_METERS)
+from .ElementData import bondLengths, manifest
+from .geometry import Geometry, check3Dvector, rotation_matrix
 
 
 class Structure(Geometry):
@@ -80,6 +77,7 @@ class Structure(Geometry):
             obj.data.materials.append(mat)
 
             createMeshAtoms(atomVertices[atomType], obj, atomType)
+        deselectAllSelected()
 
     def findBondsBasedOnDistance(self) -> list[Bond]:
         """Create bonds based on the geometry"""
@@ -129,6 +127,7 @@ class Structure(Geometry):
                         atom.getPositionVector(),
                         self._atoms[atomIndex].getPositionVector(),
                     ),
+                    f"bond-{i}-{atomIndex}",
                 )
                 connectingIndices.append((i, atomIndex))
                 self._bonds.append(newBond)
@@ -187,6 +186,7 @@ class Structure(Geometry):
     def setCenterOfMass(self, newCOMposition):
         """Set the center of mass of the whole system to a new position"""
         COM = self.getCenterOfMass()
+        newCOMposition = check3Dvector(newCOMposition)
         translationVector = newCOMposition - COM
         self.translate(translationVector)
 
@@ -195,10 +195,13 @@ class Structure(Geometry):
         averagePosition = np.average(
             np.array([atom.getPositionVector() for atom in self._atoms]), axis=0
         )
+        newAveragePosition = check3Dvector(newAveragePosition)
         translationVector = newAveragePosition - averagePosition
         self.translate(translationVector)
 
     def translate(self, translationVector: np.ndarray) -> None:
+        translationVector = check3Dvector(translationVector)
+
         newTransform = np.identity(4)
         newTransform[:3, 3] = translationVector
         self.addTransformation(newTransform)
@@ -486,6 +489,29 @@ class Structure(Geometry):
                     renderResolution=renderResolution,
                     name=f"bond-{atom1Index}-{atom2Index}",
                 )
+        deselectAllSelected()
+
+    def joinBonds(self):
+        for atomIndex, atom in enumerate(self._atoms):
+            bondsToJoin = []
+            for bond in self._bonds:
+                if (
+                    bond.getAtom1Index() == atomIndex
+                    or bond.getAtom2Index() == atomIndex
+                ):
+                    bondsToJoin.append(getObjectByName(bond.getName()))
+            if not bondsToJoin:
+                continue
+            if len(bondsToJoin) == 1:
+                # This also needs to extend the cylinder somehow to the atom position
+                # Maybe by creating a second, very narrow cylinder at the atom position,
+                # joining that with the original cylinder and then putting the cap on that?
+                putHemisphereCapOnCylinder(bondsToJoin[0])
+            else:
+                joinCylinders(
+                    bondsToJoin, atom.getPositionVector(), atom.getVdWRadius()
+                )
+                return
 
     @classmethod
     def fromXYZ(cls, filepath: str):

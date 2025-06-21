@@ -1,22 +1,23 @@
 import numpy as np
 
+
 class Geometry:
     def __init__(self):
         self._affineMatrix = np.identity(4)
 
     def getAffineMatrix(self) -> np.ndarray:
         return self._affineMatrix
-    
+
     def setAffineMatrix(self, newAffineMatrix) -> None:
         shape = np.shape(newAffineMatrix)
-        if not len(shape) == 2 or not all(i == 4 for i in shape):
+        if not shape == (4, 4):
             msg = f"affineTransformationMatrix was not the correct shape. Should have been (4, 4), but was {shape}"
             raise ValueError(msg)
         self._affineMatrix = newAffineMatrix
 
     def addTransformation(self, affineTransformationMatrix) -> None:
         shape = np.shape(affineTransformationMatrix)
-        if not len(shape) == 2 or not all(i == 4 for i in shape):
+        if not shape == (4, 4):
             msg = f"affineTransformationMatrix was not the correct shape. Should have been (4, 4), but was {shape}"
             raise ValueError(msg)
         self.setAffineMatrix(affineTransformationMatrix @ self._affineMatrix)
@@ -41,13 +42,15 @@ class Geometry:
         """Rotate the geometry around the z-axis counterclockwise with a certain angle in degrees"""
         self.rotateAroundAxis([0, 0, 1], angle)
 
+
 def rotation_matrix(axis, theta):
     """
     Return the rotation matrix associated with counterclockwise rotation about
     the given axis by theta degrees.
     """
+    check3Dvector(axis)
+
     theta *= np.pi / 180.0
-    axis = np.asarray(axis)
     axis = axis / np.sqrt(np.dot(axis, axis))
     a = np.cos(theta / 2.0)
     b, c, d = -axis * np.sin(theta / 2.0)
@@ -61,7 +64,11 @@ def rotation_matrix(axis, theta):
         ]
     )
 
+
 def angle_between(vector1, vector2) -> float:
+    vector1 = check3Dvector(vector1)
+    vector2 = check3Dvector(vector2)
+
     vector1 /= np.linalg.norm(vector1)
     vector2 /= np.linalg.norm(vector2)
     axis = np.cross(vector1, vector2)
@@ -70,3 +77,14 @@ def angle_between(vector1, vector2) -> float:
     else:
         angle = np.arccos(np.dot(vector1, vector2))
     return angle * 180 / np.pi
+
+
+def check3Dvector(vector: list | np.ndarray) -> np.ndarray:
+    if isinstance(vector, list):
+        vector = np.asarray(vector)
+
+    if not np.shape(vector) == (3,):
+        msg = f"vector was supposed to be shape 3, but was shape {np.shape(vector)}"
+        raise ValueError(msg)
+
+    return vector

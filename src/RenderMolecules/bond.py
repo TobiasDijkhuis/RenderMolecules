@@ -2,6 +2,7 @@ import numpy as np
 
 from .ElementData import elementList, elementMass, vdwRadii
 
+
 class Bond:
     def __init__(
         self,
@@ -12,14 +13,16 @@ class Bond:
         interatomicVector: np.ndarray,
         midpointPosition: np.ndarray,
         atom1and2Pos: np.ndarray,
+        name: str,
     ):
         self._atom1Index, self._atom2Index = atom1Index, atom2Index
         self._bondType = bondType
         self._bondLength = bondLength
         self._interatomicVector = interatomicVector
-        self._midpointPosition = midpointPosition
+        self.setMidpointPosition(midpointPosition)
         self._atom1Pos = atom1and2Pos[0]
         self._atom2Pos = atom1and2Pos[1]
+        self.setName(name)
 
     def getAtom1Index(self) -> int:
         """Get the index of the first atom that is connected to this bond"""
@@ -47,6 +50,10 @@ class Bond:
 
     def setMidpointPosition(self, midpointPosition: np.ndarray) -> None:
         """Set the midpoint position of the two atoms"""
+        if isinstance(midpointPosition, list):
+            midpointPosition = np.asarray(list)
+        if not np.shape(midpointPosition) == (3,):
+            raise ValueError()
         self._midpointPosition = midpointPosition
 
     def getDirection(self) -> np.ndarray[float]:
@@ -60,6 +67,14 @@ class Bond:
     def getAtom2Pos(self) -> np.ndarray[float]:
         """Get position of atom 2"""
         return self._atom2Pos
+
+    def getName(self) -> str:
+        return self._name
+
+    def setName(self, name) -> None:
+        if not isinstance(name, str):
+            raise TypeError(f"name was supposed to be string but was type {type(name)}")
+        self._name = name
 
     def getAxisAngleWithZaxis(self) -> tuple[float, float, float, float]:
         """Get the axis angle such that a created cylinder in the direction of the bond"""
