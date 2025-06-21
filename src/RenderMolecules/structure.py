@@ -530,7 +530,7 @@ class Structure(Geometry):
     @classmethod
     def fromSDF(cls, filepath: str):
         """Creates a Structure from an SDF file"""
-        with open(_filepath, "r") as file:
+        with open(filepath, "r") as file:
             _lines = file.readlines()
 
         _nAtoms = int(_lines[3].split()[0].strip())
@@ -542,6 +542,54 @@ class Structure(Geometry):
         # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
         _bonds = []
         return cls(_atoms, _bonds)
+
+    @classmethod
+    def fromXSF(cls, filepath: str):
+        # http://www.xcrysden.org/doc/XSF.html#__toc__2
+        # Needs to be tested
+        with open(filepath, "r") as file:
+            _lines = file.readlines()
+        joinedLines = "".join(_lines)
+
+        if "CRYSTAL" in joinedLines:
+            is_periodic = True
+        if "ANIMSTEPS" in joinedLines:
+            msg = f"Structure class cannot read changing structures. Use Trajectory for that"
+            raise TypeError(msg)
+
+        if is_periodic:
+            # Does not use that it is periodic, but just reads differently
+            # (at least for now)
+            for i, line in enumerate(_lines):
+                if line[0] == "#":
+                    continue
+                if "PRIMVEC" in line:
+                    primvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)
+                elif "CONVVEC" in line:
+                    convvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)
+                elif "PRIMCOORD" in line:
+                    _nAtoms = int(_lines[i + 1].split()[0])
+                    _atoms = [0] * _nAtoms
+                    for j in range(_nAtoms):
+                        _atoms[j] = Atom.fromXYZ(_lines[i + 2 + j])
+        else:
+            for i, line in enumerate(_lines):
+                if line[0] == "#":
+                    continue
+                if "ATOMS" in line:
+                    _atoms = []
+                    j = 0
+                    while _lines[i + 1 + j][0] != "#":
+                        try:
+                            # If we're still able to convert the first column to an integer,
+                            # there's still a new atom. If not, the atom list is done
+                            # and we need to stop the reading.
+                            int(_lines[i + 1 + j].split()[0])
+                        except:
+                            break
+                        _atoms.append(Atom.fromXYZ(_lines[i + 1 + j]))
+                        j += 1
+        return cls(_atoms)
 
     def __repr__(self) -> str:
         return self.__str__()

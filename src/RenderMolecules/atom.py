@@ -1,11 +1,8 @@
-from .ElementData import (
-    getAtomicNumberFromElement,
-    getElementFromAtomicNumber,
-    vdwRadii,
-    elementMass,
-)
 import numpy as np
-from .constants import KGM2_TO_AMU_ANGSTROM2, BOHR_TO_ANGSTROM
+
+from .constants import BOHR_TO_ANGSTROM, KGM2_TO_AMU_ANGSTROM2
+from .ElementData import (elementMass, getAtomicNumberFromElement,
+                          getElementFromAtomicNumber, vdwRadii)
 
 
 class Atom:
@@ -57,7 +54,11 @@ class Atom:
         """Create Atom instance from a line in an XYZ file"""
         splitString = string.split()
         element = splitString[0].strip()
-        atomicNumber = getAtomicNumberFromElement(element)
+        try:
+            atomicNumber = int(element)
+            element = getElementFromAtomicNumber(atomicNumber)
+        except ValueError:
+            atomicNumber = getAtomicNumberFromElement(element)
         x, y, z = [float(field) for field in splitString[1:]]
         isAngstrom = True  # Angstrom by default
         return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)

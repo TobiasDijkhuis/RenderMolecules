@@ -14,10 +14,12 @@ See below for more info on how to install it such that Blender's python interpre
 ### Structure
  - XYZ
  - CUBE
+ - XSF (to be tested)
  - ...
 ### Trajectory
- - ORCA geometry optimization
  - XYZ
+ - ORCA geometry optimization
+ - AXSF (not yet)
  - ...
 
 ## Periodic Boundary Conditions:

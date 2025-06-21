@@ -198,6 +198,10 @@ class Trajectory(Geometry):
             _frames.append(Structure(_atoms))
         return cls(_frames)
 
+    @classmethod
+    def fromXSF(cls, filepath):
+        raise NotImplementedError()
+
     def translate(self, translationVector) -> None:
         for frame in self._frames:
             frame.translate(translationVector)
