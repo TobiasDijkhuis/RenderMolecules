@@ -25,6 +25,13 @@ See below for more info on how to install it such that Blender's python interpre
 ## Periodic Boundary Conditions:
 TODO, NOT IMPLEMENTED
 
+## Orbiting the camera around a structure:
+Create an animation such that you can view the structure from different angles.
+TODO, NOT IMPLEMENTED.
+[Tutorial](https://www.blendernation.com/2020/07/08/blender-quick-tip-rotate-orbit-camera-around-object/).
+Put in blenderUtils probably.
+
+
 ## Rendering volumetric data:
 RenderMolecules also allows for rendering volumetric data, such as the electron 
 density of an orbital. For this, there are two options, 

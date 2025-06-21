@@ -39,6 +39,8 @@ class Trajectory(Geometry):
         splitBondToAtomMaterials: bool = True,
     ) -> None:
         """Create the animation of the trajectory in the Blender scene"""
+        # At the moment, this looks a bit weird if bond lengths change a lot.
+        # Also, does not support bond creation/destruction.
         frame_step = 10
         bpy.context.scene.frame_step = frame_step
         bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
