@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RenderMolecules.trajectory &mdash; RenderMolecules 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            RenderMolecules
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../RenderMolecules.html">RenderMolecules package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">RenderMolecules</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">RenderMolecules.trajectory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for RenderMolecules.trajectory</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">bpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blenderUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">getObjectByName</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.otherUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">findAllStringInListOfStrings</span><span class="p">,</span> <span class="n">findFirstStringInListOfStrings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
+
+
+<div class="viewcode-block" id="Trajectory">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Trajectory</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span> <span class="o">=</span> <span class="n">frames</span>
+
+<div class="viewcode-block" id="Trajectory.get_frames">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_frames">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all frames in the trajectory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.get_nframes">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_nframes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nframes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of frames in the trajectory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.setCenterOfMass">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.setCenterOfMass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCenterOfMass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newCOMposition</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frameIndex</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Center Of Mass (COM) of the structure at index &#39;frameIndex&#39; to a new position</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            newCOMposition (np.ndarray): new COM position [x, y, z], in Angstrom</span>
+<span class="sd">            frameIndex (int): frame index to position according to COM</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">originalCOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">[</span><span class="n">frameIndex</span><span class="p">]</span><span class="o">.</span><span class="n">getCenterOfMass</span><span class="p">()</span>
+        <span class="n">displacement</span> <span class="o">=</span> <span class="n">newCOMposition</span> <span class="o">-</span> <span class="n">originalCOM</span>
+
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">getAtoms</span><span class="p">():</span>
+                <span class="n">newPosition</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">getPositionVector</span><span class="p">()</span> <span class="o">+</span> <span class="n">displacement</span>
+                <span class="n">atom</span><span class="o">.</span><span class="n">setPositionVector</span><span class="p">(</span><span class="n">newPosition</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.createAnimation">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.createAnimation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">createAnimation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">createBonds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">renderResolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">splitBondToAtomMaterials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the animation of the trajectory in the Blender scene&quot;&quot;&quot;</span>
+        <span class="c1"># At the moment, this looks a bit weird if bond lengths change a lot.</span>
+        <span class="c1"># Also, does not support bond creation/destruction.</span>
+        <span class="n">frame_step</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_step</span> <span class="o">=</span> <span class="n">frame_step</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_end</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">frame_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">initialFrame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">initialFrame</span><span class="o">.</span><span class="n">createAtoms</span><span class="p">(</span><span class="n">createMesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">renderResolution</span><span class="o">=</span><span class="n">renderResolution</span><span class="p">)</span>
+
+        <span class="n">initialBonds</span> <span class="o">=</span> <span class="n">initialFrame</span><span class="o">.</span><span class="n">findBondsBasedOnDistance</span><span class="p">()</span>
+        <span class="n">initialFrame</span><span class="o">.</span><span class="n">createBonds</span><span class="p">(</span>
+            <span class="n">initialBonds</span><span class="p">,</span>
+            <span class="n">splitBondToAtomMaterials</span><span class="o">=</span><span class="n">splitBondToAtomMaterials</span><span class="p">,</span>
+            <span class="n">renderResolution</span><span class="o">=</span><span class="n">renderResolution</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">allAtomElements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">initialFrame</span><span class="o">.</span><span class="n">getAtoms</span><span class="p">()]</span>
+        <span class="n">allElementIndeces</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">allAtomElements</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">allAtomElements</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allAtomElements</span><span class="p">))</span>
+        <span class="p">]</span>
+
+        <span class="n">previousBondLengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">bond</span><span class="o">.</span><span class="n">getBondLength</span><span class="p">()</span> <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">initialBonds</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">):</span>
+            <span class="n">currentFrameNr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">frame_step</span>
+            <span class="n">currentPositions</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">getAllAtomPositions</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">getAtoms</span><span class="p">()):</span>
+                <span class="n">objectName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;atom-</span><span class="si">{</span><span class="n">allAtomElements</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                <span class="k">if</span> <span class="n">allElementIndeces</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">objectName</span> <span class="o">+=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">allElementIndeces</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Select UV sphere with correct name</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">getObjectByName</span><span class="p">(</span><span class="n">objectName</span><span class="p">)</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">currentPositions</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">currentPositions</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">currentPositions</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span><span class="p">)</span>
+
+            <span class="c1"># Now reposition and rerotate all the bonds.</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">currentBonds</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">findBondsBasedOnDistance</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">currentBonds</span> <span class="o">=</span> <span class="n">initialBonds</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">bond</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">currentBonds</span><span class="p">):</span>
+                <span class="n">atom1Index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getAtom1Index</span><span class="p">()</span>
+                <span class="n">atom2Index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getAtom2Index</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">obj</span> <span class="o">=</span> <span class="n">getObjectByName</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1Index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2Index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># This bond did not exist yet, needs to be created</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Does not support bond creation yet&quot;</span><span class="p">)</span>
+
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getBondLength</span><span class="p">()</span> <span class="o">/</span> <span class="n">previousBondLengths</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="c1"># previousBondLengths[j] = bond.getBondLength()</span>
+
+                <span class="n">vdwWeightedLocations</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getVdWWeightedMidpoints</span><span class="p">(</span>
+                    <span class="n">allAtomElements</span><span class="p">[</span><span class="n">atom1Index</span><span class="p">],</span> <span class="n">allAtomElements</span><span class="p">[</span><span class="n">atom2Index</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getAxisAngleWithZaxis</span><span class="p">()</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span>
+                    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;rotation_axis_angle&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span>
+                <span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">splitBondToAtomMaterials</span>
+                    <span class="ow">or</span> <span class="n">allAtomElements</span><span class="p">[</span><span class="n">atom1Index</span><span class="p">]</span> <span class="o">==</span> <span class="n">allAtomElements</span><span class="p">[</span><span class="n">atom2Index</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">obj</span> <span class="o">=</span> <span class="n">getObjectByName</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1Index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2Index</span><span class="si">}</span><span class="s2">.001&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># This bond did not exist yet, needs to be created</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Does not support bond creation yet&quot;</span><span class="p">)</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">vdwWeightedLocations</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getAxisAngleWithZaxis</span><span class="p">()</span>
+
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span>
+                    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;rotation_axis_angle&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span>
+                <span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">currentFrameNr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.get_frame">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frameIndex</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Structure at a certain frame index&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">[</span><span class="n">frameIndex</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.rotateAroundAxis">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.rotateAroundAxis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundAxis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">:</span>
+            <span class="n">frame</span><span class="o">.</span><span class="n">rotateAroundAxis</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fromORCAgeomOpt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a trajectory from an ORCA geometry optimzation output file&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">beginStructure</span> <span class="o">=</span> <span class="n">findAllStringInListOfStrings</span><span class="p">(</span>
+            <span class="s2">&quot;CARTESIAN COORDINATES (ANGSTROEM)&quot;</span><span class="p">,</span> <span class="n">_lines</span>
+        <span class="p">)</span>
+        <span class="n">beginStructure</span> <span class="o">=</span> <span class="p">[</span><span class="n">beginIndex</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">beginIndex</span> <span class="ow">in</span> <span class="n">beginStructure</span><span class="p">]</span>
+
+        <span class="n">endStructure</span> <span class="o">=</span> <span class="n">findAllStringInListOfStrings</span><span class="p">(</span>
+            <span class="s2">&quot;CARTESIAN COORDINATES (A.U.)&quot;</span><span class="p">,</span> <span class="n">_lines</span>
+        <span class="p">)</span>
+        <span class="n">endStructure</span> <span class="o">=</span> <span class="p">[</span><span class="n">endIndex</span> <span class="o">-</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">endIndex</span> <span class="ow">in</span> <span class="n">endStructure</span><span class="p">]</span>
+
+        <span class="n">_nframes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">endStructure</span><span class="p">)</span>
+        <span class="n">structureLines</span> <span class="o">=</span> <span class="p">[(</span><span class="n">beginStructure</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">endStructure</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_nframes</span><span class="p">)]</span>
+
+        <span class="n">_frames</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_nframes</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">structureTuple</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structureLines</span><span class="p">):</span>
+            <span class="n">cartesianCoordLines</span> <span class="o">=</span> <span class="n">_lines</span><span class="p">[</span><span class="n">structureTuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">structureTuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+            <span class="n">_nAtoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cartesianCoordLines</span><span class="p">)</span>
+            <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_nAtoms</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_nAtoms</span><span class="p">):</span>
+                <span class="n">_atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">fromXYZ</span><span class="p">(</span><span class="n">cartesianCoordLines</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">_frames</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">_atoms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_frames</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Trajectory.fromXYZ">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromXYZ">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fromXYZ</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a trajectory from an XYZ file containing multiple frames&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">_frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_lines</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># If the line is just an integer, it is the amount of atoms in that frame</span>
+                <span class="n">_nAtoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="c1"># If it is not, we skip the line</span>
+                <span class="k">continue</span>
+
+            <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_nAtoms</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_nAtoms</span><span class="p">):</span>
+                <span class="n">_atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">fromXYZ</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">j</span><span class="p">])</span>
+            <span class="n">_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="p">(</span><span class="n">_atoms</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_frames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.fromXSF">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromXSF">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fromXSF</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.fromORCAoutput">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromORCAoutput">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fromORCAoutput</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">useVibrations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">useGeometryOptimization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">vibrationNr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="s2">&quot;imag&quot;</span><span class="p">,</span>
+        <span class="n">nFramesPerOscillation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Get trajectory corresponding to either vibrations of the normal modes or the geometry optimization</span>
+        <span class="k">if</span> <span class="n">useVibrations</span> <span class="o">==</span> <span class="n">useGeometryOptimization</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;One (and not two) of useVibrations and useGeometryOptimzation must be True, but both were </span><span class="si">{</span><span class="n">useVibrations</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">useGeometryOptimization</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fromORCAgeomOpt</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">resultFrequencies</span> <span class="o">=</span> <span class="n">findFirstStringInListOfStrings</span><span class="p">(</span>
+            <span class="s2">&quot;VIBRATIONAL FREQUENCIES&quot;</span><span class="p">,</span> <span class="n">_lines</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">resultFrequencies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No &#39;VIBRATIONAL FREQUENCIES&#39; found in ORCA output&quot;</span><span class="p">)</span>
+
+        <span class="n">resultNormal</span> <span class="o">=</span> <span class="n">findFirstStringInListOfStrings</span><span class="p">(</span><span class="s2">&quot;NORMAL MODES&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resultNormal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No &#39;NORMAL MODES&#39; found in ORCA output&quot;</span><span class="p">)</span>
+
+        <span class="n">resultIRspec</span> <span class="o">=</span> <span class="n">findFirstStringInListOfStrings</span><span class="p">(</span>
+            <span class="s2">&quot;IR SPECTRUM&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">resultNormal</span>
+        <span class="p">)</span>
+
+        <span class="n">frequenciesLines</span> <span class="o">=</span> <span class="n">_lines</span><span class="p">[</span><span class="n">resultFrequencies</span> <span class="o">+</span> <span class="mi">5</span> <span class="p">:</span> <span class="n">resultNormal</span> <span class="o">-</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">nfreqs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequenciesLines</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vibrationNr</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># Try to infer which vibration is the imaginary one, and then give trajectory corresponding to that one.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vibrationNr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;im&quot;</span><span class="p">,</span> <span class="s2">&quot;imag&quot;</span><span class="p">,</span> <span class="s2">&quot;imaginary&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;If vibrationNr is a string, it should be one of [&#39;i&#39;, &#39;im&#39;, &#39;imag&#39;, imaginary&#39;], but was &#39;</span><span class="si">{</span><span class="n">vibrationNr</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
+            <span class="n">resultImag</span> <span class="o">=</span> <span class="n">findAllStringInListOfStrings</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;***imaginary mode***&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">resultNormal</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">resultImag</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Tried to visualize imaginary normal mode, but no imaginary frequency found&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resultImag</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Tried to visualize imaginary mode, but multiple imaginary frequencies found. This code cannot decide which to use&quot;</span>
+                <span class="p">)</span>
+            <span class="n">vibrationNr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">resultImag</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imaginary vibration was found to be vibrationNr </span><span class="si">{</span><span class="n">vibrationNr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vibrationNr</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;vibrationNr should be of type int or string, but was type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">vibrationNr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">vibrationNr</span> <span class="o">&gt;</span> <span class="n">nfreqs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Tried to visualize vibrationNr </span><span class="si">{</span><span class="n">vibrationNr</span><span class="si">}</span><span class="s2">, but only </span><span class="si">{</span><span class="n">nfreqs</span><span class="si">}</span><span class="s2"> vibrations found&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">frequency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">frequenciesLines</span><span class="p">[</span><span class="n">vibrationNr</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">frequency</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Warning: Trying to visualize normal mode with frequency 0. Amplitudes will be 0 too so animation shows no vibrations&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">natomsResult</span> <span class="o">=</span> <span class="n">findFirstStringInListOfStrings</span><span class="p">(</span><span class="s2">&quot;Number of atoms&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">)</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">natomsResult</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Read displacements. ORCA has the displacements as rows, and frequencies as columns</span>
+        <span class="c1"># Each &quot;block&quot; has 6 columns (or less if it&#39;s the last block), and 3*nAtoms rows.</span>
+        <span class="n">nlinesAmplitudes</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">natoms</span>
+        <span class="n">blockNr</span> <span class="o">=</span> <span class="n">vibrationNr</span> <span class="o">//</span> <span class="mi">6</span>
+        <span class="n">colNr</span> <span class="o">=</span> <span class="n">vibrationNr</span> <span class="o">%</span> <span class="mi">6</span>
+
+        <span class="c1"># Get the lines corresponding to the correct vibration</span>
+        <span class="n">linesModes</span> <span class="o">=</span> <span class="n">_lines</span><span class="p">[</span>
+            <span class="n">resultNormal</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">blockNr</span> <span class="o">*</span> <span class="p">(</span><span class="n">nlinesAmplitudes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="n">resultNormal</span>
+            <span class="o">+</span> <span class="mi">8</span>
+            <span class="o">+</span> <span class="p">(</span><span class="n">blockNr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">nlinesAmplitudes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">linesModes</span><span class="p">)</span> <span class="o">==</span> <span class="n">nlinesAmplitudes</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;NOT CORRECT LENGTH. SHOULD HAVE BEEN 3*natoms=</span><span class="si">{</span><span class="n">nlinesAmplitudes</span><span class="si">}</span><span class="s2">, but was </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">linesModes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># Read correct column, and reshape displacements to nAtoms*3 matrix for x, y, z</span>
+        <span class="n">displacementsMassWeighed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="n">colNr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">linesModes</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">beginStructure</span> <span class="o">=</span> <span class="n">findAllStringInListOfStrings</span><span class="p">(</span>
+            <span class="s2">&quot;CARTESIAN COORDINATES (ANGSTROEM)&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">resultFrequencies</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">beginStructure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="c1"># In case there was a geometry optimization, use the final (optimized) structure</span>
+        <span class="n">finalStructureLine</span> <span class="o">=</span> <span class="n">beginStructure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">baseStructure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Atom</span><span class="o">.</span><span class="n">fromXYZ</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_lines</span><span class="p">[</span>
+                    <span class="n">finalStructureLine</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">finalStructureLine</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">natoms</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The displacements in the ORCA output are mass-weighted (i.e. scaled by 1/sqrt(mass))</span>
+        <span class="c1"># so if you want you can use these, but generally it looks better to use the mass-weighted ones.</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">getMass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">baseStructure</span><span class="o">.</span><span class="n">getAtoms</span><span class="p">()])</span>
+        <span class="n">displacements</span> <span class="o">=</span> <span class="n">displacementsMassWeighed</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">masses</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">baseStructure</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nFramesPerOscillation</span><span class="p">)]</span>
+        <span class="c1"># Displace atoms in structure according to phase.</span>
+        <span class="c1"># We do not need to loop over the first and last frame (i.e. phase = 0 and 2*pi),</span>
+        <span class="c1"># since the displacement will be np.sin(0)=np.sin(2pi)=0,</span>
+        <span class="c1"># so the baseStructure is unaltered.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nFramesPerOscillation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">phase</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">nFramesPerOscillation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">frames</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">displaceAtoms</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span> <span class="o">*</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">displacementsMassWeighed</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Trajectory.translate">
+<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.translate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translationVector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">:</span>
+            <span class="n">frame</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translationVector</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tobias Dijkhuis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
