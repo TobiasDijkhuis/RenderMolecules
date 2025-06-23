@@ -10,7 +10,7 @@ authors = [
 ]
 description = "A way to render molecules in Blender"
 readme = "README.md"
-dependencies = ["numpy==1.24", "scikit-image"]
+dependencies = ["numpy==1.24", "scikit-image", "bpy"]
 requires-python = ">=3.8, <3.12"
 keywords = ["molecules", "chemistry", "blender", "rendering", "quantum"]
 
