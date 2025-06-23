@@ -8,10 +8,10 @@ import sys
 from pathlib import Path
 
 _HERE = os.path.dirname(__file__)
-_ROOT_DIR = os.path.abspath(os.path.join(_HERE, ".."))
-_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, "../RenderMolecules/"))
+_ROOT_DIR = os.path.abspath(os.path.join(_HERE, "..", ".."))
+_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, "..", "../RenderMolecules/"))
 _SUBPACKAGE_DIR = os.path.abspath(
-    os.path.join(_HERE, "../RenderMolecules/src/RenderMolecules")
+    os.path.join(_HERE, "..", "../RenderMolecules/src/RenderMolecules")
 )
 
 sys.path.insert(0, _ROOT_DIR)
