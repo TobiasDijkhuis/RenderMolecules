@@ -6,7 +6,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path("..", "..", "src", "RenderMolecules").resolve()))
+sys.path.insert(0, str(Path("..").resolve()))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -28,9 +28,9 @@ extensions = [
     "sphinx.ext.viewcode",
 ]
 autodoc_mock_imports = ["bmesh", "bpy"]
+autodoc_member_order = ["bysource"]
 
 templates_path = ["_templates"]
-exclude_patterns = []
 
 
 # -- Options for HTML output -------------------------------------------------

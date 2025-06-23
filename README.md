@@ -10,6 +10,9 @@ or directly from this source code to get the latest version, that can be adjuste
     pip install -e . 
 See below for more info on how to install it such that Blender's python interpreter can access it.
 
+## API documentation:
+See online [documentation](https://tobiasdijkhuis.github.io/RenderMolecules)
+
 ## Supported filetypes:
 ### Structure
  - XYZ
