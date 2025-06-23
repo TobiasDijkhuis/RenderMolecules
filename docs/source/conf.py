@@ -6,7 +6,16 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path("..").resolve()))
+_HERE = os.path.dirname(__file__)
+_ROOT_DIR = os.path.abspath(os.path.join(_HERE, ".."))
+_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, "../RenderMolecules/"))
+_SUBPACKAGE_DIR = os.path.abspath(
+    os.path.join(_HERE, "../RenderMolecules/src/RenderMolecules")
+)
+
+sys.path.insert(0, _ROOT_DIR)
+sys.path.insert(0, _PACKAGE_DIR)
+sys.path.insert(0, _SUBPACKAGE_DIR)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
