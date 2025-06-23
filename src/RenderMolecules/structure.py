@@ -1,13 +1,20 @@
 import numpy as np
 
 from .atom import Atom
-from .blenderUtils import (create_material, createCylinder, createIsosurface,
-                           createMeshAtoms, createUVsphere,
-                           deselectAllSelected, getObjectByName, joinCylinders,
-                           putHemisphereCapOnCylinder, selectObjectByName)
+from .blenderUtils import (
+    create_material,
+    createCylinder,
+    createIsosurface,
+    createMeshAtoms,
+    createUVsphere,
+    deselectAllSelected,
+    getObjectByName,
+    joinCylinders,
+    putHemisphereCapOnCylinder,
+    selectObjectByName,
+)
 from .bond import Bond
-from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
-                        BOHR_TO_METERS)
+from .constants import AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM, BOHR_TO_METERS
 from .ElementData import bondLengths, manifest
 from .geometry import Geometry, check3Dvector, rotation_matrix
 
@@ -183,8 +190,12 @@ class Structure(Geometry):
         )
         return COM
 
-    def setCenterOfMass(self, newCOMposition):
-        """Set the center of mass of the whole system to a new position"""
+    def setCenterOfMass(self, newCOMposition) -> None:
+        """Set the Center Of Mass (COM) of the whole system to a new position
+
+        Args:
+            newCOMposition (ndarray): new COM position
+        """
         COM = self.getCenterOfMass()
         newCOMposition = check3Dvector(newCOMposition)
         translationVector = newCOMposition - COM
@@ -200,6 +211,11 @@ class Structure(Geometry):
         self.translate(translationVector)
 
     def translate(self, translationVector: np.ndarray) -> None:
+        """Translate every atom in the Structure along a vector
+
+        Args:
+            translationVector (ndarray): vector to translate every atom
+        """
         translationVector = check3Dvector(translationVector)
 
         newTransform = np.identity(4)
@@ -210,7 +226,11 @@ class Structure(Geometry):
             atom.setPositionVector(atom.getPositionVector() + translationVector)
 
     def getTotalCharge(self) -> int:
-        """Get the total charge in the system"""
+        """Get the total charge in the system
+
+        Returns:
+            int: total charge of the system
+        """
         charges = (atom.getCharge() for atom in self._atoms)
         if not all(
             isinstance(charge, int) or isinstance(charge, float) for charge in charges
@@ -221,17 +241,30 @@ class Structure(Geometry):
         return totalCharge
 
     def getAmountOfElectrons(self) -> int:
-        """Get the total amount of electrons in the system"""
+        """Get the total amount of electrons in the system
+
+        Returns:
+            int: total number of electrons in the system
+        """
         totalElectronsIfNeutral = sum(atom.getAtomicNumber() for atom in self._atoms)
         totalElectrons = totalElectronsIfNeutral - self.getTotalCharge()
         return totalElectrons
 
     def isRadical(self) -> bool:
-        """Returns whether the studied structure is a radical (has an uneven amount of electrons)"""
+        """Returns whether the studied structure is a radical (has an uneven amount of electrons)
+
+        Returns:
+            bool: whether the system is a radical or not
+        """
         return self.getAmountOfElectrons() % 2 != 0
 
     def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
-        """Rotate the structure around a certain axis counterclockwise with a certain angle in degrees"""
+        """Rotate the structure around a certain axis
+
+        Args:
+            axis (ndarray): 3D vector around which to rotate the structure
+            angle (float): angle with which to rotate the structure. Given in angles, counterclockwise
+        """
         rotMatrix = rotation_matrix(axis, angle)
         # create 4x4 matrix from the 3x3 rotation matrix
         newTransform = np.identity(4)
@@ -244,7 +277,11 @@ class Structure(Geometry):
             atom.setPositionVector(rotatedPos)
 
     def getInertiaTensor(self) -> np.ndarray:
-        """Get the moment of inertia tensor, in kg m2"""
+        """Get the moment of inertia tensor
+
+        Returns:
+            inertiaTensor (ndarray): inertia tensor in kg m^2
+        """
         # https://en.wikipedia.org/wiki/Moment_of_inertia#Inertia_tensor
         centerOfMass = self.getCenterOfMass()
 
@@ -278,8 +315,13 @@ class Structure(Geometry):
         inertiaTensor[2, 1] = inertiaTensor[1, 2]
         return inertiaTensor
 
-    def getPrincipalMomentsOfInertia(self):
-        """Get the principal moments of inertia (in kg m2) and the principal axes"""
+    def getPrincipalMomentsOfInertia(self) -> tuple[np.ndarray, np.ndarray]:
+        """Get the principal moments of inertia and the principal axes
+
+        Returns:
+            principalMoments (ndarray): array of length 3 with the three principal moments of inertia in kg m^2
+            principalAxes (ndarray): matrix of shape 3x3 with three principal moment axes
+        """
         inertiaTensor = self.getInertiaTensor()
         principalMoments, principalAxes = np.linalg.eig(inertiaTensor)
         indeces = np.argsort(principalMoments)
@@ -409,7 +451,13 @@ class Structure(Geometry):
         splitBondToAtomMaterials: bool = True,
         renderResolution: str = "medium",
     ) -> None:
-        """Create the bonds in the Blender scene"""
+        """Create the bonds in the Blender scene
+
+        Args:
+            bonds (list[Bond]): list of bonds to be drawn
+            splitBondToAtomMaterials (bool): whether to split up the bonds to the two atom materials connecting them
+            renderResolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+        """
         allAtomElements = [atom.getElement() for atom in self._atoms]
         allAtomVdWRadii = [atom.getVdWRadius() for atom in self._atoms]
 
@@ -492,6 +540,7 @@ class Structure(Geometry):
         deselectAllSelected()
 
     def joinBonds(self):
+        """Join bonds. DOES NOT WORK YET"""
         for atomIndex, atom in enumerate(self._atoms):
             bondsToJoin = []
             for bond in self._bonds:
@@ -514,7 +563,11 @@ class Structure(Geometry):
                 return
 
     def displaceAtoms(self, displacements: np.ndarray) -> None:
-        # Displace all atoms along different vectors.
+        """Displace all atoms along different displacement vectors
+
+        Args:
+            displacements (ndarray): matrix of shape nAtoms * 3, vectors to displace atoms
+        """
         if not np.shape(displacements) == (self._nAtoms, 3):
             raise ValueError()
 
@@ -523,7 +576,11 @@ class Structure(Geometry):
 
     @classmethod
     def fromXYZ(cls, filepath: str):
-        """Create a Structure from an XYZ file"""
+        """Create a Structure from an XYZ file
+
+        Args:
+            filepath (str): XYZ file to read
+        """
         with open(filepath, "r") as file:
             _lines = file.readlines()
 
@@ -537,7 +594,11 @@ class Structure(Geometry):
 
     @classmethod
     def fromSDF(cls, filepath: str):
-        """Creates a Structure from an SDF file"""
+        """Creates a Structure from an SDF file
+
+        Args:
+            filepath (str): SDF file to read
+        """
         with open(filepath, "r") as file:
             _lines = file.readlines()
 
@@ -553,8 +614,12 @@ class Structure(Geometry):
 
     @classmethod
     def fromXSF(cls, filepath: str):
+        """Creates a Structure from an XSF file. To be tested
+
+        Args:
+            filepath(str): XSF file to read
+        """
         # http://www.xcrysden.org/doc/XSF.html#__toc__2
-        # Needs to be tested
         with open(filepath, "r") as file:
             _lines = file.readlines()
         joinedLines = "".join(_lines)
@@ -680,19 +745,36 @@ class CUBEfile(Structure):
         #             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])
 
     def getVolumetricOriginVector(self) -> np.ndarray[float]:
-        """Get the origin vector of the volumetric data"""
+        """Get the origin vector of the volumetric data
+
+        Returns:
+            ndarray: np.ndarray of length 3 corresponding to x, y and z coordinates of volumetric origin
+        """
         return self._volumetricOriginVector
 
     def getVolumetricAxisVectors(self) -> np.ndarray[float]:
-        """Get the axis vectors of the volumetric data"""
+        """Get the axis vectors of the volumetric data
+
+        Returns:
+            ndarray: np.ndarray of length 3 corresponding to i, j and k axis vectors of volumetric data
+        """
         return self._volumetricAxisVectors
 
     def getVolumetricData(self) -> np.ndarray[float]:
-        """Get the volumetric data"""
+        """Get the volumetric data
+
+        Returns:
+            ndarray: matrix of shape NX*NY*NZ containing volumetric data
+        """
         return self._volumetricData
 
     def writePLY(self, filepath: str, isovalue: float) -> None:
-        """Write the volumetric data to a filepath"""
+        """Write the volumetric data to a filepath
+
+        Args:
+            filepath (str):
+            isovalue (float):
+        """
         from pytessel import PyTessel
 
         self._checkIsovalue(isovalue)
@@ -720,7 +802,15 @@ class CUBEfile(Structure):
     def calculateIsosurface(
         self, isovalue: float
     ) -> tuple[np.ndarray, np.ndarray, int]:
-        """Calculate the isosurface from the volumetric data and an isovalue"""
+        """Calculate the isosurface from the volumetric data and an isovalue
+
+        Args:
+            isovalue (float):
+
+        Returns:
+            vertices (ndarray):
+            faces (ndarray):
+        """
         from skimage.measure import marching_cubes
 
         self._checkIsovalue(isovalue)
@@ -740,7 +830,11 @@ class CUBEfile(Structure):
         return vertices, faces, normals, values
 
     def _checkIsovalue(self, isovalue: float) -> None:
-        """Checks whether the supplied isovalue is valid"""
+        """Checks whether the supplied isovalue is valid
+
+        Args:
+            isovalue (float):
+        """
         if isovalue <= np.min(self._volumetricData):
             msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty isosurface. Set a larger isovalue."
             raise ValueError(msg)

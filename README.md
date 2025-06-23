@@ -19,6 +19,7 @@ See below for more info on how to install it such that Blender's python interpre
 ### Trajectory
  - XYZ
  - ORCA geometry optimization
+ - ORCA normal modes
  - AXSF (not yet)
  - ...
 
@@ -42,7 +43,8 @@ density of an orbital. For this, there are two options,
 - With writing and reading from a file:
     1. Read the volumetric data using CUBEfile.readVolumetricData 
     2. Calculate the isosurface, and write it to a .ply file using CUBEfile.writePLY
-    3. Read the .ply file using utils.loadPLY
+    3. Read the .ply file using blenderUtils.loadPLY
+        > Make this accept an affineMatrix argument, so that it can be displaced as the structure
     
     > This crashed Blender at the moment. I think it has to do with importing PyTessel.
     > Note: With this method you have to be careful that you do the same displacements and rotations as you do to the structure in your scene. Otherwise, the location of the isosurface might be incorrect.
@@ -87,8 +89,11 @@ Structures can be rotated using a couple of different methods:
 
 Rotation angle given in degrees, counterclockwise.
 
-> It is important that any manipulation happens before Structure.createAtoms or Structure.createBonds, as otherwise the atoms or bonds might not be in the correct positions.
+> It is important that any manipulation happens before Structure.createAtoms and Structure.createBonds, as otherwise the atoms or bonds might not be in the correct positions.
 
+## 
+
+ 
 ## Materials:
 Materials are handled by the manifest in src/RenderMolecules/ElementData.py. If you want to change an atom color, the shiny-ness of atoms, etc, it should be changed here.
 

@@ -6,8 +6,7 @@ import numpy as np
 from .atom import Atom
 from .blenderUtils import getObjectByName
 from .geometry import Geometry
-from .otherUtils import (findAllStringInListOfStrings,
-                         findFirstStringInListOfStrings)
+from .otherUtils import findAllStringInListOfStrings, findFirstStringInListOfStrings
 from .structure import Structure
 
 
@@ -25,7 +24,12 @@ class Trajectory(Geometry):
         return self._nframes
 
     def setCenterOfMass(self, newCOMposition: np.ndarray, frameIndex: int = 0) -> None:
-        """Set the Center Of Mass of the structure at index 'frameIndex' to a new position"""
+        """Set the Center Of Mass (COM) of the structure at index 'frameIndex' to a new position
+
+        Args:
+            newCOMposition (np.ndarray): new COM position [x, y, z], in Angstrom
+            frameIndex (int): frame index to position according to COM
+        """
         originalCOM = self._frames[frameIndex].getCenterOfMass()
         displacement = newCOMposition - originalCOM
 
@@ -300,9 +304,9 @@ class Trajectory(Geometry):
             + (blockNr + 1) * (nlinesAmplitudes + 1)
             - 1
         ]
-        assert len(linesModes) == nlinesAmplitudes, (
-            f"NOT CORRECT LENGTH. SHOULD HAVE BEEN 3*natoms={nlinesAmplitudes}, but was {len(linesModes)}"
-        )
+        assert (
+            len(linesModes) == nlinesAmplitudes
+        ), f"NOT CORRECT LENGTH. SHOULD HAVE BEEN 3*natoms={nlinesAmplitudes}, but was {len(linesModes)}"
         # Read correct column, and reshape displacements to nAtoms*3 matrix for x, y, z
         displacementsMassWeighed = np.array(
             [float(i.split()[colNr + 1]) for i in linesModes]

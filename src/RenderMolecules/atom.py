@@ -1,8 +1,12 @@
 import numpy as np
 
 from .constants import BOHR_TO_ANGSTROM, KGM2_TO_AMU_ANGSTROM2
-from .ElementData import (elementMass, getAtomicNumberFromElement,
-                          getElementFromAtomicNumber, vdwRadii)
+from .ElementData import (
+    elementMass,
+    getAtomicNumberFromElement,
+    getElementFromAtomicNumber,
+    vdwRadii,
+)
 
 
 class Atom:
@@ -16,6 +20,17 @@ class Atom:
         z: float,
         isAngstrom: bool,
     ):
+        """Atom
+
+        Args:
+            atomicNumber (int): atomic number. For example, for iron atom, 26
+            element (str): element. For example, for iron atom, Fe
+            charge (float): charge of atom
+            x (float): x-coordinate
+            y (float): y-coordinate
+            z (float): z-coordinate
+            isAngstrom (bool): whether coordinates are in Angstrom. If False, assume in Bohr
+        """
         self._atomicNumber = atomicNumber
         self._element = element
         self._charge = charge
@@ -41,7 +56,10 @@ class Atom:
 
     @classmethod
     def fromCUBE(cls, string: str):
-        """Create Atom instance from a line in a CUBE file"""
+        """Create Atom instance from a line in a CUBE file
+
+        Args:
+            string (str): line in CUBE file"""
         splitString = string.split()
         atomicNumber = int(splitString[0])
         element = getElementFromAtomicNumber(atomicNumber)
@@ -51,7 +69,11 @@ class Atom:
 
     @classmethod
     def fromXYZ(cls, string: str):
-        """Create Atom instance from a line in an XYZ file"""
+        """Create Atom instance from a line in an XYZ file
+
+        Args:
+            string (str): line from an XYZ file. Formatted as A x y z ..., where A is either atomic number or element string
+        """
         splitString = string.split()
         element = splitString[0].strip()
         try:
@@ -65,7 +87,11 @@ class Atom:
 
     @classmethod
     def fromSDF(cls, string: str):
-        """Create Atom instance from a line in an SDF file"""
+        """Create Atom instance from a line in an SDF file
+
+        Args:
+            string (str): line from an SDF file. Formatted as x y z A, where A is an element string.
+        """
         splitString = string.split()
         element = splitString[3].strip()
         atomicNumber = getAtomicNumberFromElement(element)
@@ -74,27 +100,48 @@ class Atom:
         return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)
 
     def getAtomicNumber(self) -> int:
-        """Get the atomic number of the atom"""
+        """Get the atomic number of the atom
+
+        Returns:
+            int: atomic number"""
         return self._atomicNumber
 
     def getCharge(self) -> float:
-        """Get the charge of the atom (undefined if created from XYZ file)"""
+        """Get the charge of the Atom (undefined if created from XYZ file)
+
+        Returns:
+            float: charge of Atom"""
         return self._charge
 
     def getX(self) -> float:
-        """Get the x-coordinate of the atom"""
+        """Get the x-coordinate of the atom
+
+        Returns:
+            float: x-coordinate of Atom
+        """
         return self._x
 
     def getY(self) -> float:
-        """Get the y-coordinate of the atom"""
+        """Get the y-coordinate of the atom
+
+        Returns:
+            float: y-coordinate of Atom
+        """
         return self._y
 
     def getZ(self) -> float:
-        """Get the z-coordinate of the atom"""
+        """Get the z-coordinate of the atom
+
+        Returns:
+            float: z-coordinate of Atom
+        """
         return self._z
 
     def getPositionVector(self) -> np.ndarray[float]:
-        """Get position of the atom"""
+        """Get position of the atom
+
+        Returns:
+            ndarray: array with x, y and z coordinates of Atom"""
         return self._positionVector
 
     def positionBohrToAngstrom(self) -> None:
@@ -105,20 +152,34 @@ class Atom:
         self.setPositionVector(self._positionVector * BOHR_TO_ANGSTROM)
 
     def setPositionVector(self, newPosition) -> None:
-        """Set the position of the atom to a new position"""
+        """Set the position of the atom to a new position
+
+        Args:
+            newPosition (ndarray): x, y and z coordinates of new position
+        """
         self._positionVector = newPosition
         self._x, self._y, self._z = newPosition
 
     def getElement(self) -> str:
-        """Get the element of the atom"""
+        """Get the element of the atom
+
+        Returns:
+            str: element of Atom
+        """
         return self._element
 
-    def getMass(self) -> str:
-        """Get the mass of the atom"""
+    def getMass(self) -> float:
+        """Get the mass of the atom
+
+        Returns:
+            float: mass of Atom"""
         return self._mass
 
     def getVdWRadius(self) -> float:
-        """Get the Van der Waals radius of the atom"""
+        """Get the Van der Waals radius of the atom
+
+        Returns:
+            float: Van der Waals radius of the Atom"""
         return self._vdwRadius
 
     def __repr__(self):
