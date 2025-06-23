@@ -14,7 +14,11 @@ jobs:
         persist-credentials: false
 
     - name: Set up Python
-      run: |
+      uses: actions/setup-python@v4
+      with:
+        python-version='3.10'
+    - name: Install necessary packages
+      run:
         python -m pip install --upgrade pip
         pip install sphinx-rtd-theme
         pip install -e .
