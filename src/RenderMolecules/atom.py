@@ -59,7 +59,7 @@ class Atom:
             element = getElementFromAtomicNumber(atomicNumber)
         except ValueError:
             atomicNumber = getAtomicNumberFromElement(element)
-        x, y, z = [float(field) for field in splitString[1:]]
+        x, y, z = [float(field) for field in splitString[1:4]]
         isAngstrom = True  # Angstrom by default
         return cls(atomicNumber, element, "UNKNOWN", x, y, z, isAngstrom)
 

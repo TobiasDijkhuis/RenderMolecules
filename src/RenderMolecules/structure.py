@@ -513,6 +513,14 @@ class Structure(Geometry):
                 )
                 return
 
+    def displaceAtoms(self, displacements: np.ndarray) -> None:
+        # Displace all atoms along different vectors.
+        if not np.shape(displacements) == (self._nAtoms, 3):
+            raise ValueError()
+
+        for i, atom in enumerate(self._atoms):
+            atom.setPositionVector(atom.getPositionVector() + displacements[i, :])
+
     @classmethod
     def fromXYZ(cls, filepath: str):
         """Create a Structure from an XYZ file"""
