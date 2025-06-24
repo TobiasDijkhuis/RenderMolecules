@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>render_molecules.element_data &mdash; render_molecules 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            render_molecules
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">render_molecules</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">render_molecules.element_data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for render_molecules.element_data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+
+<div class="viewcode-block" id="get_element_from_atomic_number">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.element_data.get_element_from_atomic_number">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_element_from_atomic_number</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">element_list</span><span class="p">[</span><span class="n">atomic_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not determine element from atomic number </span><span class="si">{</span><span class="n">atomic_number</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">return</span> <span class="n">element</span></div>
+
+
+
+<div class="viewcode-block" id="get_atomic_number_from_element">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.element_data.get_atomic_number_from_element">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_atomic_number_from_element</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">atomic_number</span> <span class="o">=</span> <span class="n">element_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not determine atomic number from element </span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">return</span> <span class="n">atomic_number</span></div>
+
+
+
+<span class="n">element_list</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;H&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;He&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Li&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Be&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;O&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ne&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Na&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Al&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Si&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;P&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Cl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ca&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sc&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># manifest that contains atomic information</span>
+<span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;atom_colors&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;555555&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;DDDDDD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;FF0000&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;0000FF&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;FFFF30&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Si&quot;</span><span class="p">:</span> <span class="s2">&quot;F0C8A0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;bond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;bond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;4444444&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hbond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;999999&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hbond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.035</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">element_mass</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">,</span>
+    <span class="mi">9</span><span class="p">,</span>
+    <span class="mi">11</span><span class="p">,</span>
+    <span class="mi">12</span><span class="p">,</span>
+    <span class="mi">14</span><span class="p">,</span>
+    <span class="mi">16</span><span class="p">,</span>
+    <span class="mi">19</span><span class="p">,</span>
+    <span class="mi">20</span><span class="p">,</span>
+    <span class="mi">23</span><span class="p">,</span>
+    <span class="mi">24</span><span class="p">,</span>
+    <span class="mi">27</span><span class="p">,</span>
+    <span class="mi">28</span><span class="p">,</span>
+    <span class="mi">31</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">,</span>
+    <span class="mi">35</span><span class="p">,</span>
+    <span class="mi">40</span><span class="p">,</span>
+    <span class="mi">39</span><span class="p">,</span>
+    <span class="mi">40</span><span class="p">,</span>
+    <span class="mi">45</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Van der Waals radii in Angstrom (from https://en.wikipedia.org/wiki/Van_der_Waals_radius)</span>
+<span class="n">vdw_radii</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.1</span><span class="p">,</span>
+    <span class="mf">1.4</span><span class="p">,</span>
+    <span class="mf">1.82</span><span class="p">,</span>
+    <span class="mf">1.53</span><span class="p">,</span>
+    <span class="mf">1.92</span><span class="p">,</span>
+    <span class="mf">1.70</span><span class="p">,</span>
+    <span class="mf">1.55</span><span class="p">,</span>
+    <span class="mf">1.52</span><span class="p">,</span>
+    <span class="mf">1.47</span><span class="p">,</span>
+    <span class="mf">1.54</span><span class="p">,</span>
+    <span class="mf">2.27</span><span class="p">,</span>
+    <span class="mf">1.73</span><span class="p">,</span>
+    <span class="mf">1.84</span><span class="p">,</span>
+    <span class="mf">2.10</span><span class="p">,</span>
+    <span class="mf">1.80</span><span class="p">,</span>
+    <span class="mf">1.80</span><span class="p">,</span>
+    <span class="mf">1.75</span><span class="p">,</span>
+    <span class="mf">1.88</span><span class="p">,</span>
+    <span class="mf">2.75</span><span class="p">,</span>
+    <span class="mf">2.31</span><span class="p">,</span>
+    <span class="mf">2.11</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Bond lengths in Angstrom</span>
+<span class="n">bond_lengths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;HO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;CO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;CH&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;OO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;HH&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+    <span class="s2">&quot;NN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;HN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;CN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;CC&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;NO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;SS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;NS&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;HS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;CS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;OS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tobias Dijkhuis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
