@@ -16,7 +16,7 @@ on:
 jobs:
   check-version-strings:
     runs-on: ubuntu-latest
-    container: python:3.9.18-slim-bullseye
+    container: python:3.11.0-slim-bullseye
 
     steps:
       - name: Checkout repo
