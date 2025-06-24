@@ -1,22 +1,25 @@
-def getElementFromAtomicNumber(atomicNumber: int) -> str:
+from __future__ import annotations
+
+
+def get_element_from_atomic_number(atomic_number: int) -> str:
     try:
-        element = elementList[atomicNumber - 1]
-    except ValueError:
-        msg = f"Could not determine element from atomic number {atomicNumber}"
-        raise ValueError(msg)
+        element = element_list[atomic_number - 1]
+    except ValueError as e:
+        msg = f"Could not determine element from atomic number {atomic_number}"
+        raise ValueError(msg) from e
     return element
 
 
-def getAtomicNumberFromElement(element: str) -> int:
+def get_atomic_number_from_element(element: str) -> int:
     try:
-        atomicNumber = elementList.index(element) + 1
-    except ValueError:
+        atomic_number = element_list.index(element) + 1
+    except ValueError as e:
         msg = f"Could not determine atomic number from element {element}"
-        raise ValueError()
-    return atomicNumber
+        raise ValueError(msg) from e
+    return atomic_number
 
 
-elementList = [
+element_list = [
     "H",
     "He",
     "Li",
@@ -56,7 +59,7 @@ manifest = {
     "hbond_thickness": 0.035,
 }
 
-elementMass = [
+element_mass = [
     1,
     4,
     7,
@@ -81,7 +84,7 @@ elementMass = [
 ]
 
 # Van der Waals radii in Angstrom (from https://en.wikipedia.org/wiki/Van_der_Waals_radius)
-vdwRadii = [
+vdw_radii = [
     1.1,
     1.4,
     1.82,
@@ -106,7 +109,7 @@ vdwRadii = [
 ]
 
 # Bond lengths in Angstrom
-bondLengths = {
+bond_lengths = {
     "HO": 1.5,
     "CO": 1.5,
     "CH": 1.5,

@@ -1,46 +1,42 @@
+from __future__ import annotations
+
 import numpy as np
 
 
 class Geometry:
     def __init__(self):
-        self._affineMatrix = np.identity(4)
+        self._affine_matrix = np.identity(4)
 
-    def getAffineMatrix(self) -> np.ndarray:
-        return self._affineMatrix
+    def get_affine_matrix(self) -> np.ndarray:
+        return self._affine_matrix
 
-    def setAffineMatrix(self, newAffineMatrix) -> None:
-        shape = np.shape(newAffineMatrix)
-        if not shape == (4, 4):
-            msg = f"affineTransformationMatrix was not the correct shape. Should have been (4, 4), but was {shape}"
-            raise ValueError(msg)
-        self._affineMatrix = newAffineMatrix
+    def set_affine_matrix(self, new_affine_matrix: np.ndarray) -> None:
+        new_affine_matrix = check_4x4_matrix(new_affine_matrix)
+        self._affine_matrix = new_affine_matrix
 
-    def addTransformation(self, affineTransformationMatrix) -> None:
-        shape = np.shape(affineTransformationMatrix)
-        if not shape == (4, 4):
-            msg = f"affineTransformationMatrix was not the correct shape. Should have been (4, 4), but was {shape}"
-            raise ValueError(msg)
-        self.setAffineMatrix(affineTransformationMatrix @ self._affineMatrix)
+    def add_transformation(self, affine_transform_matrix: np.ndarray) -> None:
+        affine_transform_matrix = check_4x4_matrix(affine_transform_matrix)
+        self.set_affine_matrix(affine_transform_matrix @ self._affine_matrix)
 
-    def translate(self, translationVector) -> None:
+    def translate(self, translation_vector) -> None:
         msg = "Geometry.translate method should be implemented by child class"
         raise NotImplementedError(msg)
 
-    def rotateAroundAxis(self, axis, angle) -> None:
+    def rotate_around_axis(self, axis, angle) -> None:
         msg = "Geometry.rotateAroundAxis method should be implemented by child class"
         raise NotImplementedError(msg)
 
-    def rotateAroundX(self, angle: float) -> None:
+    def rotate_around_x(self, angle: float) -> None:
         """Rotate the geometry around the x-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([1, 0, 0], angle)
+        self.rotate_around_axis([1, 0, 0], angle)
 
-    def rotateAroundY(self, angle: float) -> None:
+    def rotate_around_y(self, angle: float) -> None:
         """Rotate the geometry around the y-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 1, 0], angle)
+        self.rotate_around_axis([0, 1, 0], angle)
 
-    def rotateAroundZ(self, angle: float) -> None:
+    def rotate_around_z(self, angle: float) -> None:
         """Rotate the geometry around the z-axis counterclockwise with a certain angle in degrees"""
-        self.rotateAroundAxis([0, 0, 1], angle)
+        self.rotate_around_axis([0, 0, 1], angle)
 
 
 def rotation_matrix(axis, theta):
@@ -48,7 +44,7 @@ def rotation_matrix(axis, theta):
     Return the rotation matrix associated with counterclockwise rotation about
     the given axis by theta degrees.
     """
-    check3Dvector(axis)
+    check_3d_vector(axis)
 
     theta *= np.pi / 180.0
     axis = axis / np.sqrt(np.dot(axis, axis))
@@ -66,8 +62,8 @@ def rotation_matrix(axis, theta):
 
 
 def angle_between(vector1, vector2) -> float:
-    vector1 = check3Dvector(vector1)
-    vector2 = check3Dvector(vector2)
+    vector1 = check_3d_vector(vector1)
+    vector2 = check_3d_vector(vector2)
 
     vector1 /= np.linalg.norm(vector1)
     vector2 /= np.linalg.norm(vector2)
@@ -79,12 +75,22 @@ def angle_between(vector1, vector2) -> float:
     return angle * 180 / np.pi
 
 
-def check3Dvector(vector: list | np.ndarray) -> np.ndarray:
+def check_3d_vector(vector: list | np.ndarray) -> np.ndarray:
     if isinstance(vector, list):
         vector = np.asarray(vector)
-
-    if not np.shape(vector) == (3,):
+    if not isinstance(vector, np.ndarray):
+        msg = f"vector was supposed to be np array, but was instead type {type(vector)}"
+        raise TypeError(msg)
+    if np.shape(vector) != (3,):
         msg = f"vector was supposed to be shape 3, but was shape {np.shape(vector)}"
         raise ValueError(msg)
-
     return vector
+
+
+def check_4x4_matrix(matrix: np.ndarray) -> np.ndarray:
+    if not isinstance(matrix, np.ndarray):
+        msg = f"matrix was supposed to be np array, but was instead type {type(matrix)}"
+        raise TypeError(msg)
+    if np.shape(matrix) != (4, 4):
+        msg = f"matrix was supposed to be shape 4, but was shape {np.shape(matrix)}"
+        raise ValueError(msg)

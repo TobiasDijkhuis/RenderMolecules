@@ -1,12 +1,16 @@
+from __future__ import annotations
+
+import os
+
 import bmesh
 import bpy
 import numpy as np
 
-from .constants import *
-from .ElementData import *
+from .constants import SPHERE_SCALE
+from .element_data import element_list, vdw_radii
 
 
-def hex2rgbtuple(hexcode):
+def hex_to_rgb_tuple(hexcode):
     """
     Convert 6-digit color hexcode to a tuple of floats
     """
@@ -26,13 +30,13 @@ def color_srgb_to_scene_linear(c):
         return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
 
 
-def createUVsphere(element, position, renderResolution="medium"):
-    nsegments, nrings = scaleNvertices(64, 32, renderResolution=renderResolution)
+def create_uv_sphere(element, position, resolution="medium"):
+    nsegments, nrings = scale_vertices(64, 32, resolution=resolution)
 
     bpy.ops.mesh.primitive_uv_sphere_add(
         segments=nsegments,
         ring_count=nrings,
-        radius=vdwRadii[elementList.index(element)] * sphereScale,
+        radius=vdw_radii[element_list.index(element)] * SPHERE_SCALE,
         enter_editmode=False,
         align="WORLD",
         location=position,
@@ -44,7 +48,7 @@ def createUVsphere(element, position, renderResolution="medium"):
     return obj
 
 
-def createMeshAtoms(positions, referenceAtom, element):
+def create_mesh(positions, reference_sphere, element):
     mesh = bpy.data.meshes.new(f"{element}_mesh")  # add the new mesh
     obj = bpy.data.objects.new(mesh.name, mesh)
 
@@ -63,22 +67,22 @@ def createMeshAtoms(positions, referenceAtom, element):
     bpy.context.object.instance_type = "VERTS"
 
 
-def create_material(name, color, alpha=1.0):
+def create_material(name, color, alpha=1.0, force: bool = False):
     """
     Build a new material
     """
-    # early exit if material already exists and has the same color
-    if name in bpy.data.materials:
+    # early exit if material already exists
+    if not force and name in bpy.data.materials:
         return bpy.data.materials[name]
 
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
 
     matsettings = {
-        "Base Color": hex2rgbtuple(color),
+        "Base Color": hex_to_rgb_tuple(color),
         "Subsurface": 0.2,
         "Subsurface Radius": (0.3, 0.3, 0.3),
-        "Subsurface Color": hex2rgbtuple("000000"),
+        "Subsurface Color": hex_to_rgb_tuple("000000"),
         "Metallic": 0.0,
         "Roughness": 0.5,
         "Alpha": alpha,
@@ -92,11 +96,11 @@ def create_material(name, color, alpha=1.0):
     return mat
 
 
-def deleteAllObjects():
+def delete_all_objects():
     """
     Deletes all objects in the current scene
     """
-    deleteListObjects = [
+    delete_list_objects = [
         "MESH",
         "CURVE",
         "SURFACE",
@@ -115,7 +119,7 @@ def deleteAllObjects():
 
     # Select all objects in the scene to be deleted:
     for o in bpy.context.scene.objects:
-        if o.type in deleteListObjects:
+        if o.type in delete_list_objects:
             o.select_set(True)
         else:
             o.select_set(False)
@@ -124,8 +128,8 @@ def deleteAllObjects():
     bpy.ops.object.delete()
 
 
-def createIsosurface(
-    verts, faces, isovalue, prefix="isosurface", assignMaterialBasedOnSign=True
+def create_isosurface(
+    verts, faces, isovalue, prefix="isosurface", assign_material_based_on_sign=True
 ):
     name = f"{prefix}_{isovalue}"
     mesh = bpy.data.meshes.new(name=name)
@@ -136,32 +140,33 @@ def createIsosurface(
     scene = bpy.context.scene
     scene.collection.objects.link(obj)
 
-    if assignMaterialBasedOnSign:
-        assignIsosurfaceMaterialBasedOnSign(obj, isovalue)
+    if assign_material_based_on_sign:
+        assign_isosurface_material_based_on_sign(obj, isovalue)
 
 
-def loadPLY(filepath, assignMaterialBasedOnSign=True):
+def load_ply(filepath, assign_material_based_on_sign=True):
     bpy.ops.wm.ply_import(filepath=filepath)
     bpy.ops.object.shade_smooth()
 
-    if not assignMaterialBasedOnSign:
+    if not assign_material_based_on_sign:
         return
 
-    isovalue = float(os.path.splitext(filepath)[0].split("_")[-1])
     obj = bpy.context.view_layer.objects.active
-    assignIsosurfaceMaterialBasedOnSign(obj, isovalue)
+
+    isovalue = float(os.path.splitext(filepath)[0].split("_")[-1])
+    assign_isosurface_material_based_on_sign(obj, isovalue)
 
 
-def assignIsosurfaceMaterialBasedOnSign(isosurfaceObj, isovalue):
+def assign_isosurface_material_based_on_sign(isosurface_obj, isovalue):
     # Perhaps add a positive or negative lobe material to it, depending on whether there's a '-' in the filepath
     if isovalue < 0:
         # Negative lobe material
         mat = create_material("Negative Lobe", "FF7743", alpha=0.5)
-        isosurfaceObj.data.materials.append(mat)
+        isosurface_obj.data.materials.append(mat)
     else:
         # Positive lobe material
         mat = create_material("Positive Lobe", "53B9FF", alpha=0.5)
-        isosurfaceObj.data.materials.append(mat)
+        isosurface_obj.data.materials.append(mat)
 
 
 def try_autosmooth():
@@ -183,30 +188,30 @@ def set_background_transparency(transparency: bool) -> None:
     bpy.context.scene.render.film_transparent = transparency
 
 
-def set_background_color(RGBA: tuple[float]) -> None:
+def set_background_color(rgba: tuple[float]) -> None:
     bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[
         0
-    ].default_value = RGBA
+    ].default_value = rgba
 
 
-def adjustSettings(isOneRender=True, transparentBackground=True):
+def adjust_settings(is_one_render: bool = True, transparent_background: bool = True):
     scene = bpy.context.scene
 
-    scene.render.film_transparent = transparentBackground
-    scene.render.use_persistent_data = not isOneRender
+    scene.render.film_transparent = transparent_background
+    scene.render.use_persistent_data = not is_one_render
     scene.cycles.debug_use_spatial_slits = True
 
 
-def outlineInRender(renderOutline=True, thickness=5):
-    if not renderOutline:
+def outline_in_render(render_outline=True, thickness=5):
+    if not render_outline:
         bpy.context.scene.render.use_freestyle = False
         return
     bpy.context.scene.render.use_freestyle = True
 
-    viewLayer = bpy.data.scenes["Scene"].view_layers["ViewLayer"]
-    viewLayer.use_freestyle = True
+    view_layer = bpy.data.scenes["Scene"].view_layers["ViewLayer"]
+    view_layer.use_freestyle = True
 
-    lineset = viewLayer.freestyle_settings.linesets["LineSet"]
+    lineset = view_layer.freestyle_settings.linesets["LineSet"]
 
     lineset.select_external_contour = True
 
@@ -224,18 +229,18 @@ def outlineInRender(renderOutline=True, thickness=5):
     bpy.data.linestyles["LineStyle"].thickness = thickness
 
 
-def selectObjectByName(name: str, select=True):
+def select_object_by_name(name: str, select=True):
     bpy.data.objects[name].select_set(select)
 
 
-def getObjectByName(name: str):
+def get_object_by_name(name: str):
     return bpy.context.scene.objects[name]
 
 
-def createCylinder(
-    location, angle, thickness, length, renderResolution="medium", name="Cylinder"
+def create_cylinder(
+    location, angle, thickness, length, resolution="medium", name="Cylinder"
 ):
-    nvertices = scaleNvertices(64, renderResolution=renderResolution)
+    nvertices = scale_vertices(64, resolution=resolution)
 
     scale = (thickness, thickness, length)
     bpy.ops.mesh.primitive_cylinder_add(
@@ -253,9 +258,8 @@ def createCylinder(
     return obj
 
 
-def joinTwoCylinders(cylinder1, cylinder2, centerPosition, selectWithin):
-    print(cylinder1, cylinder2)
-    deselectAllSelected()
+def join_two_cylinders(cylinder1, cylinder2, center_position, select_within):
+    deselect_all_selected()
     cylinder1.select_set(True)
     cylinder2.select_set(True)
     bpy.ops.object.join()
@@ -268,14 +272,14 @@ def joinTwoCylinders(cylinder1, cylinder2, centerPosition, selectWithin):
     bpy.ops.mesh.select_all(action="DESELECT")
     bpy.ops.object.mode_set(mode="OBJECT")
     for vert in bm.verts:
-        vertDistance = (
-            sum([(vert.co[i] - centerPosition[i]) ** 2 for i in range(3)]) ** 0.5
+        vertex_distance = (
+            sum([(vert.co[i] - center_position[i]) ** 2 for i in range(3)]) ** 0.5
         )
-        if vertDistance <= selectWithin:
+        if vertex_distance <= select_within:
             vert.select_set(True)
         else:
             vert.select_set(False)
-        print(vert.co, centerPosition, vertDistance, selectWithin, vert.select)
+        print(vert.co, center_position, vertex_distance, select_within, vert.select)
     for edge in bm.edges:
         if edge.verts[0].select and edge.verts[1].select:
             edge.select_set(True)
@@ -305,34 +309,36 @@ def joinTwoCylinders(cylinder1, cylinder2, centerPosition, selectWithin):
     # bm.free()
 
 
-def joinCylinders(cylinders: list[object], atomLocation: np.ndarray, vdwRadius: float):
+def join_cylinders(
+    cylinders: list[object], atom_position: np.ndarray, vdw_radius: float
+):
     for i, cylinder in enumerate(cylinders[:-1]):
-        joinTwoCylinders(cylinder, cylinders[i + 1], atomLocation, vdwRadius)
+        join_two_cylinders(cylinder, cylinders[i + 1], atom_position, vdw_radius)
         return
 
 
-def putHemisphereCapOnCylinder(cylinder):
+def put_cap_on_cylinder(cylinder):
     # If an atom is only bound on one side, the bond will have to be
     # terminated by a hemisphere at one end. Can be done like this?
     # https://blender.stackexchange.com/questions/84789/how-can-i-cap-a-cylinder-with-a-hemisphere
     pass
 
 
-def scaleNvertices(*args, renderResolution="medium"):
-    renderResolution = renderResolution.lower()
-    if renderResolution not in ["verylow", "low", "medium", "high", "veryhigh"]:
-        msg = f"renderResolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{renderResolution}'"
+def scale_vertices(*args, resolution="medium"):
+    resolution = resolution.lower()
+    if resolution not in ["verylow", "low", "medium", "high", "veryhigh"]:
+        msg = f"renderResolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{resolution}'"
         raise ValueError(msg)
 
-    if renderResolution == "verylow":
+    if resolution == "verylow":
         scale = 1 / 4
-    elif renderResolution == "low":
+    elif resolution == "low":
         scale = 1 / 2
-    elif renderResolution == "medium":
+    elif resolution == "medium":
         scale = 1
-    elif renderResolution == "high":
+    elif resolution == "high":
         scale = 2
-    elif renderResolution == "veryhigh":
+    elif resolution == "veryhigh":
         scale = 4
 
     if len(args) == 1:
@@ -343,6 +349,6 @@ def scaleNvertices(*args, renderResolution="medium"):
         raise ValueError()
 
 
-def deselectAllSelected():
+def deselect_all_selected():
     for obj in bpy.context.selected_objects:
         obj.select_set(False)

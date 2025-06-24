@@ -1,28 +1,30 @@
+from __future__ import annotations
+
+from copy import deepcopy
+
 import numpy as np
 
 from .atom import Atom
-from .blenderUtils import (
+from .blender_utils import (
+    create_cylinder,
     create_material,
-    createCylinder,
-    createIsosurface,
-    createMeshAtoms,
-    createUVsphere,
-    deselectAllSelected,
-    getObjectByName,
-    joinCylinders,
-    putHemisphereCapOnCylinder,
-    selectObjectByName,
+    create_mesh_atoms,
+    create_uv_sphere,
+    deselect_all_selected,
+    get_object_by_name,
+    join_cylinders,
+    put_cap_on_cylinder,
 )
 from .bond import Bond
 from .constants import AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM, BOHR_TO_METERS
-from .ElementData import bondLengths, manifest
-from .geometry import Geometry, check3Dvector, rotation_matrix
+from .element_data import bond_lengths, manifest
+from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
 
 
 class Structure(Geometry):
-    def __init__(self, atomList: list[Atom], bonds: list[Bond] | None = None):
-        self._nAtoms = len(atomList)
-        self._atoms = atomList
+    def __init__(self, atoms: list[Atom], bonds: list[Bond] | None = None):
+        self._natoms = len(atoms)
+        self._atoms = atoms
 
         if bonds is None:
             self._bonds = []
@@ -30,360 +32,363 @@ class Structure(Geometry):
             self._bonds = bonds
 
         self._displacements = []
-        self._affineMatrix = np.identity(4)
+        self._affine_matrix = np.identity(4)
 
-    def getAtoms(self) -> list[Atom]:
+    def get_atoms(self) -> list[Atom]:
         """Get a list of all atoms in the structure"""
         return self._atoms
 
-    def getAllAtomPositions(self) -> list[np.ndarray]:
+    def get_atom_positions(self) -> list[np.ndarray]:
         """Get a list of all atom positions"""
-        return np.array([atom.getPositionVector() for atom in self._atoms])
+        return np.array([atom.get_position() for atom in self._atoms])
 
-    def getFilepath(self) -> str:
-        """Get the filepath of the file that created the structure"""
-        return self._filepath
+    #     def getFilepath(self) -> str:
+    #         """Get the filepath of the file that created the structure"""
+    #         return self._filepath
+    #
+    #     def getLines(self) -> list[str]:
+    #         """Get the lines of the file that created the structure"""
+    #         return self._lines
 
-    def getLines(self) -> list[str]:
-        """Get the lines of the file that created the structure"""
-        return self._lines
-
-    def createAtoms(self, renderResolution="medium", createMesh=True) -> None:
+    def create_atoms(self, resolution="medium", create_mesh=True) -> None:
         """Create the atoms in the scene"""
-        if not createMesh:
+        if not create_mesh:
             # This is an old, naive method where we create a lot more spheres
             for atom in self._atoms:
-                obj = createUVsphere(
-                    atom.getElement(),
-                    atom.getPositionVector(),
-                    renderResolution=renderResolution,
+                obj = create_uv_sphere(
+                    atom.get_element(),
+                    atom.get_position(),
+                    resolution=resolution,
                 )
                 mat = create_material(
-                    atom.getElement(), manifest["atom_colors"][atom.getElement()]
+                    atom.get_element(), manifest["atom_colors"][atom.getElement()]
                 )
                 obj.data.materials.append(mat)
             return
 
         # Create a dictionary, with keys the atom element, and values a list of
         # all positions of atoms with that element.
-        atomVertices = {}
+        atom_vertices = {}
         for atom in self._atoms:
-            if atom.getElement() in atomVertices.keys():
-                atomVertices[atom.getElement()].append(atom.getPositionVector())
+            if atom.getElement() in atom_vertices:
+                atom_vertices[atom.getElement()].append(atom.get_position())
             else:
-                atomVertices[atom.getElement()] = [atom.getPositionVector()]
+                atom_vertices[atom.getElement()] = [atom.get_position()]
 
         # For each element, create a reference UV sphere at the origin
         # Then, create a mesh with vertices at the positions and using vertex instancing,
         # copy the UV sphere to each of the vertices.
-        for atomType in atomVertices.keys():
-            obj = createUVsphere(
-                atomType, np.array([0, 0, 0]), renderResolution=renderResolution
+        for atom_type in atom_vertices:
+            obj = create_uv_sphere(
+                atom_type, np.array([0, 0, 0]), renderResolution=resolution
             )
-            mat = create_material(atomType, manifest["atom_colors"][atomType])
+            mat = create_material(atom_type, manifest["atom_colors"][atom_type])
             obj.data.materials.append(mat)
 
-            createMeshAtoms(atomVertices[atomType], obj, atomType)
-        deselectAllSelected()
+            create_mesh_atoms(atom_vertices[atom_type], obj, atom_type)
+        deselect_all_selected()
 
-    def findBondsBasedOnDistance(self) -> list[Bond]:
+    def find_bonds_from_distances(self) -> list[Bond]:
         """Create bonds based on the geometry"""
-        allAtomPositions = self.getAllAtomPositions()
-        allAtomElements = [atom.getElement() for atom in self._atoms]
-        allAtomPositionsTuples = (
-            np.array([v[0] for v in allAtomPositions]),
-            np.array([v[1] for v in allAtomPositions]),
-            np.array([v[2] for v in allAtomPositions]),
+        all_positions = self.get_atom_positions()
+        all_elements = [atom.getElement() for atom in self._atoms]
+        all_positions_tuples = (
+            np.array([v[0] for v in all_positions]),
+            np.array([v[1] for v in all_positions]),
+            np.array([v[2] for v in all_positions]),
         )
-        x, y, z = allAtomPositionsTuples
+        x, y, z = all_positions_tuples
 
-        connectingIndices = []
+        connecting_indices = []
         for i, atom in enumerate(self._atoms):
-            centralPos = allAtomPositions[i]
-            centralElement = allAtomElements[i]
-            allowedBondLengthsSquared = [
-                bondLengths["".join(sorted(f"{centralElement}{otherElement}"))] ** 2
-                for otherElement in allAtomElements
+            central_pos = all_positions[i]
+            central_element = all_elements[i]
+            allowed_bond_lengths_squared = [
+                bond_lengths["".join(sorted(f"{central_element}{other_element}"))] ** 2
+                for other_element in all_elements
             ]
-            dx = x - centralPos[0]
-            dy = y - centralPos[1]
-            dz = z - centralPos[2]
-            distSquared = dx * dx + dy * dy + dz * dz
-            isBondedToCentral = np.nonzero(distSquared <= allowedBondLengthsSquared)[0]
-            for atomIndex in isBondedToCentral:
-                if atomIndex == i:
+            dx = x - central_pos[0]
+            dy = y - central_pos[1]
+            dz = z - central_pos[2]
+            dist_squared = dx * dx + dy * dy + dz * dz
+            is_bonded_to_central = np.nonzero(
+                dist_squared <= allowed_bond_lengths_squared
+            )[0]
+            for atom_index in is_bonded_to_central:
+                if atom_index == i:
                     # Do not allow atoms to bond to themselves
                     continue
-                if (i, atomIndex) in connectingIndices or (
-                    atomIndex,
+                if (i, atom_index) in connecting_indices or (
+                    atom_index,
                     i,
-                ) in connectingIndices:
+                ) in connecting_indices:
                     # If this bond was already made, continue
                     continue
-                bondMidpoint = (allAtomPositions[i] + allAtomPositions[atomIndex]) / 2.0
-                bondLength = distSquared[atomIndex] ** 0.5
-                bondVector = allAtomPositions[i] - allAtomPositions[atomIndex]
-                newBond = Bond(
+                bond_midpoint = (all_positions[i] + all_positions[atom_index]) / 2.0
+                bond_length = dist_squared[atom_index] ** 0.5
+                bond_vector = all_positions[i] - all_positions[atom_index]
+                new_bond = Bond(
                     i,
-                    atomIndex,
-                    "".join(sorted(f"{centralElement}{allAtomElements[atomIndex]}")),
-                    bondLength,
-                    bondVector,
-                    bondMidpoint,
+                    atom_index,
+                    "".join(sorted(f"{central_element}{all_elements[atom_index]}")),
+                    bond_length,
+                    bond_vector,
+                    bond_midpoint,
                     (
-                        atom.getPositionVector(),
-                        self._atoms[atomIndex].getPositionVector(),
+                        atom.get_position(),
+                        self._atoms[atom_index].get_position(),
                     ),
-                    f"bond-{i}-{atomIndex}",
+                    f"bond-{i}-{atom_index}",
                 )
-                connectingIndices.append((i, atomIndex))
-                self._bonds.append(newBond)
+                connecting_indices.append((i, atom_index))
+                self._bonds.append(new_bond)
         return self._bonds
 
-    def generateBondOrderBond(
+    def generate_bond_order_bond(
         self,
         bond: Bond,
-        bondOrder: int,
-        cameraPos: np.ndarray[float],
-        displacementScaler=0.2,
+        bond_order: int,
+        camera_position: np.ndarray[float],
+        displacement_scaler=0.2,
     ) -> list[Bond]:
         """Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds."""
-        if bondOrder == 1:
+        if bond_order == 1:
             return
         index = self._bonds.index(bond)
         self._bonds.pop(index)
-        bondVector = bond.getInteratomicVector()
+        bond_vector = bond.getInteratomicVector()
 
         # Get a vector that is perpendicular to the plane given by the bondVector and vector between camera and bond midpoint.
-        displacementVector = np.cross(
-            bondVector, bond.getMidpointPosition() - cameraPos
+        displacement_vector = np.cross(
+            bond_vector, bond.get_midpoint() - camera_position
         )
-        displacementVector /= np.linalg.norm(displacementVector)
+        displacement_vector /= np.linalg.norm(displacement_vector)
 
         # If bondOrder is odd, then we also have displacementMag of 0.
-        if bondOrder % 2 == 0:
-            displacementMag = -displacementScaler / 4 * bondOrder
+        if bond_order % 2 == 0:
+            displacement_magnitude = -displacement_scaler / 4 * bond_order
         else:
-            displacementMag = -displacementScaler / 2 * (bondOrder - 1)
+            displacement_magnitude = -displacement_scaler / 2 * (bond_order - 1)
 
         # Create the bonds, and add them to self._bonds
-        for i in range(bondOrder):
-            bondAdjusted = deepcopy(bond)
-            bondAdjusted.setMidpointPosition(
-                bondAdjusted.getMidpointPosition()
-                + displacementVector * displacementMag
+        for i in range(bond_order):  # noqa: B007
+            bond_adjusted = deepcopy(bond)
+            bond_adjusted.setMidpointPosition(
+                bond_adjusted.getMidpointPosition()
+                + displacement_vector * displacement_magnitude
             )
-            self._bonds.append(bondAdjusted)
-            displacementMag += displacementScaler
+            self._bonds.append(bond_adjusted)
+            displacement_magnitude += displacement_scaler
         return self._bonds
 
-    def getBonds(self) -> list[Bond]:
+    def get_bonds(self) -> list[Bond]:
         """Get all bonds in the system"""
         return self._bonds
 
-    def getCenterOfMass(self) -> np.ndarray[float]:
+    def get_center_of_mass(self) -> np.ndarray[float]:
         """Get the center of mass position vector"""
         masses = np.array([atom.getMass() for atom in self._atoms])
-        atomPositions = self.getAllAtomPositions()
-        COM = np.array(
-            sum(masses[i] * atomPositions[i] for i in range(self._nAtoms)) / sum(masses)
+        atom_positions = self.get_atom_positions()
+        com = np.array(
+            sum(masses[i] * atom_positions[i] for i in range(self._natoms))
+            / sum(masses)
         )
-        return COM
+        return com
 
-    def setCenterOfMass(self, newCOMposition) -> None:
+    def set_center_of_mass(self, new_center_of_mas) -> None:
         """Set the Center Of Mass (COM) of the whole system to a new position
 
         Args:
             newCOMposition (ndarray): new COM position
         """
-        COM = self.getCenterOfMass()
-        newCOMposition = check3Dvector(newCOMposition)
-        translationVector = newCOMposition - COM
-        self.translate(translationVector)
+        com = self.get_center_of_mass()
+        new_center_of_mass = check_3d_vector(new_center_of_mas)
+        translation_vector = new_center_of_mass - com
+        self.translate(translation_vector)
 
-    def setAveragePosition(self, newAveragePosition):
+    def set_average_position(self, new_average_position):
         """Sets the average position of all atoms to a new position"""
-        averagePosition = np.average(
-            np.array([atom.getPositionVector() for atom in self._atoms]), axis=0
+        new_average_position = check_3d_vector(new_average_position)
+        current_average_position = np.average(
+            np.array([atom.get_position() for atom in self._atoms]), axis=0
         )
-        newAveragePosition = check3Dvector(newAveragePosition)
-        translationVector = newAveragePosition - averagePosition
-        self.translate(translationVector)
+        translation_vector = new_average_position - current_average_position
+        self.translate(translation_vector)
 
-    def translate(self, translationVector: np.ndarray) -> None:
+    def translate(self, translation_vector: np.ndarray) -> None:
         """Translate every atom in the Structure along a vector
 
         Args:
             translationVector (ndarray): vector to translate every atom
         """
-        translationVector = check3Dvector(translationVector)
+        translation_vector = check_3d_vector(translation_vector)
 
-        newTransform = np.identity(4)
-        newTransform[:3, 3] = translationVector
-        self.addTransformation(newTransform)
+        new_affine_matrix = np.identity(4)
+        new_affine_matrix[:3, 3] = translation_vector
+        self.add_transformation(new_affine_matrix)
 
         for atom in self._atoms:
-            atom.setPositionVector(atom.getPositionVector() + translationVector)
+            atom.set_position(atom.get_position() + translation_vector)
 
-    def getTotalCharge(self) -> int:
+    def get_total_charge(self) -> int:
         """Get the total charge in the system
 
         Returns:
             int: total charge of the system
         """
-        charges = (atom.getCharge() for atom in self._atoms)
-        if not all(
-            isinstance(charge, int) or isinstance(charge, float) for charge in charges
-        ):
+        charges = (atom.get_charge() for atom in self._atoms)
+        if not all(isinstance(charge, int | float) for charge in charges):
             msg = "The charges of atoms are not all of type 'int' or 'float'"
             raise ValueError(msg)
-        totalCharge = int(sum(charges))
-        return totalCharge
+        total_charge = int(sum(charges))
+        return total_charge
 
-    def getAmountOfElectrons(self) -> int:
+    def get_nr_electrons(self) -> int:
         """Get the total amount of electrons in the system
 
         Returns:
             int: total number of electrons in the system
         """
-        totalElectronsIfNeutral = sum(atom.getAtomicNumber() for atom in self._atoms)
-        totalElectrons = totalElectronsIfNeutral - self.getTotalCharge()
-        return totalElectrons
+        total_electrons_if_neutral = sum(
+            atom.get_atomic_number() for atom in self._atoms
+        )
+        total_electrons = total_electrons_if_neutral - self.get_total_charge()
+        return total_electrons
 
-    def isRadical(self) -> bool:
+    def is_radical(self) -> bool:
         """Returns whether the studied structure is a radical (has an uneven amount of electrons)
 
         Returns:
             bool: whether the system is a radical or not
         """
-        return self.getAmountOfElectrons() % 2 != 0
+        return self.get_nr_electrons() % 2 != 0
 
-    def rotateAroundAxis(self, axis: np.ndarray, angle: float) -> None:
+    def rotate_around_axis(self, axis: np.ndarray, angle: float) -> None:
         """Rotate the structure around a certain axis
 
         Args:
             axis (ndarray): 3D vector around which to rotate the structure
             angle (float): angle with which to rotate the structure. Given in angles, counterclockwise
         """
-        rotMatrix = rotation_matrix(axis, angle)
+        rot_matrix = rotation_matrix(axis, angle)
         # create 4x4 matrix from the 3x3 rotation matrix
-        newTransform = np.identity(4)
-        newTransform[:3, :3] = rotMatrix
-        self.addTransformation(newTransform)
+        new_affine_matrix = np.identity(4)
+        new_affine_matrix[:3, :3] = rot_matrix
+        self.add_transformation(new_affine_matrix)
 
         for atom in self._atoms:
-            currentPos = atom.getPositionVector()
-            rotatedPos = np.dot(rotMatrix, currentPos)
-            atom.setPositionVector(rotatedPos)
+            current_position = atom.get_position()
+            rotated_position = np.dot(rot_matrix, current_position)
+            atom.set_position(rotated_position)
 
-    def getInertiaTensor(self) -> np.ndarray:
+    def get_inertia_tensor(self) -> np.ndarray:
         """Get the moment of inertia tensor
 
         Returns:
             inertiaTensor (ndarray): inertia tensor in kg m^2
         """
         # https://en.wikipedia.org/wiki/Moment_of_inertia#Inertia_tensor
-        centerOfMass = self.getCenterOfMass()
+        center_of_mass = self.get_center_of_mass()
 
-        inertiaTensor = np.zeros((3, 3))
+        inertia_tensor = np.zeros((3, 3))
         for atom in self._atoms:
             # Calculate moments of inertia to axes wrt COM
-            coords = atom.getPositionVector() - centerOfMass
+            coords = atom.get_position() - center_of_mass
 
             mass = atom.getMass() * AMU_TO_KG  # Mass in kg
 
             # Convert coordinates to meters
-            if atom.isAngstrom:
+            if atom.is_angstrom:
                 coords *= ANGSTROM_TO_METERS
             else:
                 coords *= BOHR_TO_METERS
 
-            inertiaTensor[0, 0] += mass * (
+            inertia_tensor[0, 0] += mass * (
                 coords[1] * coords[1] + coords[2] * coords[2]
             )
-            inertiaTensor[1, 1] += mass * (
+            inertia_tensor[1, 1] += mass * (
                 coords[0] * coords[0] + coords[2] * coords[2]
             )
-            inertiaTensor[2, 2] += mass * (
+            inertia_tensor[2, 2] += mass * (
                 coords[0] * coords[0] + coords[1] * coords[1]
             )
-            inertiaTensor[0, 1] -= mass * coords[0] * coords[1]
-            inertiaTensor[0, 2] -= mass * coords[0] * coords[2]
-            inertiaTensor[1, 2] -= mass * coords[1] * coords[2]
-        inertiaTensor[1, 0] = inertiaTensor[0, 1]
-        inertiaTensor[2, 0] = inertiaTensor[0, 2]
-        inertiaTensor[2, 1] = inertiaTensor[1, 2]
-        return inertiaTensor
+            inertia_tensor[0, 1] -= mass * coords[0] * coords[1]
+            inertia_tensor[0, 2] -= mass * coords[0] * coords[2]
+            inertia_tensor[1, 2] -= mass * coords[1] * coords[2]
+        inertia_tensor[1, 0] = inertia_tensor[0, 1]
+        inertia_tensor[2, 0] = inertia_tensor[0, 2]
+        inertia_tensor[2, 1] = inertia_tensor[1, 2]
+        return inertia_tensor
 
-    def getPrincipalMomentsOfInertia(self) -> tuple[np.ndarray, np.ndarray]:
+    def get_principal_moments_of_inertia(self) -> tuple[np.ndarray, np.ndarray]:
         """Get the principal moments of inertia and the principal axes
 
         Returns:
             principalMoments (ndarray): array of length 3 with the three principal moments of inertia in kg m^2
             principalAxes (ndarray): matrix of shape 3x3 with three principal moment axes
         """
-        inertiaTensor = self.getInertiaTensor()
-        principalMoments, principalAxes = np.linalg.eig(inertiaTensor)
-        indeces = np.argsort(principalMoments)
-        return principalMoments[indeces], principalAxes[indeces]
+        inertia_tensor = self.get_inertia_tensor()
+        principal_moments, principal_axes = np.linalg.eig(inertia_tensor)
+        indeces = np.argsort(principal_moments)
+        return principal_moments[indeces], principal_axes[indeces]
 
-    def createHydrogenBonds(self) -> None:
+    def create_hydrogen_bonds(self) -> None:
         """Adds hydrogen bonds to each molecule"""
-        hbondFormingElements = ["H", "O", "N"]
+        hbond_forming_elements = ["H", "O", "N"]
         atoms = self._atoms
 
         z = np.array([0, 0, 1])
 
-        hbondingCurves = []
+        hbond_curves = []
         for i, at1 in enumerate(atoms):
-            if at1.getElement() not in hbondFormingElements:
+            if at1.get_element() not in hbond_forming_elements:
                 # If the atom is a C, it can not form a hydrogen bond (in our system at least), so skip
                 continue
-            r1 = at1.getPositionVector()
-            atom1BoundIndeces = at1.findBoundAtoms(self)
+            r1 = at1.get_position()
+            atom1_bound_indices = at1.find_bound_atoms(self)
             for j, at2 in enumerate(atoms):
                 if i == j:  # Skip same atom
                     continue
-                if j in atom1BoundIndeces:  # If j is bound to i, skip
+                if j in atom1_bound_indices:  # If j is bound to i, skip
                     continue
                 if (
-                    at2.getElement() not in hbondFormingElements
+                    at2.get_element() not in hbond_forming_elements
                 ):  # Skip if atom 2 cannot form hydrogen bonds
                     continue
                 if (
-                    at1.getElement() == at2.getElement()
+                    at1.get_element() == at2.get_element()
                 ):  # OO, HH or NN cannot form hydrogen bonds.
                     continue
-                if at1.getElement() in ["C", "O", "N"] and at2.getElement() in [
+                if at1.get_element() in ["C", "O", "N"] and at2.get_element() in [
                     "C",
                     "O",
                     "N",
                 ]:
                     # Assume that a C, N or O atom cannot form a hydrogen bond to another C, N or O atom
                     continue
-                r2 = at2.getPositionVector()
+                r2 = at2.get_position()
 
                 dist = np.linalg.norm(r2 - r1)
                 if dist > manifest["hbond_distance"]:
                     continue
 
-                atom2BoundIndeces = at2.findBoundAtoms(self)
+                atom2_bound_indices = at2.find_bound_atoms(self)
 
-                if at2.getElement() == "H":
+                if at2.get_element() == "H":
                     # Use some boolean arithmetic to find the position of the O/C/N that the H is bonded to
-                    bondedAtomPosition = atoms[atom2BoundIndeces[0]].getPositionVector()
+                    bonded_atom_position = atoms[atom2_bound_indices[0]].get_position()
 
                     # Calculate intramolecular vector
-                    intramolOwHw = bondedAtomPosition - r2
-                elif at1.getElement() == "H":
-                    bondedAtomPosition = atoms[atom1BoundIndeces[0]].getPositionVector()
+                    intramol_vector = bonded_atom_position - r2
+                elif at1.get_element() == "H":
+                    bonded_atom_position = atoms[atom1_bound_indices[0]].get_position()
 
                     # Calculate intramolecular vector
-                    intramolOwHw = bondedAtomPosition - r1
+                    intramol_vector = bonded_atom_position - r1
                 else:
                     raise NotImplementedError()
 
-                angle = angle_between(intramolOwHw, r2 - r1)
+                angle = angle_between(intramol_vector, r2 - r1)
 
                 # create a hydrogen bond when the interatomic distance and O-H----O angle are less than the specified threshold value
                 if np.abs(angle) > 180 - manifest["hbond_angle"]:
@@ -416,11 +421,11 @@ class Structure(Geometry):
                         at2.getElement(),
                         j,
                     )
-                    hbondingCurves.append(obj)
+                    hbond_curves.append(obj)
 
-        mathbond = create_material("H-bond", manifest["hbond_color"])
+        hbond_material = create_material("H-bond", manifest["hbond_color"])
 
-        for o in hbondingCurves:
+        for o in hbond_curves:
             rot_axis = o.rotation_axis_angle
             bpy.ops.surface.primitive_nurbs_surface_cylinder_add(
                 enter_editmode=False,
@@ -431,12 +436,12 @@ class Structure(Geometry):
             obj.name = "Hbond_cyl"
 
             obj.scale = (manifest["hbond_thickness"], manifest["hbond_thickness"], 0.1)
-            obj.data.materials.append(mathbond)
+            obj.data.materials.append(hbond_material)
 
             obj.rotation_mode = "AXIS_ANGLE"
             obj.rotation_axis_angle = rot_axis
 
-            mod = obj.modifiers.new(name="FollowCurve", type="ARRAY")
+            _ = obj.modifiers.new(name="FollowCurve", type="ARRAY")
             bpy.context.object.modifiers["FollowCurve"].fit_type = "FIT_CURVE"
             bpy.context.object.modifiers["FollowCurve"].curve = o
             bpy.context.object.modifiers["FollowCurve"].relative_offset_displace[0] = 0
@@ -445,11 +450,11 @@ class Structure(Geometry):
                 1.3
             )
 
-    def createBonds(
+    def create_bonds(
         self,
         bonds: list[Bond],
-        splitBondToAtomMaterials: bool = True,
-        renderResolution: str = "medium",
+        split_bond_to_atom_materials: bool = True,
+        resolution: str = "medium",
     ) -> None:
         """Create the bonds in the Blender scene
 
@@ -458,176 +463,174 @@ class Structure(Geometry):
             splitBondToAtomMaterials (bool): whether to split up the bonds to the two atom materials connecting them
             renderResolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
         """
-        allAtomElements = [atom.getElement() for atom in self._atoms]
-        allAtomVdWRadii = [atom.getVdWRadius() for atom in self._atoms]
+        all_elements = [atom.get_element() for atom in self._atoms]
 
         for bond in bonds:
-            direction = bond.getDirection()
-            axisAngleWithZ = bond.getAxisAngleWithZaxis()
-            bondLength = bond.getBondLength()
-            bondMidpoint = bond.getMidpointPosition()
+            axis_angle_with_z = bond.get_axis_angle_with_z()
+            bond_length = bond.get_length()
+            bond_midpoint = bond.get_midpoint()
 
-            if splitBondToAtomMaterials:
+            if split_bond_to_atom_materials:
                 # We will move the two cylinders according to their vdw radii, such that each atom
                 # has about the same of its material shown in the bond. This means that for, e.g.
                 # an O-H bond, the cylinder closer to O will move less than the cylinder closer to H
-                atom1Index = bond.getAtom1Index()
-                atom1Element = allAtomElements[atom1Index]
+                atom1_index = bond.get_atom1_index()
+                atom1_element = all_elements[atom1_index]
 
-                atom2Index = bond.getAtom2Index()
-                atom2Element = allAtomElements[atom2Index]
+                atom2_index = bond.get_atom1_index()
+                atom2_element = all_elements[atom2_index]
 
-                if atom1Element == atom2Element:
+                if atom1_element == atom2_element:
                     mat1 = create_material(
-                        atom1Element, manifest["atom_colors"][atom1Element]
+                        atom1_element, manifest["atom_colors"][atom1_element]
                     )
-                    obj = createCylinder(
-                        bondMidpoint,
-                        axisAngleWithZ,
+                    obj = create_cylinder(
+                        bond_midpoint,
+                        axis_angle_with_z,
                         manifest["bond_thickness"],
-                        bondLength / 4,
-                        renderResolution=renderResolution,
-                        name=f"bond-{atom1Index}-{atom2Index}",
+                        bond_length / 4,
+                        resolution=resolution,
+                        name=f"bond-{atom1_index}-{atom2_index}",
                     )
                     obj.data.materials.append(mat1)
                     continue
 
-                vdwWeightedLocations = bond.getVdWWeightedMidpoints(
-                    atom1Element, atom2Element
+                vdw_weighted_midpoints = bond.get_vdw_weighted_midpoints(
+                    atom1_element, atom2_element
                 )
 
                 # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
                 # from the midpoint) will be the one closest to the atom with the higher index.
                 # So, we take the element and material from that one, and assign it to the first cylinder.
                 mat2 = create_material(
-                    atom2Element, manifest["atom_colors"][atom2Element]
+                    atom2_element, manifest["atom_colors"][atom2_element]
                 )
 
                 # First cylinder
-                obj = createCylinder(
-                    vdwWeightedLocations[0],
-                    axisAngleWithZ,
+                obj = create_cylinder(
+                    vdw_weighted_midpoints[0],
+                    axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bondLength / 4,
-                    renderResolution=renderResolution,
-                    name=f"bond-{atom1Index}-{atom2Index}",
+                    bond_length / 4,
+                    resolution=resolution,
+                    name=f"bond-{atom1_index}-{atom2_index}",
                 )
                 obj.data.materials.append(mat2)
 
                 mat1 = create_material(
-                    atom1Element, manifest["atom_colors"][atom1Element]
+                    atom1_element, manifest["atom_colors"][atom1_element]
                 )
 
                 # First cylinder
-                obj = createCylinder(
-                    vdwWeightedLocations[1],
-                    axisAngleWithZ,
+                obj = create_cylinder(
+                    vdw_weighted_midpoints[1],
+                    axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bondLength / 4,
-                    renderResolution=renderResolution,
-                    name=f"bond-{atom1Index}-{atom2Index}",
+                    bond_length / 4,
+                    resolution=resolution,
+                    name=f"bond-{atom1_index}-{atom2_index}",
                 )
                 obj.data.materials.append(mat1)
             else:
-                obj = createCylinder(
-                    bondMidpoint,
-                    axisAngleWithZ,
+                obj = create_cylinder(
+                    bond_midpoint,
+                    axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bondLength / 2,
-                    renderResolution=renderResolution,
-                    name=f"bond-{atom1Index}-{atom2Index}",
+                    bond_length / 2,
+                    resolution=resolution,
+                    name=f"bond-{atom1_index}-{atom2_index}",
                 )
-        deselectAllSelected()
+        deselect_all_selected()
 
-    def joinBonds(self):
+    def join_bonds(self):
         """Join bonds. DOES NOT WORK YET"""
-        for atomIndex, atom in enumerate(self._atoms):
-            bondsToJoin = []
+        for atom_index, atom in enumerate(self._atoms):
+            bonds_to_join = []
             for bond in self._bonds:
                 if (
-                    bond.getAtom1Index() == atomIndex
-                    or bond.getAtom2Index() == atomIndex
+                    bond.get_atom1_index() == atom_index
+                    or bond.get_atom2_index() == atom_index
                 ):
-                    bondsToJoin.append(getObjectByName(bond.getName()))
-            if not bondsToJoin:
+                    bonds_to_join.append(get_object_by_name(bond.getName()))
+            if not bonds_to_join:
                 continue
-            if len(bondsToJoin) == 1:
+            if len(bonds_to_join) == 1:
                 # This also needs to extend the cylinder somehow to the atom position
                 # Maybe by creating a second, very narrow cylinder at the atom position,
                 # joining that with the original cylinder and then putting the cap on that?
-                putHemisphereCapOnCylinder(bondsToJoin[0])
+                put_cap_on_cylinder(bonds_to_join[0])
             else:
-                joinCylinders(
-                    bondsToJoin, atom.getPositionVector(), atom.getVdWRadius()
+                join_cylinders(
+                    bonds_to_join, atom.get_position(), atom.get_vdw_radius()
                 )
                 return
 
-    def displaceAtoms(self, displacements: np.ndarray) -> None:
+    def displace_atoms(self, displacements: np.ndarray) -> None:
         """Displace all atoms along different displacement vectors
 
         Args:
-            displacements (ndarray): matrix of shape nAtoms * 3, vectors to displace atoms
+            displacements (ndarray): matrix of shape natoms * 3, vectors to displace atoms
         """
-        if not np.shape(displacements) == (self._nAtoms, 3):
+        if not np.shape(displacements) == (self._natoms, 3):
             raise ValueError()
 
         for i, atom in enumerate(self._atoms):
-            atom.setPositionVector(atom.getPositionVector() + displacements[i, :])
+            atom.set_position(atom.get_position() + displacements[i, :])
 
     @classmethod
-    def fromXYZ(cls, filepath: str):
+    def from_xyz(cls, filepath: str):
         """Create a Structure from an XYZ file
 
         Args:
             filepath (str): XYZ file to read
         """
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             _lines = file.readlines()
 
-        _nAtoms = int(_lines[0].strip())
-        _atoms = [0] * _nAtoms
+        _natoms = int(_lines[0].strip())
+        _atoms = [0] * _natoms
 
-        for i in range(_nAtoms):
-            _atoms[i] = Atom.fromXYZ(_lines[2 + i])
+        for i in range(_natoms):
+            _atoms[i] = Atom.from_xyz_string(_lines[2 + i])
 
         return cls(_atoms)
 
     @classmethod
-    def fromSDF(cls, filepath: str):
+    def from_sdf(cls, filepath: str):
         """Creates a Structure from an SDF file
 
         Args:
             filepath (str): SDF file to read
         """
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             _lines = file.readlines()
 
-        _nAtoms = int(_lines[3].split()[0].strip())
-        _atoms = [0] * _nAtoms
+        _natoms = int(_lines[3].split()[0].strip())
+        _atoms = [0] * _natoms
 
-        for i in range(_nAtoms):
-            _atoms[i] = Atom.fromSDF(_lines[4 + i])
+        for i in range(_natoms):
+            _atoms[i] = Atom.from_sdf_string(_lines[4 + i])
 
         # SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?
         _bonds = []
         return cls(_atoms, _bonds)
 
     @classmethod
-    def fromXSF(cls, filepath: str):
+    def from_xsf(cls, filepath: str):
         """Creates a Structure from an XSF file. To be tested
 
         Args:
             filepath(str): XSF file to read
         """
         # http://www.xcrysden.org/doc/XSF.html#__toc__2
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             _lines = file.readlines()
-        joinedLines = "".join(_lines)
+        joined_lines = "".join(_lines)
 
-        if "CRYSTAL" in joinedLines:
+        if "CRYSTAL" in joined_lines:
             is_periodic = True
-        if "ANIMSTEPS" in joinedLines:
-            msg = f"Structure class cannot read changing structures. Use Trajectory for that"
+        if "ANIMSTEPS" in joined_lines:
+            msg = "Structure class cannot read changing structures. Use Trajectory for that"
             raise TypeError(msg)
 
         if is_periodic:
@@ -641,10 +644,10 @@ class Structure(Geometry):
                 elif "CONVVEC" in line:
                     convvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)
                 elif "PRIMCOORD" in line:
-                    _nAtoms = int(_lines[i + 1].split()[0])
-                    _atoms = [0] * _nAtoms
-                    for j in range(_nAtoms):
-                        _atoms[j] = Atom.fromXYZ(_lines[i + 2 + j])
+                    _natoms = int(_lines[i + 1].split()[0])
+                    _atoms = [0] * _natoms
+                    for j in range(_natoms):
+                        _atoms[j] = Atom.from_xyz_string(_lines[i + 2 + j])
         else:
             for i, line in enumerate(_lines):
                 if line[0] == "#":
@@ -658,9 +661,9 @@ class Structure(Geometry):
                             # there's still a new atom. If not, the atom list is done
                             # and we need to stop the reading.
                             int(_lines[i + 1 + j].split()[0])
-                        except:
+                        except ValueError:
                             break
-                        _atoms.append(Atom.fromXYZ(_lines[i + 1 + j]))
+                        _atoms.append(Atom.from_xyz_string(_lines[i + 1 + j]))
                         j += 1
         return cls(_atoms)
 
@@ -668,64 +671,66 @@ class Structure(Geometry):
         return self.__str__()
 
     def __str__(self) -> str:
-        return f"Structure with {self._nAtoms} atoms"
+        return f"Structure with {self._natoms} atoms"
 
 
 class CUBEfile(Structure):
     def __init__(self, filepath: str):
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             self._lines = file.readlines()
-        nAtoms = int(self._lines[2].split()[0].strip())
+        natoms = int(self._lines[2].split()[0].strip())
 
-        if nAtoms < 0:
-            nAtoms = -nAtoms
+        if natoms < 0:
+            natoms = -natoms
 
-        atoms = [0] * nAtoms
+        atoms = [0] * natoms
 
-        for i in range(nAtoms):
-            atoms[i] = Atom.fromCUBE(self._lines[6 + i].strip())
-            atoms[i].positionBohrToAngstrom()
+        for i in range(natoms):
+            atoms[i] = Atom.from_cube_string(self._lines[6 + i].strip())
+            atoms[i].position_bohr_to_angstrom()
 
         super().__init__(atoms)
 
-    def readVolumetricData(self) -> None:
+    def read_volumetric_data(self) -> None:
         """Read the volumetric data in the CUBE file"""
-        self._NX, self._NY, self._NZ = [
+        self._NX, self._NY, self._NZ = (
             int(self._lines[i].split()[0].strip()) for i in [3, 4, 5]
-        ]
-        self._volumetricOriginVector = (
+        )
+        self._volumetric_origin_vector = (
             np.array([float(i) for i in self._lines[2].split()[1:]]) * BOHR_TO_ANGSTROM
         )
 
-        self._volumetricAxisVectors = (
+        self._volumetric_axis_vectors = (
             np.array(
                 [[float(i) for i in self._lines[3 + i].split()[1:]] for i in [0, 1, 2]]
             )
             * BOHR_TO_ANGSTROM
         )
         if np.all(
-            np.diag(np.diagonal(self._volumetricAxisVectors))
-            != self._volumetricAxisVectors
+            np.diag(np.diagonal(self._volumetric_axis_vectors))
+            != self._volumetric_axis_vectors
         ):
             warning = "WARNING: Volumetric data axis vectors are not diagonal. Not sure if this works"
-            warning += f" Volumetric data axis vectors:\n{self._volumetricAxisVectors}"
+            warning += (
+                f" Volumetric data axis vectors:\n{self._volumetric_axis_vectors}"
+            )
             print(warning)
 
         try:
-            self._volumetricData = np.fromiter(
+            self._volumetric_data = np.fromiter(
                 (
                     float(num)
-                    for line in self._lines[6 + self._nAtoms :]
+                    for line in self._lines[6 + self._natoms :]
                     for num in line.split()
                 ),
                 dtype=np.float32,
                 count=-1,
             ).reshape((self._NX, self._NY, self._NZ))
         except ValueError:
-            self._volumetricData = np.fromiter(
+            self._volumetric_data = np.fromiter(
                 (
                     float(num)
-                    for line in self._lines[7 + self._nAtoms :]
+                    for line in self._lines[7 + self._natoms :]
                     for num in line.split()
                 ),
                 dtype=np.float32,
@@ -734,7 +739,7 @@ class CUBEfile(Structure):
 
         # Old, much slower way to read the data.
         # volumetricLines = " ".join(
-        #     line.strip() for line in self._lines[6 + self._nAtoms :]
+        #     line.strip() for line in self._lines[6 + self._natoms :]
         # ).split()
 
         # self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))
@@ -744,31 +749,31 @@ class CUBEfile(Structure):
         #             dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz
         #             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])
 
-    def getVolumetricOriginVector(self) -> np.ndarray[float]:
+    def get_volumetric_origin_vector(self) -> np.ndarray[float]:
         """Get the origin vector of the volumetric data
 
         Returns:
             ndarray: np.ndarray of length 3 corresponding to x, y and z coordinates of volumetric origin
         """
-        return self._volumetricOriginVector
+        return self._volumetric_origin_vector
 
-    def getVolumetricAxisVectors(self) -> np.ndarray[float]:
+    def get_volumetric_axis_vectors(self) -> np.ndarray[float]:
         """Get the axis vectors of the volumetric data
 
         Returns:
             ndarray: np.ndarray of length 3 corresponding to i, j and k axis vectors of volumetric data
         """
-        return self._volumetricAxisVectors
+        return self._volumetric_axis_vectors
 
-    def getVolumetricData(self) -> np.ndarray[float]:
+    def get_volumetric_data(self) -> np.ndarray[float]:
         """Get the volumetric data
 
         Returns:
             ndarray: matrix of shape NX*NY*NZ containing volumetric data
         """
-        return self._volumetricData
+        return self._volumetric_data
 
-    def writePLY(self, filepath: str, isovalue: float) -> None:
+    def write_ply(self, filepath: str, isovalue: float) -> None:
         """Write the volumetric data to a filepath
 
         Args:
@@ -777,29 +782,29 @@ class CUBEfile(Structure):
         """
         from pytessel import PyTessel
 
-        self._checkIsovalue(isovalue)
+        self._check_isovalue(isovalue)
 
         pytessel = PyTessel()
 
-        unitCell = self._volumetricAxisVectors * self._volumetricData.shape
+        unit_cell = self._volumetric_axis_vectors * self._volumetric_data.shape
 
         # Flatten the volumetric data such that X is the fastest moving index, according to the PyTessel documentation.
         vertices, normals, indices = pytessel.marching_cubes(
-            self._volumetricData.flatten(order="F"),
-            reversed(self._volumetricData.shape),
-            unitCell.flatten(),
+            self._volumetric_data.flatten(order="F"),
+            reversed(self._volumetric_data.shape),
+            unit_cell.flatten(),
             isovalue,
         )
 
-        vertices += np.diag(0.5 * unitCell) + self._volumetricOriginVector
+        vertices += np.diag(0.5 * unit_cell) + self._volumetric_origin_vector
 
         nvertices = np.shape(vertices)[0]
-        vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
-        vertices = (self._affineMatrix @ vertices4D.T).T[:, :3]
+        vertices_4d = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
+        vertices = (self._affine_matrix @ vertices_4d.T).T[:, :3]
 
         pytessel.write_ply(filepath, vertices, normals, indices)
 
-    def calculateIsosurface(
+    def calculate_isosurface(
         self, isovalue: float
     ) -> tuple[np.ndarray, np.ndarray, int]:
         """Calculate the isosurface from the volumetric data and an isovalue
@@ -813,33 +818,33 @@ class CUBEfile(Structure):
         """
         from skimage.measure import marching_cubes
 
-        self._checkIsovalue(isovalue)
+        self._check_isovalue(isovalue)
 
         vertices, faces, normals, values = marching_cubes(
-            self._volumetricData,
+            self._volumetric_data,
             level=isovalue,
-            spacing=np.diag(self._volumetricAxisVectors),
+            spacing=np.diag(self._volumetric_axis_vectors),
         )
 
-        vertices += self._volumetricOriginVector
+        vertices += self._volumetric_origin_vector
 
         nvertices = np.shape(vertices)[0]
-        vertices4D = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
-        vertices = (self._affineMatrix @ vertices4D.T).T[:, :3]
+        vertices_4d = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
+        vertices = (self._affine_matrix @ vertices_4d.T).T[:, :3]
 
         return vertices, faces, normals, values
 
-    def _checkIsovalue(self, isovalue: float) -> None:
+    def _check_isovalue(self, isovalue: float) -> None:
         """Checks whether the supplied isovalue is valid
 
         Args:
             isovalue (float):
         """
-        if isovalue <= np.min(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetricData)}). This will result in an empty isosurface. Set a larger isovalue."
+        if isovalue <= np.min(self._volumetric_data):
+            msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetric_data)}). This will result in an empty isosurface. Set a larger isovalue."
             raise ValueError(msg)
-        if isovalue >= np.max(self._volumetricData):
-            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetricData)}). This will result in an empty isosurface. Set a smaller isovalue."
+        if isovalue >= np.max(self._volumetric_data):
+            msg = f"Set isovalue ({isovalue}) was more than or equal to the maximum value in the volumetric data ({np.max(self._volumetric_data)}). This will result in an empty isosurface. Set a smaller isovalue."
             raise ValueError(msg)
 
 
@@ -848,8 +853,8 @@ class JSONfile(Structure):
         import json
 
         self._filepath = filepath
-        with open(self._filepath, "r") as file:
+        with open(self._filepath) as file:
             self._lines = file.readlines()
-            jsonData = json.load(file)
+            json_data = json.load(file)
 
-        print(jsonData)
+        print(json_data)
