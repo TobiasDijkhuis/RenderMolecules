@@ -41,7 +41,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../RenderMolecules.html">RenderMolecules package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
 </ul>
 
         </div>
@@ -91,7 +95,7 @@
 
 
 <div class="viewcode-block" id="Structure">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Structure</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">],</span> <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nAtoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">)</span>
@@ -106,35 +110,35 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_affineMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Structure.getAtoms">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getAtoms">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getAtoms">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of all atoms in the structure&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span></div>
 
 
 <div class="viewcode-block" id="Structure.getAllAtomPositions">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getAllAtomPositions">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getAllAtomPositions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getAllAtomPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of all atom positions&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">getPositionVector</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Structure.getFilepath">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getFilepath">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getFilepath">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getFilepath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the filepath of the file that created the structure&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span></div>
 
 
 <div class="viewcode-block" id="Structure.getLines">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getLines">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getLines">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getLines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the lines of the file that created the structure&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span></div>
 
 
 <div class="viewcode-block" id="Structure.createAtoms">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.createAtoms">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.createAtoms">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">createAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderResolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">createMesh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">createMesh</span><span class="p">:</span>
@@ -175,7 +179,7 @@
 
 
 <div class="viewcode-block" id="Structure.findBondsBasedOnDistance">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.findBondsBasedOnDistance">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.findBondsBasedOnDistance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">findBondsBasedOnDistance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry&quot;&quot;&quot;</span>
         <span class="n">allAtomPositions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getAllAtomPositions</span><span class="p">()</span>
@@ -232,7 +236,7 @@
 
 
 <div class="viewcode-block" id="Structure.generateBondOrderBond">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.generateBondOrderBond">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.generateBondOrderBond">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generateBondOrderBond</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bond</span><span class="p">:</span> <span class="n">Bond</span><span class="p">,</span>
@@ -272,14 +276,14 @@
 
 
 <div class="viewcode-block" id="Structure.getBonds">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getBonds">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getBonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getBonds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all bonds in the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span></div>
 
 
 <div class="viewcode-block" id="Structure.getCenterOfMass">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getCenterOfMass">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getCenterOfMass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getCenterOfMass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the center of mass position vector&quot;&quot;&quot;</span>
         <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">getMass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span>
@@ -291,7 +295,7 @@
 
 
 <div class="viewcode-block" id="Structure.setCenterOfMass">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.setCenterOfMass">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.setCenterOfMass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setCenterOfMass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newCOMposition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Center Of Mass (COM) of the whole system to a new position</span>
 
@@ -305,7 +309,7 @@
 
 
 <div class="viewcode-block" id="Structure.setAveragePosition">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.setAveragePosition">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.setAveragePosition">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setAveragePosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newAveragePosition</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the average position of all atoms to a new position&quot;&quot;&quot;</span>
         <span class="n">averagePosition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
@@ -317,7 +321,7 @@
 
 
 <div class="viewcode-block" id="Structure.translate">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.translate">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translationVector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate every atom in the Structure along a vector</span>
 
@@ -335,7 +339,7 @@
 
 
 <div class="viewcode-block" id="Structure.getTotalCharge">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getTotalCharge">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getTotalCharge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getTotalCharge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total charge in the system</span>
 
@@ -353,7 +357,7 @@
 
 
 <div class="viewcode-block" id="Structure.getAmountOfElectrons">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getAmountOfElectrons">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getAmountOfElectrons">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getAmountOfElectrons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total amount of electrons in the system</span>
 
@@ -366,7 +370,7 @@
 
 
 <div class="viewcode-block" id="Structure.isRadical">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.isRadical">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.isRadical">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">isRadical</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the studied structure is a radical (has an uneven amount of electrons)</span>
 
@@ -377,7 +381,7 @@
 
 
 <div class="viewcode-block" id="Structure.rotateAroundAxis">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.rotateAroundAxis">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.rotateAroundAxis">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundAxis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the structure around a certain axis</span>
 
@@ -398,7 +402,7 @@
 
 
 <div class="viewcode-block" id="Structure.getInertiaTensor">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getInertiaTensor">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getInertiaTensor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getInertiaTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the moment of inertia tensor</span>
 
@@ -440,7 +444,7 @@
 
 
 <div class="viewcode-block" id="Structure.getPrincipalMomentsOfInertia">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.getPrincipalMomentsOfInertia">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.getPrincipalMomentsOfInertia">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getPrincipalMomentsOfInertia</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the principal moments of inertia and the principal axes</span>
 
@@ -455,7 +459,7 @@
 
 
 <div class="viewcode-block" id="Structure.createHydrogenBonds">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.createHydrogenBonds">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.createHydrogenBonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">createHydrogenBonds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds hydrogen bonds to each molecule&quot;&quot;&quot;</span>
         <span class="n">hbondFormingElements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span>
@@ -576,7 +580,7 @@
 
 
 <div class="viewcode-block" id="Structure.createBonds">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.createBonds">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.createBonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">createBonds</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">],</span>
@@ -673,7 +677,7 @@
 
 
 <div class="viewcode-block" id="Structure.joinBonds">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.joinBonds">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.joinBonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">joinBonds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Join bonds. DOES NOT WORK YET&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">atomIndex</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">):</span>
@@ -699,7 +703,7 @@
 
 
 <div class="viewcode-block" id="Structure.displaceAtoms">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.displaceAtoms">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.displaceAtoms">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">displaceAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displacements</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Displace all atoms along different displacement vectors</span>
 
@@ -714,7 +718,7 @@
 
 
 <div class="viewcode-block" id="Structure.fromXYZ">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.fromXYZ">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.fromXYZ">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromXYZ</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Structure from an XYZ file</span>
@@ -735,7 +739,7 @@
 
 
 <div class="viewcode-block" id="Structure.fromSDF">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.fromSDF">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.fromSDF">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromSDF</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an SDF file</span>
@@ -758,7 +762,7 @@
 
 
 <div class="viewcode-block" id="Structure.fromXSF">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.Structure.fromXSF">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.Structure.fromXSF">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromXSF</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an XSF file. To be tested</span>
@@ -821,7 +825,7 @@
 
 
 <div class="viewcode-block" id="CUBEfile">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CUBEfile</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
@@ -840,7 +844,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CUBEfile.readVolumetricData">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.readVolumetricData">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.readVolumetricData">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">readVolumetricData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the volumetric data in the CUBE file&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span> <span class="o">=</span> <span class="p">[</span>
@@ -899,7 +903,7 @@
         <span class="c1">#             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])</span>
 
 <div class="viewcode-block" id="CUBEfile.getVolumetricOriginVector">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.getVolumetricOriginVector">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.getVolumetricOriginVector">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getVolumetricOriginVector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the origin vector of the volumetric data</span>
 
@@ -910,7 +914,7 @@
 
 
 <div class="viewcode-block" id="CUBEfile.getVolumetricAxisVectors">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.getVolumetricAxisVectors">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.getVolumetricAxisVectors">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getVolumetricAxisVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the axis vectors of the volumetric data</span>
 
@@ -921,7 +925,7 @@
 
 
 <div class="viewcode-block" id="CUBEfile.getVolumetricData">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.getVolumetricData">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.getVolumetricData">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getVolumetricData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the volumetric data</span>
 
@@ -932,7 +936,7 @@
 
 
 <div class="viewcode-block" id="CUBEfile.writePLY">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.writePLY">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.writePLY">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">writePLY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the volumetric data to a filepath</span>
 
@@ -966,7 +970,7 @@
 
 
 <div class="viewcode-block" id="CUBEfile.calculateIsosurface">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.CUBEfile.calculateIsosurface">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.CUBEfile.calculateIsosurface">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">calculateIsosurface</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
@@ -1014,7 +1018,7 @@
 
 
 <div class="viewcode-block" id="JSONfile">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.structure.JSONfile">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.structure.JSONfile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">JSONfile</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>

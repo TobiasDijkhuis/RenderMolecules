@@ -41,7 +41,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../RenderMolecules.html">RenderMolecules package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
 </ul>
 
         </div>
@@ -82,28 +86,28 @@
 
 
 <div class="viewcode-block" id="Trajectory">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Trajectory</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span> <span class="o">=</span> <span class="n">frames</span>
 
 <div class="viewcode-block" id="Trajectory.get_frames">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_frames">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.get_frames">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all frames in the trajectory&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.get_nframes">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_nframes">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.get_nframes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_nframes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of frames in the trajectory&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.setCenterOfMass">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.setCenterOfMass">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.setCenterOfMass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setCenterOfMass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newCOMposition</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frameIndex</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Center Of Mass (COM) of the structure at index &#39;frameIndex&#39; to a new position</span>
 
@@ -121,7 +125,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.createAnimation">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.createAnimation">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.createAnimation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">createAnimation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">createBonds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -234,14 +238,14 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_frame">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.get_frame">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.get_frame">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frameIndex</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Structure at a certain frame index&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">[</span><span class="n">frameIndex</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.rotateAroundAxis">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.rotateAroundAxis">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.rotateAroundAxis">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundAxis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">:</span>
@@ -279,7 +283,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_frames</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Trajectory.fromXYZ">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromXYZ">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.fromXYZ">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromXYZ</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a trajectory from an XYZ file containing multiple frames&quot;&quot;&quot;</span>
@@ -304,14 +308,14 @@
 
 
 <div class="viewcode-block" id="Trajectory.fromXSF">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromXSF">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.fromXSF">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromXSF</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.fromORCAoutput">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.fromORCAoutput">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.fromORCAoutput">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromORCAoutput</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -447,7 +451,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.translate">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.trajectory.Trajectory.translate">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.trajectory.Trajectory.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translationVector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">:</span>
             <span class="n">frame</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translationVector</span><span class="p">)</span></div>

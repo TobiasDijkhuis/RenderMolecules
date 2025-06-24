@@ -41,7 +41,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../RenderMolecules.html">RenderMolecules package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
 </ul>
 
         </div>
@@ -73,19 +77,19 @@
 
 
 <div class="viewcode-block" id="Geometry">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Geometry</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_affineMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Geometry.getAffineMatrix">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.getAffineMatrix">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.getAffineMatrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getAffineMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affineMatrix</span></div>
 
 
 <div class="viewcode-block" id="Geometry.setAffineMatrix">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.setAffineMatrix">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.setAffineMatrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setAffineMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newAffineMatrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">newAffineMatrix</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
@@ -95,7 +99,7 @@
 
 
 <div class="viewcode-block" id="Geometry.addTransformation">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.addTransformation">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.addTransformation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">addTransformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">affineTransformationMatrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">affineTransformationMatrix</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
@@ -105,35 +109,35 @@
 
 
 <div class="viewcode-block" id="Geometry.translate">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.translate">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translationVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Geometry.translate method should be implemented by child class&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Geometry.rotateAroundAxis">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.rotateAroundAxis">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.rotateAroundAxis">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundAxis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Geometry.rotateAroundAxis method should be implemented by child class&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Geometry.rotateAroundX">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.rotateAroundX">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.rotateAroundX">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundX</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the geometry around the x-axis counterclockwise with a certain angle in degrees&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotateAroundAxis</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">angle</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Geometry.rotateAroundY">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.rotateAroundY">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.rotateAroundY">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the geometry around the y-axis counterclockwise with a certain angle in degrees&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotateAroundAxis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">angle</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Geometry.rotateAroundZ">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.Geometry.rotateAroundZ">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.Geometry.rotateAroundZ">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotateAroundZ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the geometry around the z-axis counterclockwise with a certain angle in degrees&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotateAroundAxis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">angle</span><span class="p">)</span></div>
@@ -142,7 +146,7 @@
 
 
 <div class="viewcode-block" id="rotation_matrix">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.rotation_matrix">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.rotation_matrix">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the rotation matrix associated with counterclockwise rotation about</span>
@@ -167,7 +171,7 @@
 
 
 <div class="viewcode-block" id="angle_between">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.angle_between">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.angle_between">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">angle_between</span><span class="p">(</span><span class="n">vector1</span><span class="p">,</span> <span class="n">vector2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">vector1</span> <span class="o">=</span> <span class="n">check3Dvector</span><span class="p">(</span><span class="n">vector1</span><span class="p">)</span>
     <span class="n">vector2</span> <span class="o">=</span> <span class="n">check3Dvector</span><span class="p">(</span><span class="n">vector2</span><span class="p">)</span>
@@ -184,7 +188,7 @@
 
 
 <div class="viewcode-block" id="check3Dvector">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.geometry.check3Dvector">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.geometry.check3Dvector">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check3Dvector</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>

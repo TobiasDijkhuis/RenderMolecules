@@ -41,7 +41,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../RenderMolecules.html">RenderMolecules package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
 </ul>
 
         </div>
@@ -81,7 +85,7 @@
 
 
 <div class="viewcode-block" id="Atom">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Atom</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -128,7 +132,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_vdwRadius</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
 
 <div class="viewcode-block" id="Atom.fromCUBE">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.fromCUBE">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.fromCUBE">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromCUBE</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Atom instance from a line in a CUBE file</span>
@@ -144,7 +148,7 @@
 
 
 <div class="viewcode-block" id="Atom.fromXYZ">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.fromXYZ">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.fromXYZ">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromXYZ</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Atom instance from a line in an XYZ file</span>
@@ -165,7 +169,7 @@
 
 
 <div class="viewcode-block" id="Atom.fromSDF">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.fromSDF">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.fromSDF">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fromSDF</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Atom instance from a line in an SDF file</span>
@@ -182,7 +186,7 @@
 
 
 <div class="viewcode-block" id="Atom.getAtomicNumber">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getAtomicNumber">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getAtomicNumber">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getAtomicNumber</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the atomic number of the atom</span>
 
@@ -192,7 +196,7 @@
 
 
 <div class="viewcode-block" id="Atom.getCharge">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getCharge">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getCharge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getCharge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the charge of the Atom (undefined if created from XYZ file)</span>
 
@@ -202,7 +206,7 @@
 
 
 <div class="viewcode-block" id="Atom.getX">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getX">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getX">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getX</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the x-coordinate of the atom</span>
 
@@ -213,7 +217,7 @@
 
 
 <div class="viewcode-block" id="Atom.getY">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getY">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getY">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getY</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the y-coordinate of the atom</span>
 
@@ -224,7 +228,7 @@
 
 
 <div class="viewcode-block" id="Atom.getZ">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getZ">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getZ">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getZ</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the z-coordinate of the atom</span>
 
@@ -235,7 +239,7 @@
 
 
 <div class="viewcode-block" id="Atom.getPositionVector">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getPositionVector">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getPositionVector">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getPositionVector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get position of the atom</span>
 
@@ -245,7 +249,7 @@
 
 
 <div class="viewcode-block" id="Atom.positionBohrToAngstrom">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.positionBohrToAngstrom">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.positionBohrToAngstrom">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">positionBohrToAngstrom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the position vector from Bohr to Angstrom&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isAngstrom</span><span class="p">:</span>
@@ -255,7 +259,7 @@
 
 
 <div class="viewcode-block" id="Atom.setPositionVector">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.setPositionVector">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.setPositionVector">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setPositionVector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newPosition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the position of the atom to a new position</span>
 
@@ -267,7 +271,7 @@
 
 
 <div class="viewcode-block" id="Atom.getElement">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getElement">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getElement">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getElement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the element of the atom</span>
 
@@ -278,7 +282,7 @@
 
 
 <div class="viewcode-block" id="Atom.getMass">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getMass">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getMass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getMass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the mass of the atom</span>
 
@@ -288,7 +292,7 @@
 
 
 <div class="viewcode-block" id="Atom.getVdWRadius">
-<a class="viewcode-back" href="../../RenderMolecules.html#RenderMolecules.atom.Atom.getVdWRadius">[docs]</a>
+<a class="viewcode-back" href="../../user_interface.html#RenderMolecules.atom.Atom.getVdWRadius">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">getVdWRadius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Van der Waals radius of the atom</span>
 
