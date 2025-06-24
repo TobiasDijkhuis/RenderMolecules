@@ -1,87 +1,52 @@
-name: Build PyPI packages
+name: Publish Python distribution to PyPI
 
-on:
-  workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - master
-      - develop
-    tags:
-      - "v**"
-  release:
-    types:
-      - published
+on: push
 
 jobs:
-  check-version-strings:
+  build:
+    name: Build distribution 📦
     runs-on: ubuntu-latest
-    container: python:3.11.0-slim-bullseye
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          pip install pyyaml
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+    - name: Install pypa/build
+      run: >-
+        python3 -m
+        pip install
+        build
+        --user
+    - name: Build a binary wheel and a source tarball
+      run: python3 -m build
+    - name: Store the distribution packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
 
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    needs: [check-version-strings]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
-
-  build_sdist:
-    name: Build source distribution
-    needs: [check-version-strings]
+  publish-to-pypi:
+    name: >-
+      Publish Python distribution to PyPI
+    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    needs:
+    - build
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build sdist
-        run: pipx run build --sdist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: distfiles
-          path: dist/*.tar.gz
-
-  upload_pypi:
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    environment: pypi
+    environment:
+      name: pypi
+      url: https://pypi.org/p/<package-name>  # Replace <package-name> with your PyPI project name
     permissions:
-      id-token: write
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-ubuntu-latest
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-windows-latest
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-macos-latest
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: distfiles
-          path: dist
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
 
-      - uses: pypa/gh-action-pypi-publish@release/v1
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
