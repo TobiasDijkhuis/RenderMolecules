@@ -48,7 +48,7 @@ def create_uv_sphere(element, position, resolution="medium"):
     return obj
 
 
-def create_mesh(positions, reference_sphere, element):
+def create_mesh_of_atoms(positions, reference_sphere, element):
     mesh = bpy.data.meshes.new(f"{element}_mesh")  # add the new mesh
     obj = bpy.data.objects.new(mesh.name, mesh)
 

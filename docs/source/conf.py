@@ -4,10 +4,14 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 from __future__ import annotations
 
+import os
+import sys
+
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, basedir)
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-import render_molecules
 
 project = "render_molecules"
 copyright = "2025, Tobias Dijkhuis"

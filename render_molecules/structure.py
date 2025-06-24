@@ -8,7 +8,7 @@ from .atom import Atom
 from .blender_utils import (
     create_cylinder,
     create_material,
-    create_mesh_atoms,
+    create_mesh_of_atoms,
     create_uv_sphere,
     deselect_all_selected,
     get_object_by_name,
@@ -85,7 +85,7 @@ class Structure(Geometry):
             mat = create_material(atom_type, manifest["atom_colors"][atom_type])
             obj.data.materials.append(mat)
 
-            create_mesh_atoms(atom_vertices[atom_type], obj, atom_type)
+            create_mesh_of_atoms(atom_vertices[atom_type], obj, atom_type)
         deselect_all_selected()
 
     def find_bonds_from_distances(self) -> list[Bond]:

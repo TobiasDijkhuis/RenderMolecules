@@ -1,0 +1,90 @@
+name: Build PyPI packages
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+    tags:
+      - "v**"
+  release:
+    types:
+      - published
+
+jobs:
+  check-version-strings:
+    runs-on: ubuntu-latest
+    container: python:3.9.18-slim-bullseye
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+      - name: Test versions
+        run: |
+          python testversion.py
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    needs: [check-version-strings]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.17.0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    needs: [check-version-strings]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distfiles
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-ubuntu-latest
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-latest
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-latest
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: distfiles
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1

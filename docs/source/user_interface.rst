@@ -23,3 +23,18 @@ Geometry
 --------
 
 .. automodule:: render_molecules.geometry
+
+Blender utilities
+-----------------
+
+.. automodule:: render_molecules.blender_utils
+
+Other utilities
+---------------
+
+.. automodule:: render_molecules.other_utils
+
+Elemental data
+--------------
+
+.. automodule:: render_molecules.element_data
