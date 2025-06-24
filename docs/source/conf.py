@@ -7,6 +7,8 @@ from __future__ import annotations
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import render_molecules
+
 project = "render_molecules"
 copyright = "2025, Tobias Dijkhuis"
 author = "Tobias Dijkhuis"
