@@ -16,7 +16,7 @@ keywords = ["molecules", "chemistry", "blender", "rendering", "quantum"]
 
 [project.urls]
 Repository = "https://github.com/TobiasDijkhuis/RenderMolecules"
-Documentation = "https://tobiasdijkhuis.github.io/RenderMolecules"
+Documentation = "https://tobiasdijkhuis.github.io/render_mlecules"
 Issues = "https://github.com/TobiasDijkhuis/RenderMolecules/issues"
 
 [tool.setuptools]
