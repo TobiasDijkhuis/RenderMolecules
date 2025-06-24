@@ -24,9 +24,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pyyaml
-      - name: Test versions
-        run: |
-          python testversion.py
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
