@@ -7,7 +7,7 @@ from __future__ import annotations
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "RenderMolecules"
+project = "render_molecules"
 copyright = "2025, Tobias Dijkhuis"
 author = "Tobias Dijkhuis"
 release = "0.0.2"
@@ -26,10 +26,10 @@ extensions = [
 
 autodoc_mock_imports = ["bmesh", "bpy"]
 autodoc_default_options = {
-    'members': True,
-    'member-order': 'bysource',
-    'undoc-members': True,
-    'show-inheritance': True,
+    "members": True,
+    "member-order": "bysource",
+    "undoc-members": True,
+    "show-inheritance": True,
 }
 
 templates_path = ["_templates"]

@@ -1,5 +1,5 @@
 .. _user-interface:
-.. index:: userinterface
+.. index:: user_interface
 
 User Interface
 ==============
@@ -7,19 +7,19 @@ User Interface
 Atom
 ----
 
-.. automodule:: RenderMolecules.atom
+.. automodule:: render_molecules.atom
 
 Structure
 ---------
 
-.. automodule:: RenderMolecules.structure
+.. automodule:: render_molecules.structure
 
 Trajectory
 ----------
 
-.. automodule:: RenderMolecules.trajectory
+.. automodule:: render_molecules.trajectory
 
 Geometry
 --------
 
-.. automodule:: RenderMolecules.geometry
+.. automodule:: render_molecules.geometry
