@@ -12,4 +12,8 @@ SOME TEXT HERE
    :maxdepth: 2
    :caption: Contents:
 
-   RenderMolecules
+   installation
+   background
+   user_interface
+   examples
+   community_guidelines

@@ -9,20 +9,6 @@ from pathlib import Path
 
 import RenderMolecules
 
-# _HERE = os.path.dirname(__file__)
-# _ROOT_DIR = os.path.abspath(
-#     os.path.join(
-#         _HERE,
-#         "../",
-#     )
-# )
-# _PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, "../RenderMolecules/"))
-# _SUBPACKAGE_DIR = os.path.abspath(os.path.join(_HERE, "../RenderMolecules/src/"))
-#
-# sys.path.insert(0, _ROOT_DIR)
-# sys.path.insert(0, _PACKAGE_DIR)
-# sys.path.insert(0, _SUBPACKAGE_DIR)
-
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -36,14 +22,20 @@ release = "0.0.2"
 
 extensions = [
     "sphinx.ext.duration",
+    "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
 ]
+
 autodoc_mock_imports = ["bmesh", "bpy"]
-autodoc_member_order = ["bysource"]
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'undoc-members': True,
+    'show-inheritance': True,
+}
 
 templates_path = ["_templates"]
 
