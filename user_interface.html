@@ -696,14 +696,20 @@ principalAxes (ndarray): matrix of shape 3x3 with three principal moment axes</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.CUBEfile.calculate_isosurface">
-<span class="sig-name descname"><span class="pre">calculate_isosurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isovalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile.calculate_isosurface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile.calculate_isosurface" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_isosurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isovalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile.calculate_isosurface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile.calculate_isosurface" title="Link to this definition"></a></dt>
 <dd><p>Calculate the isosurface from the volumetric data and an isovalue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>isovalue</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isovalue</strong> (<em>float</em>) – value where to calculate the isosurface</p></li>
+<li><p><strong>step_size</strong> (<em>int</em>) – step size in the grid. Larger values result in coarser, but quicker, results. Default = 1</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>faces (ndarray):</p>
+<dd class="field-even"><p>Vx3 array of floats corresponding to vertex positions
+faces (ndarray): Fx3 array of integers corresponding to vertex indices
+normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex
+values (ndarray): Vx1 array of maximum value in data close to each vertex</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>vertices (ndarray)</p>
@@ -717,6 +723,7 @@ principalAxes (ndarray): matrix of shape 3x3 with three principal moment axes</p
 <dt class="sig sig-object py" id="render_molecules.structure.JSONfile">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">render_molecules.structure.</span></span><span class="sig-name descname"><span class="pre">JSONfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#JSONfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.JSONfile" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
+<p>WORK IN PROGRESS</p>
 </dd></dl>
 
 </section>

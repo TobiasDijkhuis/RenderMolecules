@@ -80,18 +80,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">create_cylinder</span><span class="p">,</span>
-    <span class="n">create_material</span><span class="p">,</span>
-    <span class="n">create_mesh_of_atoms</span><span class="p">,</span>
-    <span class="n">create_uv_sphere</span><span class="p">,</span>
-    <span class="n">deselect_all_selected</span><span class="p">,</span>
-    <span class="n">get_object_by_name</span><span class="p">,</span>
-    <span class="n">join_cylinders</span><span class="p">,</span>
-    <span class="n">put_cap_on_cylinder</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">create_cylinder</span><span class="p">,</span> <span class="n">create_material</span><span class="p">,</span>
+                            <span class="n">create_mesh_of_atoms</span><span class="p">,</span> <span class="n">create_uv_sphere</span><span class="p">,</span>
+                            <span class="n">deselect_all_selected</span><span class="p">,</span> <span class="n">get_object_by_name</span><span class="p">,</span>
+                            <span class="n">join_cylinders</span><span class="p">,</span> <span class="n">put_cap_on_cylinder</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">AMU_TO_KG</span><span class="p">,</span> <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span> <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span> <span class="n">BOHR_TO_METERS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">AMU_TO_KG</span><span class="p">,</span> <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span> <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span>
+                        <span class="n">BOHR_TO_METERS</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">bond_lengths</span><span class="p">,</span> <span class="n">manifest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">angle_between</span><span class="p">,</span> <span class="n">check_3d_vector</span><span class="p">,</span> <span class="n">rotation_matrix</span>
 
@@ -125,14 +120,6 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span></div>
 
 
-    <span class="c1">#     def getFilepath(self) -&gt; str:</span>
-    <span class="c1">#         &quot;&quot;&quot;Get the filepath of the file that created the structure&quot;&quot;&quot;</span>
-    <span class="c1">#         return self._filepath</span>
-    <span class="c1">#</span>
-    <span class="c1">#     def getLines(self) -&gt; list[str]:</span>
-    <span class="c1">#         &quot;&quot;&quot;Get the lines of the file that created the structure&quot;&quot;&quot;</span>
-    <span class="c1">#         return self._lines</span>
-
 <div class="viewcode-block" id="Structure.create_atoms">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_atoms">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">create_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -146,7 +133,7 @@
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
-                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()]</span>
+                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span>
                 <span class="p">)</span>
                 <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
             <span class="k">return</span>
@@ -155,17 +142,17 @@
         <span class="c1"># all positions of atoms with that element.</span>
         <span class="n">atom_vertices</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()</span> <span class="ow">in</span> <span class="n">atom_vertices</span><span class="p">:</span>
-                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">in</span> <span class="n">atom_vertices</span><span class="p">:</span>
+                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()]</span>
+                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()]</span>
 
         <span class="c1"># For each element, create a reference UV sphere at the origin</span>
         <span class="c1"># Then, create a mesh with vertices at the positions and using vertex instancing,</span>
         <span class="c1"># copy the UV sphere to each of the vertices.</span>
         <span class="k">for</span> <span class="n">atom_type</span> <span class="ow">in</span> <span class="n">atom_vertices</span><span class="p">:</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="n">create_uv_sphere</span><span class="p">(</span>
-                <span class="n">atom_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">renderResolution</span><span class="o">=</span><span class="n">resolution</span>
+                <span class="n">atom_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span>
             <span class="p">)</span>
             <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="n">atom_type</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom_type</span><span class="p">])</span>
             <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
@@ -179,7 +166,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">find_bonds_from_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry&quot;&quot;&quot;</span>
         <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
-        <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">getElement</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
+        <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
         <span class="n">all_positions_tuples</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
             <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
@@ -284,7 +271,7 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_center_of_mass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the center of mass position vector&quot;&quot;&quot;</span>
-        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">getMass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span>
         <span class="n">atom_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="nb">sum</span><span class="p">(</span><span class="n">masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">atom_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span><span class="p">))</span>
@@ -416,7 +403,7 @@
             <span class="c1"># Calculate moments of inertia to axes wrt COM</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="o">-</span> <span class="n">center_of_mass</span>
 
-            <span class="n">mass</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">getMass</span><span class="p">()</span> <span class="o">*</span> <span class="n">AMU_TO_KG</span>  <span class="c1"># Mass in kg</span>
+            <span class="n">mass</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="o">*</span> <span class="n">AMU_TO_KG</span>  <span class="c1"># Mass in kg</span>
 
             <span class="c1"># Convert coordinates to meters</span>
             <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">is_angstrom</span><span class="p">:</span>
@@ -543,9 +530,9 @@
                     <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
                     <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Hbond-</span><span class="si">%s</span><span class="s2">-</span><span class="si">%03i</span><span class="s2">-</span><span class="si">%s</span><span class="s2">-</span><span class="si">%03i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                        <span class="n">at1</span><span class="o">.</span><span class="n">getElement</span><span class="p">(),</span>
+                        <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
                         <span class="n">i</span><span class="p">,</span>
-                        <span class="n">at2</span><span class="o">.</span><span class="n">getElement</span><span class="p">(),</span>
+                        <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
                         <span class="n">j</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">hbond_curves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
@@ -607,7 +594,7 @@
                 <span class="n">atom1_index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom1_index</span><span class="p">()</span>
                 <span class="n">atom1_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">atom1_index</span><span class="p">]</span>
 
-                <span class="n">atom2_index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom1_index</span><span class="p">()</span>
+                <span class="n">atom2_index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom2_index</span><span class="p">()</span>
                 <span class="n">atom2_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">atom2_index</span><span class="p">]</span>
 
                 <span class="k">if</span> <span class="n">atom1_element</span> <span class="o">==</span> <span class="n">atom2_element</span><span class="p">:</span>
@@ -971,16 +958,21 @@
 <div class="viewcode-block" id="CUBEfile.calculate_isosurface">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.calculate_isosurface">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_isosurface</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the isosurface from the volumetric data and an isovalue</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            isovalue (float):</span>
+<span class="sd">            isovalue (float): value where to calculate the isosurface</span>
+<span class="sd">            step_size (int): step size in the grid. Larger values result in coarser, but quicker, results. Default = 1</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            vertices (ndarray):</span>
-<span class="sd">            faces (ndarray):</span>
+<span class="sd">            vertices (ndarray): Vx3 array of floats corresponding to vertex positions</span>
+<span class="sd">            faces (ndarray): Fx3 array of integers corresponding to vertex indices</span>
+<span class="sd">            normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex</span>
+<span class="sd">            values (ndarray): Vx1 array of maximum value in data close to each vertex</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">skimage.measure</span><span class="w"> </span><span class="kn">import</span> <span class="n">marching_cubes</span>
 
@@ -990,6 +982,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">,</span>
             <span class="n">level</span><span class="o">=</span><span class="n">isovalue</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span><span class="p">),</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">vertices</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_origin_vector</span>
@@ -1005,7 +998,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the supplied isovalue is valid</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            isovalue (float):</span>
+<span class="sd">            isovalue (float): value where to draw the isosurface</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if the supplied isovalue is below the minimum value in the volumetric data, or above the maximum</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">isovalue</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">):</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Set isovalue (</span><span class="si">{</span><span class="n">isovalue</span><span class="si">}</span><span class="s2">) was less than or equal to the minimum value in the volumetric data (</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">)</span><span class="si">}</span><span class="s2">). This will result in an empty isosurface. Set a larger isovalue.&quot;</span>
@@ -1019,6 +1015,8 @@
 <div class="viewcode-block" id="JSONfile">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.JSONfile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">JSONfile</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;WORK IN PROGRESS&quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
