@@ -19,6 +19,22 @@ def get_atomic_number_from_element(element: str) -> int:
     return atomic_number
 
 
+# manifest that contains atomic information
+manifest = {
+    "atom_colors": {
+        "C": "555555",
+        "H": "DDDDDD",
+        "O": "FF0000",
+        "N": "0000FF",
+        "S": "FFFF30",
+        "Si": "F0C8A0",
+    },
+    "bond_thickness": 0.2,
+    "bond_color": "4444444",
+    "hbond_color": "999999",
+    "hbond_thickness": 0.035,
+}
+
 element_list = [
     "H",
     "He",
@@ -43,21 +59,6 @@ element_list = [
     "Sc",
 ]
 
-# manifest that contains atomic information
-manifest = {
-    "atom_colors": {
-        "C": "555555",
-        "H": "DDDDDD",
-        "O": "FF0000",
-        "N": "0000FF",
-        "S": "FFFF30",
-        "Si": "F0C8A0",
-    },
-    "bond_thickness": 0.2,
-    "bond_color": "4444444",
-    "hbond_color": "999999",
-    "hbond_thickness": 0.035,
-}
 
 element_mass = [
     1,
@@ -110,19 +111,21 @@ vdw_radii = [
 
 # Bond lengths in Angstrom
 bond_lengths = {
-    "HO": 1.5,
-    "CO": 1.5,
-    "CH": 1.5,
-    "OO": 1.5,
-    "HH": 1.2,
-    "NN": 1.5,
-    "HN": 1.5,
-    "CN": 1.5,
-    "CC": 1.5,
-    "NO": 1.5,
-    "SS": 1.5,
-    "NS": 2.0,
-    "HS": 1.5,
-    "CS": 1.5,
-    "OS": 1.5,
+    "H-O": 1.5,
+    "C-O": 1.5,
+    "C-H": 1.5,
+    "O-O": 1.5,
+    "H-H": 1.2,
+    "N-N": 1.5,
+    "H-N": 1.5,
+    "C-N": 1.5,
+    "C-C": 1.5,
+    "N-O": 1.5,
+    "S-S": 1.5,
+    "N-S": 2.0,
+    "H-S": 1.5,
+    "C-S": 1.5,
+    "O-S": 1.5,
+    "Si-Si": 2.7,
+    "O-Si": 2.0,
 }

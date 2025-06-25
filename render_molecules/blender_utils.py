@@ -10,7 +10,7 @@ from .constants import SPHERE_SCALE
 from .element_data import element_list, vdw_radii
 
 
-def hex_to_rgb_tuple(hexcode):
+def hex_to_rgb_tuple(hexcode: str) -> tuple[float]:
     """
     Convert 6-digit color hexcode to a tuple of floats
     """
@@ -30,7 +30,9 @@ def color_srgb_to_scene_linear(c):
         return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
 
 
-def create_uv_sphere(element, position, resolution="medium"):
+def create_uv_sphere(
+    element: str, position: np.ndarray, resolution: str = "medium"
+) -> object:
     nsegments, nrings = scale_vertices(64, 32, resolution=resolution)
 
     bpy.ops.mesh.primitive_uv_sphere_add(
@@ -43,12 +45,14 @@ def create_uv_sphere(element, position, resolution="medium"):
     )
     obj = bpy.context.view_layer.objects.active
 
-    obj.name = "atom-%s" % (element)
+    obj.name = f"atom-{element}"
     try_autosmooth()
     return obj
 
 
-def create_mesh_of_atoms(positions, reference_sphere, element):
+def create_mesh_of_atoms(
+    positions: np.ndarray, reference_sphere: object, element: str
+) -> None:
     mesh = bpy.data.meshes.new(f"{element}_mesh")  # add the new mesh
     obj = bpy.data.objects.new(mesh.name, mesh)
 
@@ -67,7 +71,9 @@ def create_mesh_of_atoms(positions, reference_sphere, element):
     bpy.context.object.instance_type = "VERTS"
 
 
-def create_material(name, color, alpha=1.0, force: bool = False):
+def create_material(
+    name: str, color: str, alpha: float = 1.0, force: bool = False
+) -> obj:
     """
     Build a new material
     """
@@ -129,7 +135,12 @@ def delete_all_objects():
 
 
 def create_isosurface(
-    verts, faces, isovalue, prefix="isosurface", assign_material_based_on_sign=True
+    verts: np.ndarray,
+    faces: np.ndarray,
+    isovalue: float,
+    prefix: str = "isosurface",
+    assign_material_based_on_sign: bool = True,
+    alpha: float = 0.5,
 ):
     name = f"{prefix}_{isovalue}"
     mesh = bpy.data.meshes.new(name=name)
@@ -141,7 +152,7 @@ def create_isosurface(
     scene.collection.objects.link(obj)
 
     if assign_material_based_on_sign:
-        assign_isosurface_material_based_on_sign(obj, isovalue)
+        assign_isosurface_material_based_on_sign(obj, isovalue, alpha=alpha)
 
 
 def load_ply(filepath, assign_material_based_on_sign=True):
@@ -157,15 +168,17 @@ def load_ply(filepath, assign_material_based_on_sign=True):
     assign_isosurface_material_based_on_sign(obj, isovalue)
 
 
-def assign_isosurface_material_based_on_sign(isosurface_obj, isovalue):
+def assign_isosurface_material_based_on_sign(
+    isosurface_obj: object, isovalue: float, alpha: float = 0.5
+) -> None:
     # Perhaps add a positive or negative lobe material to it, depending on whether there's a '-' in the filepath
     if isovalue < 0:
         # Negative lobe material
-        mat = create_material("Negative Lobe", "FF7743", alpha=0.5)
+        mat = create_material("Negative Lobe", "FF7743", alpha=alpha)
         isosurface_obj.data.materials.append(mat)
     else:
         # Positive lobe material
-        mat = create_material("Positive Lobe", "53B9FF", alpha=0.5)
+        mat = create_material("Positive Lobe", "53B9FF", alpha=alpha)
         isosurface_obj.data.materials.append(mat)
 
 
@@ -194,7 +207,9 @@ def set_background_color(rgba: tuple[float]) -> None:
     ].default_value = rgba
 
 
-def adjust_settings(is_one_render: bool = True, transparent_background: bool = True):
+def adjust_settings(
+    is_one_render: bool = True, transparent_background: bool = True
+) -> None:
     scene = bpy.context.scene
 
     scene.render.film_transparent = transparent_background
@@ -202,7 +217,7 @@ def adjust_settings(is_one_render: bool = True, transparent_background: bool = T
     scene.cycles.debug_use_spatial_slits = True
 
 
-def outline_in_render(render_outline=True, thickness=5):
+def outline_in_render(render_outline: bool = True, thickness: float = 5) -> None:
     if not render_outline:
         bpy.context.scene.render.use_freestyle = False
         return
@@ -229,17 +244,31 @@ def outline_in_render(render_outline=True, thickness=5):
     bpy.data.linestyles["LineStyle"].thickness = thickness
 
 
-def select_object_by_name(name: str, select=True):
+def select_object_by_name(name: str, select=True) -> None:
+    """Select an object in the Blender scene from its name
+
+    Args:
+        name (str): name of object to select
+        select (bool): whether to select it or not (aka deselect)
+    """
     bpy.data.objects[name].select_set(select)
 
 
-def get_object_by_name(name: str):
+def get_object_by_name(name: str) -> object:
+    """Get an object in the Blender scene from its name
+
+    Args:
+        name (str): name of object to obtain
+
+    Retursn:
+        object: object in Blender scene with the name 'name'
+    """
     return bpy.context.scene.objects[name]
 
 
 def create_cylinder(
     location, angle, thickness, length, resolution="medium", name="Cylinder"
-):
+) -> object:
     nvertices = scale_vertices(64, resolution=resolution)
 
     scale = (thickness, thickness, length)

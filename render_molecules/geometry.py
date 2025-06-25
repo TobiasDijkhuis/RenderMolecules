@@ -39,7 +39,7 @@ class Geometry:
         self.rotate_around_axis([0, 0, 1], angle)
 
 
-def rotation_matrix(axis, theta):
+def rotation_matrix(axis: list | np.ndarray, theta: float) -> np.ndarray:
     """
     Return the rotation matrix associated with counterclockwise rotation about
     the given axis by theta degrees.
@@ -61,7 +61,16 @@ def rotation_matrix(axis, theta):
     )
 
 
-def angle_between(vector1, vector2) -> float:
+def angle_between(vector1: np.ndarray | list, vector2: np.ndarray | list) -> float:
+    """Get the angle between two vectors.
+
+    Args:
+        vector1 (ndarray): list or np array of length 3
+        vector2 (ndarray): list or np array of length 3
+
+    Returns:
+        float: angle between two vectors in degrees
+    """
     vector1 = check_3d_vector(vector1)
     vector2 = check_3d_vector(vector2)
 

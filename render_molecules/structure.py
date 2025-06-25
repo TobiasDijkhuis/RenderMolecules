@@ -37,10 +37,22 @@ class Structure(Geometry):
         """Get a list of all atom positions"""
         return np.array([atom.get_position() for atom in self._atoms])
 
-    def create_atoms(self, resolution="medium", create_mesh=True) -> None:
-        """Create the atoms in the scene"""
+    def create_atoms(
+        self,
+        resolution="medium",
+        create_mesh=True,
+        force_material_creation: bool = False,
+    ) -> None:
+        """Create the atoms in the scene
+
+        Args:
+            resoltion (str):
+            create_mesh (str):
+            force_material_creation (bool):
+        """
         if not create_mesh:
             # This is an old, naive method where we create a lot more spheres
+            # It is still necessary for animations, since we cannot move vertex instances
             for atom in self._atoms:
                 obj = create_uv_sphere(
                     atom.get_element(),
@@ -48,7 +60,9 @@ class Structure(Geometry):
                     resolution=resolution,
                 )
                 mat = create_material(
-                    atom.get_element(), manifest["atom_colors"][atom.get_element()]
+                    atom.get_element(),
+                    manifest["atom_colors"][atom.get_element()],
+                    force=force_material_creation,
                 )
                 obj.data.materials.append(mat)
             return
@@ -79,6 +93,8 @@ class Structure(Geometry):
         """Create bonds based on the geometry"""
         all_positions = self.get_atom_positions()
         all_elements = [atom.get_element() for atom in self._atoms]
+
+        # More efficient
         all_positions_tuples = (
             np.array([v[0] for v in all_positions]),
             np.array([v[1] for v in all_positions]),
@@ -86,21 +102,36 @@ class Structure(Geometry):
         )
         x, y, z = all_positions_tuples
 
+        # Keep track of all indices that are marked as connected, so we do not bond them again
         connecting_indices = []
+
+        # Can we skip looping over the last atom?
         for i, atom in enumerate(self._atoms):
             central_pos = all_positions[i]
             central_element = all_elements[i]
-            allowed_bond_lengths_squared = [
-                bond_lengths["".join(sorted(f"{central_element}{other_element}"))] ** 2
+
+            # All possible bond types from the central element
+            bond_types = [
+                "-".join(sorted([central_element, other_element]))
                 for other_element in all_elements
             ]
+            allowed_bond_lengths_squared = [
+                bond_lengths[bond_type] ** 2 for bond_type in bond_types
+            ]
+
+            # Calculate squared distance to all other atoms
             dx = x - central_pos[0]
             dy = y - central_pos[1]
             dz = z - central_pos[2]
             dist_squared = dx * dx + dy * dy + dz * dz
+
+            # Atoms are bonded to the central atom if the distance squared is
+            # less than the allowed squared distance for the corresponding bond type
             is_bonded_to_central = np.nonzero(
                 dist_squared <= allowed_bond_lengths_squared
             )[0]
+
+            # Loop over all bonds, and create Bond instances for them
             for atom_index in is_bonded_to_central:
                 if atom_index == i:
                     # Do not allow atoms to bond to themselves
@@ -117,7 +148,7 @@ class Structure(Geometry):
                 new_bond = Bond(
                     i,
                     atom_index,
-                    "".join(sorted(f"{central_element}{all_elements[atom_index]}")),
+                    bond_types[atom_index],
                     bond_length,
                     bond_vector,
                     bond_midpoint,
@@ -140,10 +171,10 @@ class Structure(Geometry):
     ) -> list[Bond]:
         """Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds."""
         if bond_order == 1:
-            return
+            return self._bonds
         index = self._bonds.index(bond)
         self._bonds.pop(index)
-        bond_vector = bond.getInteratomicVector()
+        bond_vector = bond.get_interatomic_vector()
 
         # Get a vector that is perpendicular to the plane given by the bondVector and vector between camera and bond midpoint.
         displacement_vector = np.cross(
@@ -151,7 +182,7 @@ class Structure(Geometry):
         )
         displacement_vector /= np.linalg.norm(displacement_vector)
 
-        # If bondOrder is odd, then we also have displacementMag of 0.
+        # If bond_order is odd, then we also have displacementMag of 0.
         if bond_order % 2 == 0:
             displacement_magnitude = -displacement_scaler / 4 * bond_order
         else:
@@ -160,8 +191,8 @@ class Structure(Geometry):
         # Create the bonds, and add them to self._bonds
         for i in range(bond_order):  # noqa: B007
             bond_adjusted = deepcopy(bond)
-            bond_adjusted.setMidpointPosition(
-                bond_adjusted.getMidpointPosition()
+            bond_adjusted.set_midpoint(
+                bond_adjusted.get_midpoint()
                 + displacement_vector * displacement_magnitude
             )
             self._bonds.append(bond_adjusted)
@@ -182,18 +213,17 @@ class Structure(Geometry):
         )
         return com
 
-    def set_center_of_mass(self, new_center_of_mas) -> None:
+    def set_center_of_mass(self, new_center_of_mass: np.ndarray | list) -> None:
         """Set the Center Of Mass (COM) of the whole system to a new position
 
         Args:
-            newCOMposition (ndarray): new COM position
+            new_center_of_mass (ndarray): new COM position
         """
-        com = self.get_center_of_mass()
-        new_center_of_mass = check_3d_vector(new_center_of_mas)
-        translation_vector = new_center_of_mass - com
+        new_center_of_mass = check_3d_vector(new_center_of_mass)
+        translation_vector = new_center_of_mass - self.get_center_of_mass()
         self.translate(translation_vector)
 
-    def set_average_position(self, new_average_position):
+    def set_average_position(self, new_average_position: np.ndarray | list):
         """Sets the average position of all atoms to a new position"""
         new_average_position = check_3d_vector(new_average_position)
         current_average_position = np.average(
@@ -221,7 +251,7 @@ class Structure(Geometry):
         """Get the total charge in the system
 
         Returns:
-            int: total charge of the system
+            total_charge (int): total charge of the system
         """
         charges = (atom.get_charge() for atom in self._atoms)
         if not all(isinstance(charge, int | float) for charge in charges):
@@ -234,7 +264,7 @@ class Structure(Geometry):
         """Get the total amount of electrons in the system
 
         Returns:
-            int: total number of electrons in the system
+            total_electrons (int): total number of electrons in the system
         """
         total_electrons_if_neutral = sum(
             atom.get_atomic_number() for atom in self._atoms
