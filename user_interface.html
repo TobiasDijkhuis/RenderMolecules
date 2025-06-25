@@ -205,10 +205,24 @@
 <span id="user-interface"></span><span id="id1"></span><h1>User Interface<a class="headerlink" href="#index-0" title="Link to this heading"></a></h1>
 <section id="module-render_molecules.atom">
 <span id="atom"></span><h2>Atom<a class="headerlink" href="#module-render_molecules.atom" title="Link to this heading"></a></h2>
+<p>The Atom class is a useful way of keeping track of properties of an atom, such as its atomic number, charge and position</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="render_molecules.atom.Atom">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">render_molecules.atom.</span></span><span class="sig-name descname"><span class="pre">Atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_angstrom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/atom.html#Atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.atom.Atom" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atomicNumber</strong> (<em>int</em>) – atomic number. For example, for iron atom, 26</p></li>
+<li><p><strong>element</strong> (<em>str</em>) – element. For example, for iron atom, Fe</p></li>
+<li><p><strong>charge</strong> (<em>float</em>) – charge of atom</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – x-coordinate</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – y-coordinate</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – z-coordinate</p></li>
+<li><p><strong>isAngstrom</strong> (<em>bool</em>) – whether coordinates are in Angstrom. If False, assume in Bohr</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.atom.Atom.from_cube_string">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cube_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/atom.html#Atom.from_cube_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.atom.Atom.from_cube_string" title="Link to this definition"></a></dt>
