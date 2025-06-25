@@ -1,14 +1,14 @@
+"""
+The Atom class is a useful way of keeping track of properties of an atom, such as its atomic number, charge and position
+"""
+
 from __future__ import annotations
 
 import numpy as np
 
 from .constants import BOHR_TO_ANGSTROM
-from .element_data import (
-    element_mass,
-    get_atomic_number_from_element,
-    get_element_from_atomic_number,
-    vdw_radii,
-)
+from .element_data import (element_mass, get_atomic_number_from_element,
+                           get_element_from_atomic_number, vdw_radii)
 
 
 class Atom:
@@ -22,8 +22,7 @@ class Atom:
         z: float,
         is_angstrom: bool,
     ):
-        """Atom
-
+        """
         Args:
             atomicNumber (int): atomic number. For example, for iron atom, 26
             element (str): element. For example, for iron atom, Fe

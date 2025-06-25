@@ -38,6 +38,9 @@ autodoc_default_options = {
     "show-inheritance": True,
 }
 
+# Insert both class docstring and __init__ docstring into documentation of class
+autoclass_content = "both"
+
 templates_path = ["_templates"]
 
 
