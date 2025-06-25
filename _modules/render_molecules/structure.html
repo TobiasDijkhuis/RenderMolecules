@@ -116,10 +116,22 @@
 
 <div class="viewcode-block" id="Structure.create_atoms">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_atoms">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">create_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_atoms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">create_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resoltion (str):</span>
+<span class="sd">            create_mesh (str):</span>
+<span class="sd">            force_material_creation (bool):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create_mesh</span><span class="p">:</span>
             <span class="c1"># This is an old, naive method where we create a lot more spheres</span>
+            <span class="c1"># It is still necessary for animations, since we cannot move vertex instances</span>
             <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">create_uv_sphere</span><span class="p">(</span>
                     <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
@@ -127,7 +139,9 @@
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
-                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span>
+                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()],</span>
+                    <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
             <span class="k">return</span>
@@ -161,6 +175,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry&quot;&quot;&quot;</span>
         <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
+
+        <span class="c1"># More efficient</span>
         <span class="n">all_positions_tuples</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
             <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
@@ -168,21 +184,36 @@
         <span class="p">)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">all_positions_tuples</span>
 
+        <span class="c1"># Keep track of all indices that are marked as connected, so we do not bond them again</span>
         <span class="n">connecting_indices</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Can we skip looping over the last atom?</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">):</span>
             <span class="n">central_pos</span> <span class="o">=</span> <span class="n">all_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">central_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">allowed_bond_lengths_squared</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">bond_lengths</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">central_element</span><span class="si">}{</span><span class="n">other_element</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))]</span> <span class="o">**</span> <span class="mi">2</span>
+
+            <span class="c1"># All possible bond types from the central element</span>
+            <span class="n">bond_types</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">central_element</span><span class="p">,</span> <span class="n">other_element</span><span class="p">]))</span>
                 <span class="k">for</span> <span class="n">other_element</span> <span class="ow">in</span> <span class="n">all_elements</span>
             <span class="p">]</span>
+            <span class="n">allowed_bond_lengths_squared</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">bond_lengths</span><span class="p">[</span><span class="n">bond_type</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">bond_type</span> <span class="ow">in</span> <span class="n">bond_types</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Calculate squared distance to all other atoms</span>
             <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">dy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">dz</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">dist_squared</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">+</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">dz</span>
+
+            <span class="c1"># Atoms are bonded to the central atom if the distance squared is</span>
+            <span class="c1"># less than the allowed squared distance for the corresponding bond type</span>
             <span class="n">is_bonded_to_central</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
                 <span class="n">dist_squared</span> <span class="o">&lt;=</span> <span class="n">allowed_bond_lengths_squared</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Loop over all bonds, and create Bond instances for them</span>
             <span class="k">for</span> <span class="n">atom_index</span> <span class="ow">in</span> <span class="n">is_bonded_to_central</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">atom_index</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
                     <span class="c1"># Do not allow atoms to bond to themselves</span>
@@ -199,7 +230,7 @@
                 <span class="n">new_bond</span> <span class="o">=</span> <span class="n">Bond</span><span class="p">(</span>
                     <span class="n">i</span><span class="p">,</span>
                     <span class="n">atom_index</span><span class="p">,</span>
-                    <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">central_element</span><span class="si">}{</span><span class="n">all_elements</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)),</span>
+                    <span class="n">bond_types</span><span class="p">[</span><span class="n">atom_index</span><span class="p">],</span>
                     <span class="n">bond_length</span><span class="p">,</span>
                     <span class="n">bond_vector</span><span class="p">,</span>
                     <span class="n">bond_midpoint</span><span class="p">,</span>
@@ -225,10 +256,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">bond_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">bond_vector</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">getInteratomicVector</span><span class="p">()</span>
+        <span class="n">bond_vector</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_interatomic_vector</span><span class="p">()</span>
 
         <span class="c1"># Get a vector that is perpendicular to the plane given by the bondVector and vector between camera and bond midpoint.</span>
         <span class="n">displacement_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span>
@@ -236,7 +267,7 @@
         <span class="p">)</span>
         <span class="n">displacement_vector</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">displacement_vector</span><span class="p">)</span>
 
-        <span class="c1"># If bondOrder is odd, then we also have displacementMag of 0.</span>
+        <span class="c1"># If bond_order is odd, then we also have displacementMag of 0.</span>
         <span class="k">if</span> <span class="n">bond_order</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">displacement_magnitude</span> <span class="o">=</span> <span class="o">-</span><span class="n">displacement_scaler</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">bond_order</span>
         <span class="k">else</span><span class="p">:</span>
@@ -245,8 +276,8 @@
         <span class="c1"># Create the bonds, and add them to self._bonds</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bond_order</span><span class="p">):</span>  <span class="c1"># noqa: B007</span>
             <span class="n">bond_adjusted</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
-            <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">setMidpointPosition</span><span class="p">(</span>
-                <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">getMidpointPosition</span><span class="p">()</span>
+            <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">set_midpoint</span><span class="p">(</span>
+                <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">get_midpoint</span><span class="p">()</span>
                 <span class="o">+</span> <span class="n">displacement_vector</span> <span class="o">*</span> <span class="n">displacement_magnitude</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bond_adjusted</span><span class="p">)</span>
@@ -276,21 +307,20 @@
 
 <div class="viewcode-block" id="Structure.set_center_of_mass">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.set_center_of_mass">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_center_of_mas</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_center_of_mass</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Center Of Mass (COM) of the whole system to a new position</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            newCOMposition (ndarray): new COM position</span>
+<span class="sd">            new_center_of_mass (ndarray): new COM position</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">com</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_center_of_mass</span><span class="p">()</span>
-        <span class="n">new_center_of_mass</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_center_of_mas</span><span class="p">)</span>
-        <span class="n">translation_vector</span> <span class="o">=</span> <span class="n">new_center_of_mass</span> <span class="o">-</span> <span class="n">com</span>
+        <span class="n">new_center_of_mass</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_center_of_mass</span><span class="p">)</span>
+        <span class="n">translation_vector</span> <span class="o">=</span> <span class="n">new_center_of_mass</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_center_of_mass</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Structure.set_average_position">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.set_average_position">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_average_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_average_position</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_average_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_average_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the average position of all atoms to a new position&quot;&quot;&quot;</span>
         <span class="n">new_average_position</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_average_position</span><span class="p">)</span>
         <span class="n">current_average_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
@@ -324,7 +354,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total charge in the system</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int: total charge of the system</span>
+<span class="sd">            total_charge (int): total charge of the system</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">charges</span> <span class="o">=</span> <span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_charge</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">charge</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">charges</span><span class="p">):</span>
@@ -340,7 +370,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total amount of electrons in the system</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int: total number of electrons in the system</span>
+<span class="sd">            total_electrons (int): total number of electrons in the system</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">total_electrons_if_neutral</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
             <span class="n">atom</span><span class="o">.</span><span class="n">get_atomic_number</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span>

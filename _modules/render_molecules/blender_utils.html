@@ -81,7 +81,7 @@
 
 <div class="viewcode-block" id="hex_to_rgb_tuple">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.hex_to_rgb_tuple">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hex_to_rgb_tuple</span><span class="p">(</span><span class="n">hexcode</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hex_to_rgb_tuple</span><span class="p">(</span><span class="n">hexcode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert 6-digit color hexcode to a tuple of floats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -107,7 +107,9 @@
 
 <div class="viewcode-block" id="create_uv_sphere">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_uv_sphere">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_uv_sphere</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_uv_sphere</span><span class="p">(</span>
+    <span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
     <span class="n">nsegments</span><span class="p">,</span> <span class="n">nrings</span> <span class="o">=</span> <span class="n">scale_vertices</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
 
     <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">primitive_uv_sphere_add</span><span class="p">(</span>
@@ -120,7 +122,7 @@
     <span class="p">)</span>
     <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">view_layer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">active</span>
 
-    <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;atom-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;atom-</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">try_autosmooth</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">obj</span></div>
 
@@ -128,7 +130,9 @@
 
 <div class="viewcode-block" id="create_mesh_of_atoms">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_mesh_of_atoms">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_mesh_of_atoms</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">reference_sphere</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_mesh_of_atoms</span><span class="p">(</span>
+    <span class="n">positions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">reference_sphere</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">element</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">meshes</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">_mesh&quot;</span><span class="p">)</span>  <span class="c1"># add the new mesh</span>
     <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span>
 
@@ -150,7 +154,9 @@
 
 <div class="viewcode-block" id="create_material">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_material">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_material</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_material</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">obj</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a new material</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -218,7 +224,12 @@
 <div class="viewcode-block" id="create_isosurface">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_isosurface">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_isosurface</span><span class="p">(</span>
-    <span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;isosurface&quot;</span><span class="p">,</span> <span class="n">assign_material_based_on_sign</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">verts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">faces</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;isosurface&quot;</span><span class="p">,</span>
+    <span class="n">assign_material_based_on_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">isovalue</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">meshes</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -230,7 +241,7 @@
     <span class="n">scene</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">assign_material_based_on_sign</span><span class="p">:</span>
-        <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">)</span></div>
+        <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span></div>
 
 
 
@@ -252,15 +263,17 @@
 
 <div class="viewcode-block" id="assign_isosurface_material_based_on_sign">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.assign_isosurface_material_based_on_sign">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">isosurface_obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_isosurface_material_based_on_sign</span><span class="p">(</span>
+    <span class="n">isosurface_obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># Perhaps add a positive or negative lobe material to it, depending on whether there&#39;s a &#39;-&#39; in the filepath</span>
     <span class="k">if</span> <span class="n">isovalue</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Negative lobe material</span>
-        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Negative Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;FF7743&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Negative Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;FF7743&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Positive lobe material</span>
-        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Positive Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;53B9FF&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Positive Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;53B9FF&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
@@ -301,7 +314,9 @@
 
 <div class="viewcode-block" id="adjust_settings">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.adjust_settings">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">adjust_settings</span><span class="p">(</span><span class="n">is_one_render</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">transparent_background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">adjust_settings</span><span class="p">(</span>
+    <span class="n">is_one_render</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">transparent_background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">scene</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span>
 
     <span class="n">scene</span><span class="o">.</span><span class="n">render</span><span class="o">.</span><span class="n">film_transparent</span> <span class="o">=</span> <span class="n">transparent_background</span>
@@ -312,7 +327,7 @@
 
 <div class="viewcode-block" id="outline_in_render">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.outline_in_render">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">outline_in_render</span><span class="p">(</span><span class="n">render_outline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">outline_in_render</span><span class="p">(</span><span class="n">render_outline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">render_outline</span><span class="p">:</span>
         <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">render</span><span class="o">.</span><span class="n">use_freestyle</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span>
@@ -342,14 +357,28 @@
 
 <div class="viewcode-block" id="select_object_by_name">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.select_object_by_name">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">select_object_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_object_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select an object in the Blender scene from its name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): name of object to select</span>
+<span class="sd">        select (bool): whether to select it or not (aka deselect)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">select_set</span><span class="p">(</span><span class="n">select</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_object_by_name">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.get_object_by_name">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_object_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_object_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get an object in the Blender scene from its name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): name of object to obtain</span>
+
+<span class="sd">    Retursn:</span>
+<span class="sd">        object: object in Blender scene with the name &#39;name&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
 
@@ -358,7 +387,7 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_cylinder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_cylinder</span><span class="p">(</span>
     <span class="n">location</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Cylinder&quot;</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
     <span class="n">nvertices</span> <span class="o">=</span> <span class="n">scale_vertices</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
 
     <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>

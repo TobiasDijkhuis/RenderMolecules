@@ -137,7 +137,7 @@
 
 <div class="viewcode-block" id="rotation_matrix">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.geometry.rotation_matrix">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the rotation matrix associated with counterclockwise rotation about</span>
 <span class="sd">    the given axis by theta degrees.</span>
@@ -162,7 +162,16 @@
 
 <div class="viewcode-block" id="angle_between">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.geometry.angle_between">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">angle_between</span><span class="p">(</span><span class="n">vector1</span><span class="p">,</span> <span class="n">vector2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">angle_between</span><span class="p">(</span><span class="n">vector1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">,</span> <span class="n">vector2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the angle between two vectors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vector1 (ndarray): list or np array of length 3</span>
+<span class="sd">        vector2 (ndarray): list or np array of length 3</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: angle between two vectors in degrees</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vector1</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">vector1</span><span class="p">)</span>
     <span class="n">vector2</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">vector2</span><span class="p">)</span>
 

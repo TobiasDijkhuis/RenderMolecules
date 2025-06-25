@@ -94,6 +94,22 @@
 
 
 
+<span class="c1"># manifest that contains atomic information</span>
+<span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;atom_colors&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;555555&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;DDDDDD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;FF0000&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;0000FF&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;FFFF30&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Si&quot;</span><span class="p">:</span> <span class="s2">&quot;F0C8A0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;bond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;bond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;4444444&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hbond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;999999&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hbond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.035</span><span class="p">,</span>
+<span class="p">}</span>
+
 <span class="n">element_list</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;H&quot;</span><span class="p">,</span>
     <span class="s2">&quot;He&quot;</span><span class="p">,</span>
@@ -118,21 +134,6 @@
     <span class="s2">&quot;Sc&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="c1"># manifest that contains atomic information</span>
-<span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;atom_colors&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;555555&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;DDDDDD&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;FF0000&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;0000FF&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;FFFF30&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Si&quot;</span><span class="p">:</span> <span class="s2">&quot;F0C8A0&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;bond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="s2">&quot;bond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;4444444&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;hbond_color&quot;</span><span class="p">:</span> <span class="s2">&quot;999999&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;hbond_thickness&quot;</span><span class="p">:</span> <span class="mf">0.035</span><span class="p">,</span>
-<span class="p">}</span>
 
 <span class="n">element_mass</span> <span class="o">=</span> <span class="p">[</span>
     <span class="mi">1</span><span class="p">,</span>
@@ -185,21 +186,23 @@
 
 <span class="c1"># Bond lengths in Angstrom</span>
 <span class="n">bond_lengths</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;HO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;CO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;CH&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;OO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;HH&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
-    <span class="s2">&quot;NN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;HN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;CN&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;CC&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;NO&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;SS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;NS&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-    <span class="s2">&quot;HS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;CS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="s2">&quot;OS&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;H-O&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;C-O&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;C-H&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;O-O&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;H-H&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+    <span class="s2">&quot;N-N&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;H-N&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;C-N&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;C-C&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;N-O&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;S-S&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;N-S&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;H-S&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;C-S&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;O-S&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="s2">&quot;Si-Si&quot;</span><span class="p">:</span> <span class="mf">2.7</span><span class="p">,</span>
+    <span class="s2">&quot;O-Si&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 
