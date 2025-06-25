@@ -94,3 +94,4 @@ def check_4x4_matrix(matrix: np.ndarray) -> np.ndarray:
     if np.shape(matrix) != (4, 4):
         msg = f"matrix was supposed to be shape 4, but was shape {np.shape(matrix)}"
         raise ValueError(msg)
+    return matrix

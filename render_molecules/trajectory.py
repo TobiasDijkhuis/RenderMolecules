@@ -8,10 +8,8 @@ import numpy as np
 from .atom import Atom
 from .blender_utils import get_object_by_name
 from .geometry import Geometry
-from .other_utils import (
-    find_all_string_in_list_of_strings,
-    find_first_string_in_list_of_strings,
-)
+from .other_utils import (find_all_string_in_list_of_strings,
+                          find_first_string_in_list_of_strings)
 from .structure import Structure
 
 
@@ -58,7 +56,7 @@ class Trajectory(Geometry):
 
         initial_frame.create_atoms(create_mesh=False, resolution=resolution)
 
-        initial_bonds = initial_frame.find_bonds_from_distance()
+        initial_bonds = initial_frame.find_bonds_from_distances()
         initial_frame.create_bonds(
             initial_bonds,
             split_bond_to_atom_materials=split_bond_to_atom_materials,
@@ -70,7 +68,7 @@ class Trajectory(Geometry):
             all_elements[:i].count(all_elements[i]) for i in range(len(all_elements))
         ]
 
-        starting_bond_lengths = [bond.get_bond_length()() for bond in initial_bonds]
+        starting_bond_lengths = [bond.get_length() for bond in initial_bonds]
 
         for i, frame in enumerate(self._frames):
             current_frame_nr = 1 + i * frame_step
@@ -92,13 +90,13 @@ class Trajectory(Geometry):
 
             # Now reposition and rerotate all the bonds.
             if i >= 1:
-                current_bonds = frame.find_bonds_from_distance()
+                current_bonds = frame.find_bonds_from_distances()
             else:
                 current_bonds = initial_bonds
 
             for j, bond in enumerate(current_bonds):
-                atom1_index = bond.getAtom1Index()
-                atom2_index = bond.getAtom2Index()
+                atom1_index = bond.get_atom1_index()
+                atom2_index = bond.get_atom2_index()
                 try:
                     obj = get_object_by_name(f"bond-{atom1_index}-{atom2_index}")
                 except KeyError as e:
@@ -107,10 +105,9 @@ class Trajectory(Geometry):
                         "Does not support bond creation yet"
                     ) from e
 
-                scale = bond.get_bond_length()() / starting_bond_lengths[j]
-                # previousBondLengths[j] = bond.getBondLength()
+                scale = bond.get_length() / starting_bond_lengths[j]
 
-                vdw_weighted_midpoints = bond.getVdWWeightedMidpoints(
+                vdw_weighted_midpoints = bond.get_vdw_weighted_midpoints(
                     all_elements[atom1_index], all_elements[atom2_index]
                 )
 
@@ -119,7 +116,7 @@ class Trajectory(Geometry):
                 obj.location.z = vdw_weighted_midpoints[0, 2]
 
                 obj.scale[2] = scale
-                obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
+                obj.rotation_axis_angle = bond.get_axis_angle_with_z()
                 obj.keyframe_insert(data_path="location", frame=current_frame_nr)
                 obj.keyframe_insert(
                     data_path="rotation_axis_angle", frame=current_frame_nr
@@ -146,7 +143,7 @@ class Trajectory(Geometry):
 
                 obj.scale[2] = scale
 
-                obj.rotation_axis_angle = bond.getAxisAngleWithZaxis()
+                obj.rotation_axis_angle = bond.get_axis_angle_with_z()
 
                 obj.keyframe_insert(data_path="location", frame=current_frame_nr)
                 obj.keyframe_insert(
@@ -312,9 +309,9 @@ class Trajectory(Geometry):
             + (block_nr + 1) * (n_lines_amplitudes + 1)
             - 1
         ]
-        assert (
-            len(lines_modes) == n_lines_amplitudes
-        ), f"NOT CORRECT LENGTH. SHOULD HAVE BEEN 3*natoms={n_lines_amplitudes}, but was {len(lines_modes)}"
+        assert len(lines_modes) == n_lines_amplitudes, (
+            f"NOT CORRECT LENGTH. SHOULD HAVE BEEN 3*natoms={n_lines_amplitudes}, but was {len(lines_modes)}"
+        )
         # Read correct column, and reshape displacements to natoms*3 matrix for x, y, z
         mass_weighed_displacements = np.array(
             [float(i.split()[col_nr + 1]) for i in lines_modes]
@@ -330,7 +327,7 @@ class Trajectory(Geometry):
         final_structure_line = begin_structure[-1]
         base_structure = Structure(
             [
-                Atom.from_xyz_line(line)
+                Atom.from_xyz_string(line)
                 for line in _lines[
                     final_structure_line + 2 : final_structure_line + 2 + natoms
                 ]

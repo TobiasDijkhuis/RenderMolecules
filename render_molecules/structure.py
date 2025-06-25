@@ -5,18 +5,13 @@ from copy import deepcopy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import (
-    create_cylinder,
-    create_material,
-    create_mesh_of_atoms,
-    create_uv_sphere,
-    deselect_all_selected,
-    get_object_by_name,
-    join_cylinders,
-    put_cap_on_cylinder,
-)
+from .blender_utils import (create_cylinder, create_material,
+                            create_mesh_of_atoms, create_uv_sphere,
+                            deselect_all_selected, get_object_by_name,
+                            join_cylinders, put_cap_on_cylinder)
 from .bond import Bond
-from .constants import AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM, BOHR_TO_METERS
+from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
+                        BOHR_TO_METERS)
 from .element_data import bond_lengths, manifest
 from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
 
@@ -42,14 +37,6 @@ class Structure(Geometry):
         """Get a list of all atom positions"""
         return np.array([atom.get_position() for atom in self._atoms])
 
-    #     def getFilepath(self) -> str:
-    #         """Get the filepath of the file that created the structure"""
-    #         return self._filepath
-    #
-    #     def getLines(self) -> list[str]:
-    #         """Get the lines of the file that created the structure"""
-    #         return self._lines
-
     def create_atoms(self, resolution="medium", create_mesh=True) -> None:
         """Create the atoms in the scene"""
         if not create_mesh:
@@ -61,7 +48,7 @@ class Structure(Geometry):
                     resolution=resolution,
                 )
                 mat = create_material(
-                    atom.get_element(), manifest["atom_colors"][atom.getElement()]
+                    atom.get_element(), manifest["atom_colors"][atom.get_element()]
                 )
                 obj.data.materials.append(mat)
             return
@@ -70,17 +57,17 @@ class Structure(Geometry):
         # all positions of atoms with that element.
         atom_vertices = {}
         for atom in self._atoms:
-            if atom.getElement() in atom_vertices:
-                atom_vertices[atom.getElement()].append(atom.get_position())
+            if atom.get_element() in atom_vertices:
+                atom_vertices[atom.get_element()].append(atom.get_position())
             else:
-                atom_vertices[atom.getElement()] = [atom.get_position()]
+                atom_vertices[atom.get_element()] = [atom.get_position()]
 
         # For each element, create a reference UV sphere at the origin
         # Then, create a mesh with vertices at the positions and using vertex instancing,
         # copy the UV sphere to each of the vertices.
         for atom_type in atom_vertices:
             obj = create_uv_sphere(
-                atom_type, np.array([0, 0, 0]), renderResolution=resolution
+                atom_type, np.array([0, 0, 0]), resolution=resolution
             )
             mat = create_material(atom_type, manifest["atom_colors"][atom_type])
             obj.data.materials.append(mat)
@@ -91,7 +78,7 @@ class Structure(Geometry):
     def find_bonds_from_distances(self) -> list[Bond]:
         """Create bonds based on the geometry"""
         all_positions = self.get_atom_positions()
-        all_elements = [atom.getElement() for atom in self._atoms]
+        all_elements = [atom.get_element() for atom in self._atoms]
         all_positions_tuples = (
             np.array([v[0] for v in all_positions]),
             np.array([v[1] for v in all_positions]),
@@ -187,7 +174,7 @@ class Structure(Geometry):
 
     def get_center_of_mass(self) -> np.ndarray[float]:
         """Get the center of mass position vector"""
-        masses = np.array([atom.getMass() for atom in self._atoms])
+        masses = np.array([atom.get_mass() for atom in self._atoms])
         atom_positions = self.get_atom_positions()
         com = np.array(
             sum(masses[i] * atom_positions[i] for i in range(self._natoms))
@@ -295,7 +282,7 @@ class Structure(Geometry):
             # Calculate moments of inertia to axes wrt COM
             coords = atom.get_position() - center_of_mass
 
-            mass = atom.getMass() * AMU_TO_KG  # Mass in kg
+            mass = atom.get_mass() * AMU_TO_KG  # Mass in kg
 
             # Convert coordinates to meters
             if atom.is_angstrom:
@@ -416,9 +403,9 @@ class Structure(Geometry):
                     obj.rotation_axis_angle = (angle, axis[0], axis[1], axis[2])
 
                     obj.name = "Hbond-%s-%03i-%s-%03i" % (
-                        at1.getElement(),
+                        at1.get_element(),
                         i,
-                        at2.getElement(),
+                        at2.get_element(),
                         j,
                     )
                     hbond_curves.append(obj)
@@ -477,7 +464,7 @@ class Structure(Geometry):
                 atom1_index = bond.get_atom1_index()
                 atom1_element = all_elements[atom1_index]
 
-                atom2_index = bond.get_atom1_index()
+                atom2_index = bond.get_atom2_index()
                 atom2_element = all_elements[atom2_index]
 
                 if atom1_element == atom2_element:
@@ -805,16 +792,21 @@ class CUBEfile(Structure):
         pytessel.write_ply(filepath, vertices, normals, indices)
 
     def calculate_isosurface(
-        self, isovalue: float
+        self,
+        isovalue: float,
+        step_size: int = 1,
     ) -> tuple[np.ndarray, np.ndarray, int]:
         """Calculate the isosurface from the volumetric data and an isovalue
 
         Args:
-            isovalue (float):
+            isovalue (float): value where to calculate the isosurface
+            step_size (int): step size in the grid. Larger values result in coarser, but quicker, results. Default = 1
 
         Returns:
-            vertices (ndarray):
-            faces (ndarray):
+            vertices (ndarray): Vx3 array of floats corresponding to vertex positions
+            faces (ndarray): Fx3 array of integers corresponding to vertex indices
+            normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex
+            values (ndarray): Vx1 array of maximum value in data close to each vertex
         """
         from skimage.measure import marching_cubes
 
@@ -824,6 +816,7 @@ class CUBEfile(Structure):
             self._volumetric_data,
             level=isovalue,
             spacing=np.diag(self._volumetric_axis_vectors),
+            step_size=step_size,
         )
 
         vertices += self._volumetric_origin_vector
@@ -838,7 +831,10 @@ class CUBEfile(Structure):
         """Checks whether the supplied isovalue is valid
 
         Args:
-            isovalue (float):
+            isovalue (float): value where to draw the isosurface
+
+        Raises:
+            ValueError: if the supplied isovalue is below the minimum value in the volumetric data, or above the maximum
         """
         if isovalue <= np.min(self._volumetric_data):
             msg = f"Set isovalue ({isovalue}) was less than or equal to the minimum value in the volumetric data ({np.min(self._volumetric_data)}). This will result in an empty isosurface. Set a larger isovalue."
@@ -849,6 +845,8 @@ class CUBEfile(Structure):
 
 
 class JSONfile(Structure):
+    """WORK IN PROGRESS"""
+
     def __init__(self, filepath):
         import json
 
