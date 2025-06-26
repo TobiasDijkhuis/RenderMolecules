@@ -9,6 +9,11 @@ Atom
 
 .. automodule:: render_molecules.atom
 
+Bond
+----
+
+.. automodule:: render_molecules.bond
+
 Structure
 ---------
 

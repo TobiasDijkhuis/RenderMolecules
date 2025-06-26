@@ -115,6 +115,10 @@
       <li><a href="background.html#index-0">Background</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="user_interface.html#render_molecules.bond.Bond">Bond (class in render_molecules.bond)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
@@ -226,6 +230,14 @@
 </li>
       <li><a href="user_interface.html#render_molecules.geometry.Geometry.get_affine_matrix">get_affine_matrix() (render_molecules.geometry.Geometry method)</a>
 </li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_atom1_index">get_atom1_index() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_atom1_position">get_atom1_position() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_atom2_index">get_atom2_index() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_atom2_position">get_atom2_position() (render_molecules.bond.Bond method)</a>
+</li>
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_atom_positions">get_atom_positions() (render_molecules.structure.Structure method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.get_atomic_number">get_atomic_number() (render_molecules.atom.Atom method)</a>
@@ -234,11 +246,17 @@
 </li>
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_atoms">get_atoms() (render_molecules.structure.Structure method)</a>
 </li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_axis_angle_with_z">get_axis_angle_with_z() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_bond_type">get_bond_type() (render_molecules.bond.Bond method)</a>
+</li>
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_bonds">get_bonds() (render_molecules.structure.Structure method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_center_of_mass">get_center_of_mass() (render_molecules.structure.Structure method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.get_charge">get_charge() (render_molecules.atom.Atom method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_direction">get_direction() (render_molecules.bond.Bond method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.get_element">get_element() (render_molecules.atom.Atom method)</a>
 </li>
@@ -252,7 +270,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_inertia_tensor">get_inertia_tensor() (render_molecules.structure.Structure method)</a>
 </li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_interatomic_vector">get_interatomic_vector() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_length">get_length() (render_molecules.bond.Bond method)</a>
+</li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.get_mass">get_mass() (render_molecules.atom.Atom method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_midpoint">get_midpoint() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_name">get_name() (render_molecules.bond.Bond method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.trajectory.Trajectory.get_nframes">get_nframes() (render_molecules.trajectory.Trajectory method)</a>
 </li>
@@ -267,6 +293,10 @@
       <li><a href="user_interface.html#render_molecules.structure.Structure.get_total_charge">get_total_charge() (render_molecules.structure.Structure method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.get_vdw_radius">get_vdw_radius() (render_molecules.atom.Atom method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_vdw_weighted_cylinder_midpoints">get_vdw_weighted_cylinder_midpoints() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.get_vdw_weighted_midpoint">get_vdw_weighted_midpoint() (render_molecules.bond.Bond method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.structure.CUBEfile.get_volumetric_axis_vectors">get_volumetric_axis_vectors() (render_molecules.structure.CUBEfile method)</a>
 </li>
@@ -342,6 +372,8 @@
 </li>
         <li><a href="user_interface.html#module-render_molecules.blender_utils">render_molecules.blender_utils</a>
 </li>
+        <li><a href="user_interface.html#module-render_molecules.bond">render_molecules.bond</a>
+</li>
         <li><a href="user_interface.html#module-render_molecules.element_data">render_molecules.element_data</a>
 </li>
         <li><a href="user_interface.html#module-render_molecules.geometry">render_molecules.geometry</a>
@@ -393,6 +425,13 @@
 
       <ul>
         <li><a href="user_interface.html#module-render_molecules.blender_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    render_molecules.bond
+
+      <ul>
+        <li><a href="user_interface.html#module-render_molecules.bond">module</a>
 </li>
       </ul></li>
       <li>
@@ -464,16 +503,20 @@
 </li>
       <li><a href="user_interface.html#render_molecules.blender_utils.set_background_color">set_background_color() (in module render_molecules.blender_utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="user_interface.html#render_molecules.blender_utils.set_background_transparency">set_background_transparency() (in module render_molecules.blender_utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="user_interface.html#render_molecules.structure.Structure.set_center_of_mass">set_center_of_mass() (render_molecules.structure.Structure method)</a>
 
       <ul>
         <li><a href="user_interface.html#render_molecules.trajectory.Trajectory.set_center_of_mass">(render_molecules.trajectory.Trajectory method)</a>
 </li>
       </ul></li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.set_midpoint">set_midpoint() (render_molecules.bond.Bond method)</a>
+</li>
+      <li><a href="user_interface.html#render_molecules.bond.Bond.set_name">set_name() (render_molecules.bond.Bond method)</a>
+</li>
       <li><a href="user_interface.html#render_molecules.atom.Atom.set_position">set_position() (render_molecules.atom.Atom method)</a>
 </li>
       <li><a href="user_interface.html#render_molecules.structure.Structure">Structure (class in render_molecules.structure)</a>
