@@ -512,7 +512,7 @@ class Structure(Geometry):
                     obj.data.materials.append(mat1)
                     continue
 
-                vdw_weighted_midpoints = bond.get_vdw_weighted_midpoints(
+                vdw_weighted_midpoints = bond.get_vdw_weighted_cylinder_midpoints(
                     atom1_element, atom2_element
                 )
 

@@ -107,7 +107,7 @@ class Trajectory(Geometry):
 
                 scale = bond.get_length() / starting_bond_lengths[j]
 
-                vdw_weighted_midpoints = bond.get_vdw_weighted_midpoints(
+                vdw_weighted_midpoints = bond.get_vdw_weighted_cylinder_midpoints(
                     all_elements[atom1_index], all_elements[atom2_index]
                 )
 

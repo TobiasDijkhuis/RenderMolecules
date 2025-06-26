@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from .constants import SPHERE_SCALE
 from .element_data import element_list, vdw_radii
 from .geometry import check_3d_vector
 
@@ -88,7 +89,15 @@ class Bond:
             angle = np.arccos(np.dot(self._interatomic_vector, z) / self._bond_length)
         return angle, axis[0], axis[1], axis[2]
 
-    def get_vdw_weighted_midpoints(self, element1: str, element2: str) -> np.ndarray:
+    def get_vdw_weighted_cylinder_midpoints(self, element1: str, element2: str) -> np.ndarray:
+        """Get the Van der Waals-radii weighted location where both cylinders need to be placed"""
+        vdw_midpoint = self.get_vdw_weighted_midpoint(element1, element2)
+
+        loc1 = vdw_midpoint - self.get_direction() * self._bond_length / 4
+        loc2 = vdw_midpoint + self.get_direction() * self._bond_length / 4
+        return np.array([loc1, loc2])
+
+    def get_vdw_weighted_midpoint(self, element1:str, element2:str) -> np.ndarray:
         """Get the Van der Waals-radii weighted bond-midpoints"""
         element1_index = element_list.index(element1)
         vdw_radius1 = vdw_radii[element1_index]
@@ -96,14 +105,11 @@ class Bond:
         element2_index = element_list.index(element2)
         vdw_radius2 = vdw_radii[element2_index]
 
-        sum_vdw_radii = vdw_radius1 + vdw_radius2
-        fraction_vdw_radius1 = vdw_radius1 / sum_vdw_radii
-        fraction_vdw_radius2 = vdw_radius2 / sum_vdw_radii
+        # sum_vdw_radii = vdw_radius1 + vdw_radius2
+        # fraction_vdw_radius1 = vdw_radius1 / sum_vdw_radii
+        # fraction_vdw_radius2 = vdw_radius2 / sum_vdw_radii
 
-        loc1 = self._midpointPosition - self.get_direction() * self._bond_length / (
-            2 / fraction_vdw_radius1
-        )
-        loc2 = self._midpointPosition + self.get_direction() * self._bond_length / (
-            2 / fraction_vdw_radius2
-        )
-        return np.array([loc1, loc2])
+        # Starting from the first atom (let's call it atom A), 
+        # the VdW weighed midpoint is (where the two cylinders meet)
+        # position_A + (r_AB + r_A - rB)/2 * bondDirectionVector
+        return self._atom1_pos + (self._bond_length + vdw_radius1*SPHERE_SCALE - vdw_radius2*SPHERE_SCALE) / 2 * -self.get_direction()

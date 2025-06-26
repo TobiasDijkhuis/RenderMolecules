@@ -213,3 +213,6 @@ __marimo__/
 
 # Blender backup file
 **/*.blend1
+
+# Ignore pngs that have a white background. Those have been created purely for visuals.
+**/*_white.png
