@@ -478,8 +478,8 @@ class Structure(Geometry):
 
         Args:
             bonds (list[Bond]): list of bonds to be drawn
-            splitBondToAtomMaterials (bool): whether to split up the bonds to the two atom materials connecting them
-            renderResolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
+            resolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
         """
         all_elements = [atom.get_element() for atom in self._atoms]
 
@@ -506,7 +506,7 @@ class Structure(Geometry):
                         bond_midpoint,
                         axis_angle_with_z,
                         manifest["bond_thickness"],
-                        bond_length / 4,
+                        bond_length * CYLINDER_LENGTH_FRACTION_SPLIT,
                         resolution=resolution,
                         name=f"bond-{atom1_index}-{atom2_index}",
                     )
@@ -529,7 +529,7 @@ class Structure(Geometry):
                     vdw_weighted_midpoints[0],
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / CYLINDER_LENGTH_FRACTION_SPLIT,
+                    bond_length * CYLINDER_LENGTH_FRACTION_SPLIT,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )
@@ -544,7 +544,7 @@ class Structure(Geometry):
                     vdw_weighted_midpoints[1],
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / CYLINDER_LENGTH_FRACTION_SPLIT,
+                    bond_length * CYLINDER_LENGTH_FRACTION_SPLIT,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )
@@ -554,7 +554,7 @@ class Structure(Geometry):
                     bond_midpoint,
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / CYLINDER_LENGTH_FRACTION,
+                    bond_length * CYLINDER_LENGTH_FRACTION,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )
