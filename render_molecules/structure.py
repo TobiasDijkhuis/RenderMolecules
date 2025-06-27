@@ -11,7 +11,8 @@ from .blender_utils import (create_cylinder, create_material,
                             join_cylinders, put_cap_on_cylinder)
 from .bond import Bond
 from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
-                        BOHR_TO_METERS)
+                        BOHR_TO_METERS, CYLINDER_LENGTH_FRACTION,
+                        CYLINDER_LENGTH_FRACTION_SPLIT)
 from .element_data import bond_lengths, manifest
 from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
 
@@ -528,7 +529,7 @@ class Structure(Geometry):
                     vdw_weighted_midpoints[0],
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / 4,
+                    bond_length / CYLINDER_LENGTH_FRACTION_SPLIT,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )
@@ -543,7 +544,7 @@ class Structure(Geometry):
                     vdw_weighted_midpoints[1],
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / 4,
+                    bond_length / CYLINDER_LENGTH_FRACTION_SPLIT,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )
@@ -553,7 +554,7 @@ class Structure(Geometry):
                     bond_midpoint,
                     axis_angle_with_z,
                     manifest["bond_thickness"],
-                    bond_length / 2,
+                    bond_length / CYLINDER_LENGTH_FRACTION,
                     resolution=resolution,
                     name=f"bond-{atom1_index}-{atom2_index}",
                 )

@@ -72,6 +72,7 @@ The Structure class has a method Structure.findBondsBasedOnDistance() that will 
 The above method returns a list of Bond instances, and sets the Structure._bonds to the found bonds.
 
 > This could also be done using Instancing, although because bonds have a direction, it is a bit more tricky and I have not had time/the need to figure it out yet (also how to generate it automatically from python makes it a bit harder).
+> Maybe it could be done like [this](https://www.reddit.com/r/blenderhelp/comments/1esb6nf/geometry_nodes_align_instanced_objects_on_curve/)?
 
 #### Creating bonds with a higher bond order:
 Sometimes you might want to create a molecule with double (e.g. in benzene) or triple bonds (e.g. in CO). This can be done using Structure.generateBondOrderBond. Using some linear algebra, it takes a vector, and calculates a displacement vector that is both perpendicular to the bond you want to change, and the vector you input. 
