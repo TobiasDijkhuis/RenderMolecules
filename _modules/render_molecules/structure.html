@@ -80,7 +80,8 @@
                             <span class="n">join_cylinders</span><span class="p">,</span> <span class="n">put_cap_on_cylinder</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">AMU_TO_KG</span><span class="p">,</span> <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span> <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span>
-                        <span class="n">BOHR_TO_METERS</span><span class="p">)</span>
+                        <span class="n">BOHR_TO_METERS</span><span class="p">,</span> <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
+                        <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">bond_lengths</span><span class="p">,</span> <span class="n">manifest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">angle_between</span><span class="p">,</span> <span class="n">check_3d_vector</span><span class="p">,</span> <span class="n">rotation_matrix</span>
 
@@ -601,8 +602,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            bonds (list[Bond]): list of bonds to be drawn</span>
-<span class="sd">            splitBondToAtomMaterials (bool): whether to split up the bonds to the two atom materials connecting them</span>
-<span class="sd">            renderResolution (str): render resolution. One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them</span>
+<span class="sd">            resolution (str): render resolution. One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
 
@@ -629,7 +630,7 @@
                         <span class="n">bond_midpoint</span><span class="p">,</span>
                         <span class="n">axis_angle_with_z</span><span class="p">,</span>
                         <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
-                        <span class="n">bond_length</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+                        <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -652,7 +653,7 @@
                     <span class="n">vdw_weighted_midpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">axis_angle_with_z</span><span class="p">,</span>
                     <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
-                    <span class="n">bond_length</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                     <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -667,7 +668,7 @@
                     <span class="n">vdw_weighted_midpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                     <span class="n">axis_angle_with_z</span><span class="p">,</span>
                     <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
-                    <span class="n">bond_length</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                     <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -677,7 +678,7 @@
                     <span class="n">bond_midpoint</span><span class="p">,</span>
                     <span class="n">axis_angle_with_z</span><span class="p">,</span>
                     <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
-                    <span class="n">bond_length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
                     <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
                     <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">)</span>

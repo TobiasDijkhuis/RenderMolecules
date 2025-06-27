@@ -71,7 +71,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPHERE_SCALE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
+                        <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span> <span class="n">SPHERE_SCALE</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">element_list</span><span class="p">,</span> <span class="n">vdw_radii</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_3d_vector</span>
 
@@ -201,18 +202,26 @@
 
 <div class="viewcode-block" id="Bond.get_vdw_weighted_cylinder_midpoints">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.bond.Bond.get_vdw_weighted_cylinder_midpoints">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_vdw_weighted_cylinder_midpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vdw_weighted_cylinder_midpoints</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">element1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element2</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Van der Waals-radii weighted location where both cylinders need to be placed&quot;&quot;&quot;</span>
         <span class="n">vdw_midpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vdw_weighted_midpoint</span><span class="p">(</span><span class="n">element1</span><span class="p">,</span> <span class="n">element2</span><span class="p">)</span>
 
-        <span class="n">loc1</span> <span class="o">=</span> <span class="n">vdw_midpoint</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span> <span class="o">/</span> <span class="mi">4</span>
-        <span class="n">loc2</span> <span class="o">=</span> <span class="n">vdw_midpoint</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span> <span class="o">/</span> <span class="mi">4</span>
+        <span class="n">loc1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">vdw_midpoint</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span>
+        <span class="p">)</span>
+        <span class="n">loc2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">vdw_midpoint</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Bond.get_vdw_weighted_midpoint">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.bond.Bond.get_vdw_weighted_midpoint">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_vdw_weighted_midpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element1</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">element2</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vdw_weighted_midpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Van der Waals-radii weighted bond-midpoints&quot;&quot;&quot;</span>
         <span class="n">element1_index</span> <span class="o">=</span> <span class="n">element_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element1</span><span class="p">)</span>
         <span class="n">vdw_radius1</span> <span class="o">=</span> <span class="n">vdw_radii</span><span class="p">[</span><span class="n">element1_index</span><span class="p">]</span>
@@ -224,10 +233,19 @@
         <span class="c1"># fraction_vdw_radius1 = vdw_radius1 / sum_vdw_radii</span>
         <span class="c1"># fraction_vdw_radius2 = vdw_radius2 / sum_vdw_radii</span>
 
-        <span class="c1"># Starting from the first atom (let&#39;s call it atom A), </span>
+        <span class="c1"># Starting from the first atom (let&#39;s call it atom A),</span>
         <span class="c1"># the VdW weighed midpoint is (where the two cylinders meet)</span>
         <span class="c1"># position_A + (r_AB + r_A - rB)/2 * bondDirectionVector</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atom1_pos</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span> <span class="o">+</span> <span class="n">vdw_radius1</span><span class="o">*</span><span class="n">SPHERE_SCALE</span> <span class="o">-</span> <span class="n">vdw_radius2</span><span class="o">*</span><span class="n">SPHERE_SCALE</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_atom1_pos</span>
+            <span class="o">+</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bond_length</span>
+                <span class="o">+</span> <span class="n">vdw_radius1</span> <span class="o">*</span> <span class="n">SPHERE_SCALE</span>
+                <span class="o">-</span> <span class="n">vdw_radius2</span> <span class="o">*</span> <span class="n">SPHERE_SCALE</span>
+            <span class="p">)</span>
+            <span class="o">/</span> <span class="mi">2</span>
+            <span class="o">*</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_direction</span><span class="p">()</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>
