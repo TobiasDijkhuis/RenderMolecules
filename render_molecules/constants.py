@@ -15,5 +15,5 @@ HYDROGEN_BOND_LENGTH = 3.5  # Maximum hydrogen bond length is 3.5 Angstrom
 HYDROGEN_BOND_ANGLE = 35  # Maximum hydrogen bond angle is 35 degrees
 SPHERE_SCALE = 0.3  # Created atoms have a radius of 0.3*r_VDW
 
-CYLINDER_LENGTH_FRACTION_SPLIT = 1.0 / 2.0
+CYLINDER_LENGTH_FRACTION_SPLIT = 1.0 / 4.0
 CYLINDER_LENGTH_FRACTION = 1.0 / 2.0
