@@ -86,9 +86,9 @@
 <section id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Link to this heading"></a></h2>
 <p>Ideally, you would have installed Blender from a zip-file, and not using a package manager or snap.</p>
-<p>Create a new python environment (which we will call render_env here) with a compatible python version and activate it.</p>
+<p>Create a new python environment (which we will call <code class="docutils literal notranslate"><span class="pre">render_env</span></code> here) with a compatible python version and activate it.</p>
 <blockquote>
-<div><p>To be able to render isosurfaces, install scikit-image in the environment:</p>
+<div><p>To be able to render isosurfaces, install <code class="docutils literal notranslate"><span class="pre">scikit-image</span></code> in the environment:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>scikit-image
 </pre></div>
 </div>
@@ -96,30 +96,80 @@
 the error should be that Blender was not able to import <code class="docutils literal notranslate"><span class="pre">skimage</span></code>, and because we import <strong class="program">render_molecules</strong>
 first, that should be imported successfully.</p>
 </div></blockquote>
-<p>Then, while still in that environment, run the <code class="docutils literal notranslate"><span class="pre">install.sh</span></code> script:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>./install.sh
+<p>Then, while still in that environment, run the <code class="docutils literal notranslate"><span class="pre">install_linux.sh</span></code> script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>./install_linux.sh
 </pre></div>
 </div>
 <p>This will create symlinks to the <strong class="program">render_molecules</strong> directory and <code class="docutils literal notranslate"><span class="pre">site-packages/skimage</span></code> directory of the current environment.
 Depending on where you installed Blender (for example in <code class="docutils literal notranslate"><span class="pre">/usr/local/</span></code>), you might need root permissions to make the symlinks.
 If so, run the script as</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sudo<span class="w"> </span>-N<span class="w"> </span>env<span class="w"> </span><span class="s2">&quot;PATH=</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w"> </span>./install.sh
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sudo<span class="w"> </span>-N<span class="w"> </span>env<span class="w"> </span><span class="s2">&quot;PATH=</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w"> </span>./install_linux.sh
 </pre></div>
 </div>
 <p>This will run the script using the non-root-user environment, such that it can still find the Blender executable. If you have not registered Blender
 (I would first recommend doing so, see <a class="reference external" href="https://docs.blender.org/manual/en/latest/editors/preferences/system.html#prefs-system-register">here</a>),
 you can also pass the path to the executable to the install script, as</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>./install.sh<span class="w">  </span>/path/to/blender/executable
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>./install_linux.sh<span class="w">  </span>/path/to/blender/executable
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sudo<span class="w"> </span>-N<span class="w"> </span>env<span class="w"> </span><span class="s2">&quot;PATH=</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w"> </span>./install.sh<span class="w"> </span>/path/to/blender/executable
+<p>or</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sudo<span class="w"> </span>-N<span class="w"> </span>env<span class="w"> </span><span class="s2">&quot;PATH=</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w"> </span>./install_linux.sh<span class="w"> </span>/path/to/blender/executable
 </pre></div>
 </div>
 <p>After making the symlinks, the script will try to import <strong class="program">render_molecules</strong> and <code class="docutils literal notranslate"><span class="pre">skimage</span></code> in a Blender instance running in the background.</p>
 </section>
 <section id="macos">
 <h2>MacOS<a class="headerlink" href="#macos" title="Link to this heading"></a></h2>
-<p>The above may work, not sure. I cannot test it myself.</p>
+<p>Create a new python environment (which we will call <code class="docutils literal notranslate"><span class="pre">render_env</span></code> here) with a compatible python version and activate it.</p>
+<blockquote>
+<div><p>To be able to render isosurfaces, install <code class="docutils literal notranslate"><span class="pre">scikit-image</span></code> in the environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>scikit-image
+</pre></div>
+</div>
+<p>If you do not do this, you might get an error at the final step of the install script, however
+the error should be that Blender was not able to import <code class="docutils literal notranslate"><span class="pre">skimage</span></code>, and because we import <strong class="program">render_molecules</strong>
+first, that should be imported successfully.</p>
+</div></blockquote>
+<p>Then, while still in that environment, run the <code class="docutils literal notranslate"><span class="pre">install_macos.sh</span></code> script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sh<span class="w"> </span>./install_macos.sh
+</pre></div>
+</div>
+<p>This will create symlinks to the <strong class="program">render_molecules</strong> directory and <code class="docutils literal notranslate"><span class="pre">site-packages/skimage</span></code> directory of the current environment.
+Depending on where you installed Blender (for example in <code class="docutils literal notranslate"><span class="pre">/usr/local/</span></code>), you might need root permissions to make the symlinks.
+If so, run the script as</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sh<span class="w"> </span>./install_macos.sh
+</pre></div>
+</div>
+<p>This will run the script using the non-root-user environment, such that it can still find the Blender executable. If you have not registered Blender
+(I would first recommend doing so, see <a class="reference external" href="https://docs.blender.org/manual/en/latest/editors/preferences/system.html#prefs-system-register">here</a>),
+you can also pass the path to the executable (most likely <code class="docutils literal notranslate"><span class="pre">/Applications/Blender.app/Contents/MacOS/Blender</span></code>) to the install script, as</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sh<span class="w"> </span>./install_macos.sh<span class="w">  </span>/path/to/blender/executable
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>sudo<span class="w"> </span>-N<span class="w"> </span>env<span class="w"> </span><span class="s2">&quot;PATH=</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w"> </span>sh<span class="w"> </span>./install_macos.sh<span class="w"> </span>/path/to/blender/executable
+</pre></div>
+</div>
+<p>After making the symlinks, the script will try to import <strong class="program">render_molecules</strong> and <code class="docutils literal notranslate"><span class="pre">skimage</span></code> in a Blender instance running in the background.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When trying to import <code class="docutils literal notranslate"><span class="pre">skimage</span></code>, you might get an error with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">mach</span><span class="o">-</span><span class="n">o</span> <span class="n">file</span><span class="p">,</span> <span class="n">but</span> <span class="ow">is</span> <span class="n">an</span> <span class="n">incompatible</span> <span class="n">architecture</span> <span class="p">(</span><span class="n">have</span> <span class="s1">&#39;arm64&#39;</span><span class="p">,</span> <span class="n">need</span> <span class="s1">&#39;x86_64&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If that is the case, your Mac is likely on Apple Silicon, and not on an Intel chip. To make sure your environment is compatible with this,
+please remove the environment, and recreate it as</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>conda<span class="w"> </span>deactivate
+<span class="gp gp-VirtualEnv">(base)</span><span class="gp">$ </span>conda<span class="w"> </span>remove<span class="w"> </span>-n<span class="w"> </span>render_env<span class="w"> </span>--all
+<span class="gp gp-VirtualEnv">(base)</span><span class="gp">$ </span><span class="nv">CONDA_SUBDIR</span><span class="o">=</span>osx-arm64<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>render_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span>***
+<span class="gp gp-VirtualEnv">(base)</span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>render_env
+<span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>pip<span class="w"> </span>cache<span class="w"> </span>purge
+<span class="gp gp-VirtualEnv">(render_env)</span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>scikit-image
+</pre></div>
+</div>
+<p>This will ensure that newly installed packages are compatible with the ARM architecture.
+For more information, see <a class="reference external" href="https://stackoverflow.com/questions/65415996/how-to-specify-the-architecture-or-platform-for-a-new-conda-environment-apple">here</a>.</p>
+</div>
 </section>
 <section id="windows">
 <h2>Windows<a class="headerlink" href="#windows" title="Link to this heading"></a></h2>
@@ -129,7 +179,7 @@ you can also pass the path to the executable to the install script, as</p>
 <h2>Uninstalling<a class="headerlink" href="#uninstalling" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>Linux<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<p>Run <code class="docutils literal notranslate"><span class="pre">uninstall.sh</span></code>. It has the same requirements as <code class="docutils literal notranslate"><span class="pre">install.sh</span></code> discussed above.</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">uninstall.sh</span></code>. It has the same requirements as <code class="docutils literal notranslate"><span class="pre">install_linux.sh</span></code> discussed above.</p>
 </section>
 </section>
 </section>
