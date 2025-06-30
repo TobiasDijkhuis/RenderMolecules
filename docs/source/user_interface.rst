@@ -43,3 +43,8 @@ Elemental data
 --------------
 
 .. automodule:: render_molecules.element_data
+
+Constants
+---------
+
+.. automodule:: render_molecules.constants
