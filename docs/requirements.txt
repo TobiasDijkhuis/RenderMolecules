@@ -1,3 +1,5 @@
+sphinx
 sphinx_rtd_theme
 myst_parser
 sphinxcontrib-video
+sphinx-copybutton

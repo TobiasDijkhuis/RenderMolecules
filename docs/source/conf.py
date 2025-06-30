@@ -29,6 +29,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinxcontrib.video",
+    "sphinx_copybutton",
 ]
 
 autodoc_mock_imports = ["bmesh", "bpy"]
