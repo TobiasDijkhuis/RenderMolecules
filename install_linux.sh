@@ -106,7 +106,7 @@ site_packages_dir=$(get_site_packages_dir)
 
 # Make symlink to skimage directory in the environment
 safe_symlink_at_dir $site_packages_dir/skimage $moduleDir
-
+safe_symlink_at_dir $site_packages_dir/lazy_loader $moduleDir
 # Test imports to see if they worked
 echo "Testing imports."
 imports=$"import render_molecules;import skimage"
