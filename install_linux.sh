@@ -48,7 +48,7 @@ if [[ $1 == "" ]]; then
     fi
     echo "Found blender executable at $blenderExecutable"
 else
-    blenderExecutable=$2
+    blenderExecutable=$1
     if [[ ! -f $blenderExecutable ]]; then
         echo "$blenderExecutable is not a valid filepath. Exiting"
         exit
