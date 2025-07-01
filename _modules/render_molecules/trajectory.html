@@ -325,9 +325,30 @@
         <span class="n">use_vibrations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">use_geometry_optimization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">vibration_nr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="s2">&quot;imag&quot;</span><span class="p">,</span>
-        <span class="n">n_frames_per_oscillation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">n_frames_per_oscillation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
         <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a Trajectory from an ORCA output file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): filepath of ORCA output file</span>
+<span class="sd">            use_vibrations (bool): whether to use the vibrations</span>
+<span class="sd">            use_geometry_optimization (bool):</span>
+<span class="sd">            vibration_nr (str | int): vibration number index, or string </span>
+<span class="sd">                (then has to be one of ``[&#39;i&#39;, &#39;im&#39;, &#39;imag&#39;, &#39;imaginary&#39;]``). Vibration number index</span>
+<span class="sd">                is 0-indexed (i.e. 0 is the first vibrational mode, 1 is the second, etc.)</span>
+<span class="sd">            n_frames_per_oscillation (int): number of keyframes per full vibrational oscillation (phase= :math:`2\\pi`)</span>
+<span class="sd">            amplitude (float): amplitude of vibrations. 0.5 seems to be a good default value.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            * Tries to find imaginary mode from the output. If multiple imaginary modes are found, </span>
+<span class="sd">              will raise an error. Please investigate the output file manually to see which one</span>
+<span class="sd">              you want to visualize, and give the integer index to this function instead.</span>
+<span class="sd">            * Calculates the vibrational trajectory from the normal modes. ORCA outputs the translational</span>
+<span class="sd">              and rotational modes as vibrations too, meaning that often the first 6 vibrations</span>
+<span class="sd">              (so up to and including ``vibration_nr=5``) have no displacements, </span>
+<span class="sd">              and the resulting Trajectory will show no movement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get trajectory corresponding to either vibrations of the normal modes or the geometry optimization</span>
         <span class="k">if</span> <span class="n">use_vibrations</span> <span class="o">==</span> <span class="n">use_geometry_optimization</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>

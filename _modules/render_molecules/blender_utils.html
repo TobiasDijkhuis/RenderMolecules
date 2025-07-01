@@ -79,33 +79,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPHERE_SCALE</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">element_list</span><span class="p">,</span> <span class="n">vdw_radii</span>
-
-
-<div class="viewcode-block" id="hex_to_rgb_tuple">
-<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.hex_to_rgb_tuple">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hex_to_rgb_tuple</span><span class="p">(</span><span class="n">hexcode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert 6-digit color hexcode to a tuple of floats</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">hexcode</span> <span class="o">+=</span> <span class="s2">&quot;FF&quot;</span>
-    <span class="n">hextuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">hexcode</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mf">255.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
-
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">color_srgb_to_scene_linear</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hextuple</span><span class="p">])</span></div>
-
-
-
-<div class="viewcode-block" id="color_srgb_to_scene_linear">
-<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.color_srgb_to_scene_linear">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">color_srgb_to_scene_linear</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert RGB to sRGB</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mf">0.04045</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">12.92</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">((</span><span class="n">c</span> <span class="o">+</span> <span class="mf">0.055</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.055</span><span class="p">))</span> <span class="o">**</span> <span class="mf">2.4</span></div>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">hex2rgbtuple</span><span class="p">,</span> <span class="n">color_srgb_to_scene_linear</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">element_list</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">vdw_radii</span>
 
 
 <div class="viewcode-block" id="create_uv_sphere">
@@ -155,6 +130,16 @@
 
 
 
+<div class="viewcode-block" id="material_exists">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.material_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">material_exists</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to determine whether a material already exists. WIP&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">mat_name</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">mat_name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mat</span></div>
+
+
+
 <div class="viewcode-block" id="create_material">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_material">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_material</span><span class="p">(</span>
@@ -162,6 +147,21 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">obj</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a new material</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): name of material</span>
+<span class="sd">        color (str): color of material</span>
+<span class="sd">        alpha (float): transparency of material</span>
+<span class="sd">        force (bool): whether to force creation of the new material, regardless</span>
+<span class="sd">            of if another material with that name already exists. If True,</span>
+<span class="sd">            will remove other materials with that same name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mat (object): created material</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        * If a material with name ``name`` already exists and</span>
+<span class="sd">          ``force=False`` is used, returns that material instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># early exit if material already exists</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="p">:</span>
@@ -174,9 +174,9 @@
         <span class="s2">&quot;Base Color&quot;</span><span class="p">:</span> <span class="n">hex_to_rgb_tuple</span><span class="p">(</span><span class="n">color</span><span class="p">),</span>
         <span class="s2">&quot;Subsurface&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="s2">&quot;Subsurface Radius&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
-        <span class="s2">&quot;Subsurface Color&quot;</span><span class="p">:</span> <span class="n">hex_to_rgb_tuple</span><span class="p">(</span><span class="s2">&quot;000000&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;Metallic&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;Roughness&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">&quot;Subsurface Color&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;subsurface_color&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;Metallic&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;metallic&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;Roughness&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;roughness&quot;</span><span class="p">],</span>
         <span class="s2">&quot;Alpha&quot;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -231,9 +231,28 @@
     <span class="n">faces</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;isosurface&quot;</span><span class="p">,</span>
-    <span class="n">assign_material_based_on_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="p">):</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sign&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_alpha&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates isosurface from vertices and faces output from a marching cubes calculation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        verts (np.ndarray): Vx3 array of floats corresponding to vertex positions</span>
+<span class="sd">        faces (np.ndarray): Fx3 array of integers corresponding to vertex indices</span>
+<span class="sd">        isovalue (float): isovalue used to calculate the isosurface</span>
+<span class="sd">        prefix (str): prefix to put in front of the isovalue to get its name</span>
+<span class="sd">        color (str): color of isosurface. Can also be ``&quot;sign&quot;``, and then it is colored using the sign of ``isovalue``,</span>
+<span class="sd">            and the ``constants.manifest[&#39;isosurface_color_negative&#39;]`` or ``constants.manifest[&#39;isosurface_color_positive&#39;]``.</span>
+<span class="sd">        alpha (float): transparency of created isosurface.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        * :py:meth:`render_molecules.structure.CUBEfile.calculate_isosurface` can be used to calculate the vertices and faces.</span>
+<span class="sd">        * This function creates a material called ``Isosurface``. Once created, any time ``create_isosurface`` is called again,</span>
+<span class="sd">          it will call ``create_material`` again with the same name. That will return the original material again, so the new isosurface will</span>
+<span class="sd">          have the same color and transparency. This is something I will have to fix somehow. Maybe by adding a ``material_name`` argument to</span>
+<span class="sd">          this function, which can be changed by the user so that if they wish to have a different material on a second isosurface they</span>
+<span class="sd">          simply specify a different material name for the two isosurfaces?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">isovalue</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">meshes</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="n">mesh</span><span class="o">.</span><span class="n">from_pydata</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="p">[],</span> <span class="n">faces</span><span class="p">,</span> <span class="n">shade_flat</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -243,40 +262,55 @@
     <span class="n">scene</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span>
     <span class="n">scene</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">assign_material_based_on_sign</span><span class="p">:</span>
-        <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s2">&quot;sign&quot;</span><span class="p">:</span>
+        <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Isosurface&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="load_ply">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.load_ply">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_ply</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">assign_material_based_on_sign</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_ply</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sign&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_alpha&quot;</span><span class="p">]):</span>
     <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">wm</span><span class="o">.</span><span class="n">ply_import</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">shade_smooth</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">assign_material_based_on_sign</span><span class="p">:</span>
-        <span class="k">return</span>
 
     <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">view_layer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">active</span>
 
     <span class="n">isovalue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filepath</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s2">&quot;sign&quot;</span><span class="p">:</span>
+        <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Isosurface&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="assign_isosurface_material_based_on_sign">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.assign_isosurface_material_based_on_sign">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">assign_isosurface_material_based_on_sign</span><span class="p">(</span>
-    <span class="n">isosurface_obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">isosurface_obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_alpha&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># Perhaps add a positive or negative lobe material to it, depending on whether there&#39;s a &#39;-&#39; in the filepath</span>
+
     <span class="k">if</span> <span class="n">isovalue</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Negative lobe material</span>
-        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Negative Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;FF7743&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+            <span class="s2">&quot;Negative Lobe&quot;</span><span class="p">,</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_color_negative&quot;</span><span class="p">],</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Positive lobe material</span>
-        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Positive Lobe&quot;</span><span class="p">,</span> <span class="s2">&quot;53B9FF&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+            <span class="s2">&quot;Positive Lobe&quot;</span><span class="p">,</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_color_positive&quot;</span><span class="p">],</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
@@ -379,8 +413,8 @@
 <span class="sd">    Args:</span>
 <span class="sd">        name (str): name of object to obtain</span>
 
-<span class="sd">    Retursn:</span>
-<span class="sd">        object: object in Blender scene with the name &#39;name&#39;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        object: object in Blender scene with the name ``name``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
@@ -389,8 +423,27 @@
 <div class="viewcode-block" id="create_cylinder">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_cylinder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_cylinder</span><span class="p">(</span>
-    <span class="n">location</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Cylinder&quot;</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Cylinder&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a cylinder in the Blender scene.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        location (np.ndarray): midpoint position of cylinder</span>
+<span class="sd">        angle (float): angle with z-axis in radians</span>
+<span class="sd">        thickness (float): radius of created cylinder</span>
+<span class="sd">        length (float): length of created cylinder</span>
+<span class="sd">        resolution (str): desired object resolution.</span>
+<span class="sd">            One of ``[&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]``.</span>
+<span class="sd">        name (str): name of created cylinder</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        obj (object): Blender object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nvertices</span> <span class="o">=</span> <span class="n">scale_vertices</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
 
     <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
@@ -487,10 +540,24 @@
 
 <div class="viewcode-block" id="scale_vertices">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.scale_vertices">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">scale_vertices</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">scale_vertices</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scale number of vertices according to resolution</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *args: number of vertices. Can also be multiple arguments.</span>
+<span class="sd">        resolution (str): desired object resolution.</span>
+<span class="sd">            One of ``[&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int | tuple: scaled number of vertices. The same number of return values as the number of ``*args``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;resolution should be of type str, but was of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
     <span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;verylow&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;veryhigh&quot;</span><span class="p">]:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;renderResolution should be one of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;] but was &#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;resolution should be one of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;] but was &#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">resolution</span> <span class="o">==</span> <span class="s2">&quot;verylow&quot;</span><span class="p">:</span>
@@ -515,7 +582,8 @@
 
 <div class="viewcode-block" id="deselect_all_selected">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.deselect_all_selected">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">deselect_all_selected</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">deselect_all_selected</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deselect all selected objects&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">selected_objects</span><span class="p">:</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">select_set</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
