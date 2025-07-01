@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import numpy as np
+import os
 
 
 def hex2rgbtuple(hexcode: str) -> tuple[float, float, float]:
     """
     Convert 6-digit color hexcode to a tuple of floats
     """
+    if not isinstance(hexcode, str):
+        raise TypeError(f"hexcode is supposed to be of type str, but was type {type(hexcode)}")
+    hexcode = hexcode.replace("#", "")
+    if not len(hexcode) == 6:
+        msg = f"hexcode is supposed to be a string of length 6 (without alpha component), but was length {len(hexcode)}."
+        msg += f"\nhexcode: {hexcode}"
+        raise ValueError(msg)
     hexcode += "FF"
     hextuple = tuple([int(hexcode[i : i + 2], 16) / 255.0 for i in [0, 2, 4, 6]])
 
@@ -80,3 +88,15 @@ def find_all_string_in_list_of_strings(
         result.append(new_result)
     result.pop()
     return result
+
+def get_render_molecules_dir() -> str:
+    """Get the directory that contains all render_molecules python files. 
+
+    Returns:
+        str: render_molecules directory
+
+    Notes:
+        * Follows symlinks
+    """
+    # Use realpath because abspath does not follow symbolic links
+    return os.path.realpath(os.path.dirname(__file__))

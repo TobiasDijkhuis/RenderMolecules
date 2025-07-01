@@ -30,6 +30,19 @@ def create_uv_sphere(
     try_autosmooth()
     return obj
 
+def get_all_materials() -> object:
+    return bpy.data.materials
+
+def delete_all_materials() -> None:
+    materials = get_all_materials()
+    for material in bpy.data.materials:
+        bpy.data.materials.remove(material, do_unlink=True)
+    for object in bpy.context.scene.objects:
+        if not object.material_slots:
+            continue
+        object.data.materials.clear()
+
+
 
 def create_mesh_of_atoms(
     positions: np.ndarray, reference_sphere: object, element: str

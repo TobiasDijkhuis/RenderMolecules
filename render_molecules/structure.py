@@ -5,14 +5,25 @@ from copy import deepcopy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import (create_cylinder, create_material,
-                            create_mesh_of_atoms, create_uv_sphere,
-                            deselect_all_selected, get_object_by_name,
-                            join_cylinders, put_cap_on_cylinder)
+from .blender_utils import (
+    create_cylinder,
+    create_material,
+    create_mesh_of_atoms,
+    create_uv_sphere,
+    deselect_all_selected,
+    get_object_by_name,
+    join_cylinders,
+    put_cap_on_cylinder,
+)
 from .bond import Bond
-from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
-                        BOHR_TO_METERS, CYLINDER_LENGTH_FRACTION,
-                        CYLINDER_LENGTH_FRACTION_SPLIT)
+from .constants import (
+    AMU_TO_KG,
+    ANGSTROM_TO_METERS,
+    BOHR_TO_ANGSTROM,
+    BOHR_TO_METERS,
+    CYLINDER_LENGTH_FRACTION,
+    CYLINDER_LENGTH_FRACTION_SPLIT,
+)
 from .element_data import bond_lengths, manifest
 from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
 
@@ -40,22 +51,28 @@ class Structure(Geometry):
 
     def create_atoms(
         self,
-        resolution="medium",
-        create_mesh=True,
+        resolution: str = "medium",
+        create_mesh: bool = True,
         force_material_creation: bool = False,
-        atom_colors: dict = manifest["atom_colors"],
+        atom_colors: dict | None = None,
     ) -> None:
         """Create the atoms in the scene
 
         Args:
             resolution (str): resolution of created spheres.
                 One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
-            create_mesh (str): create mesh of vertices. saves memory, but atom positions cannot be animated
+            create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated
             force_material_creation (bool): force creation of new materials with element names,
                 even though materials with that name already exist. This is useful for if you want to
                 change the atom colors
             atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
+                If None, use the ``element_data.manifest['atom_colors']``. Can also be partially filled,
+                e.g. only contain ``{'H': 'FFFFFF'}`` for H2O, and then the color of O atoms
+                will be filled by the values in ``element_data.manifest['atom_colors']``.
         """
+
+        atom_colors = self._check_atom_colors(atom_colors=atom_colors)
+
         if not create_mesh:
             # This is an old, naive method where we create a lot more spheres
             # It is still necessary for animations, since we cannot move vertex instances
@@ -89,7 +106,9 @@ class Structure(Geometry):
             obj = create_uv_sphere(
                 atom_type, np.array([0, 0, 0]), resolution=resolution
             )
-            mat = create_material(atom_type, atom_colors[atom_type])
+            mat = create_material(
+                atom_type, atom_colors[atom_type], force=force_material_creation
+            )
             obj.data.materials.append(mat)
 
             create_mesh_of_atoms(atom_vertices[atom_type], obj, atom_type)
@@ -473,12 +492,35 @@ class Structure(Geometry):
                 1.3
             )
 
+    def _check_atom_colors(self, atom_colors: dict | None = None):
+        element_types = list(set([atom.get_element() for atom in self._atoms]))
+        if atom_colors is None:
+            atom_colors = manifest["atom_colors"]
+
+            for element_type in element_types:
+                if not element_type in atom_colors:
+                    msg = f"element_data.manifest['atom_colors'] dictionary needs to contain all elements in Structure, but did not contain element {element_type}."
+                    msg += f"Alternatively, pass a custom atom_colors dictionary that contains all the elements in the Structure."
+                    raise ValueError(msg)
+        else:
+            for element_type in element_types:
+                if element_type in atom_colors:
+                    continue
+                if element_type in manifest["atom_colors"]:
+                    atom_colors[element_type] = manifest["atom_colors"][element_type]
+                else:
+                    msg = f"atom_colors dictionary needs to contain all elements in Structure, but did not contain element {element_type}."
+                    msg += f"The element was also not found in element_data.manifest['atom_colors'] dictionary, so could not fill it."
+                    raise ValueError(msg)
+
+        return atom_colors
+
     def create_bonds(
         self,
         bonds: list[Bond],
         split_bond_to_atom_materials: bool = True,
         resolution: str = "medium",
-        atom_colors: dict = manifest["atom_colors"],
+        atom_colors: dict | None = None,
         force_material_creation: bool = False,
     ) -> None:
         """Create the bonds in the Blender scene
@@ -488,10 +530,15 @@ class Structure(Geometry):
             split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
             resolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
             atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
+                If None, use the ``element_data.manifest['atom_colors']``. Can also be partially filled,
+                e.g. only contain ``{'H': 'FFFFFF'}`` for H2O, and then the color of O atoms
+                will be filled by the values in ``element_data.manifest['atom_colors']``.
             force_material_creation (bool): force creation of new materials with element names,
                 even though materials with that name already exist. This is useful for if you want to
                 change the atom colors
         """
+        atom_colors = self._check_atom_colors(atom_colors=atom_colors)
+
         all_elements = [atom.get_element() for atom in self._atoms]
 
         for bond in bonds:
