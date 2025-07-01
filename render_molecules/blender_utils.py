@@ -7,27 +7,8 @@ import bpy
 import numpy as np
 
 from .constants import SPHERE_SCALE
-from .element_data import element_list, vdw_radii
-
-
-def hex_to_rgb_tuple(hexcode: str) -> tuple[float]:
-    """
-    Convert 6-digit color hexcode to a tuple of floats
-    """
-    hexcode += "FF"
-    hextuple = tuple([int(hexcode[i : i + 2], 16) / 255.0 for i in [0, 2, 4, 6]])
-
-    return tuple([color_srgb_to_scene_linear(c) for c in hextuple])
-
-
-def color_srgb_to_scene_linear(c):
-    """
-    Convert RGB to sRGB
-    """
-    if c < 0.04045:
-        return 0.0 if c < 0.0 else c * (1.0 / 12.92)
-    else:
-        return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
+from .other_utils import hex2rgbtuple, color_srgb_to_scene_linear
+from .element_data import element_list, manifest, vdw_radii
 
 
 def create_uv_sphere(
@@ -71,11 +52,33 @@ def create_mesh_of_atoms(
     bpy.context.object.instance_type = "VERTS"
 
 
+def material_exists(mat):
+    """Function to determine whether a material already exists. WIP"""
+    for mat_name, mat in bpy.data.materials.items():
+        if mat_name == name:
+            return mat
+
+
 def create_material(
     name: str, color: str, alpha: float = 1.0, force: bool = False
 ) -> obj:
     """
     Build a new material
+
+    Args:
+        name (str): name of material
+        color (str): color of material
+        alpha (float): transparency of material
+        force (bool): whether to force creation of the new material, regardless
+            of if another material with that name already exists. If True,
+            will remove other materials with that same name.
+
+    Returns:
+        mat (object): created material
+
+    Notes:
+        * If a material with name ``name`` already exists and
+          ``force=False`` is used, returns that material instead.
     """
     # early exit if material already exists
     if not force and name in bpy.data.materials:
@@ -88,9 +91,9 @@ def create_material(
         "Base Color": hex_to_rgb_tuple(color),
         "Subsurface": 0.2,
         "Subsurface Radius": (0.3, 0.3, 0.3),
-        "Subsurface Color": hex_to_rgb_tuple("000000"),
-        "Metallic": 0.0,
-        "Roughness": 0.5,
+        "Subsurface Color": manifest["subsurface_color"],
+        "Metallic": manifest["metallic"],
+        "Roughness": manifest["roughness"],
         "Alpha": alpha,
     }
 
@@ -139,9 +142,28 @@ def create_isosurface(
     faces: np.ndarray,
     isovalue: float,
     prefix: str = "isosurface",
-    assign_material_based_on_sign: bool = True,
-    alpha: float = 0.5,
-):
+    color: str = "sign",
+    alpha: float = manifest["isosurface_alpha"],
+) -> None:
+    """Creates isosurface from vertices and faces output from a marching cubes calculation.
+
+    Args:
+        verts (np.ndarray): Vx3 array of floats corresponding to vertex positions
+        faces (np.ndarray): Fx3 array of integers corresponding to vertex indices
+        isovalue (float): isovalue used to calculate the isosurface
+        prefix (str): prefix to put in front of the isovalue to get its name
+        color (str): color of isosurface. Can also be ``"sign"``, and then it is colored using the sign of ``isovalue``,
+            and the ``constants.manifest['isosurface_color_negative']`` or ``constants.manifest['isosurface_color_positive']``.
+        alpha (float): transparency of created isosurface.
+
+    Notes:
+        * :py:meth:`render_molecules.structure.CUBEfile.calculate_isosurface` can be used to calculate the vertices and faces.
+        * This function creates a material called ``Isosurface``. Once created, any time ``create_isosurface`` is called again,
+          it will call ``create_material`` again with the same name. That will return the original material again, so the new isosurface will
+          have the same color and transparency. This is something I will have to fix somehow. Maybe by adding a ``material_name`` argument to
+          this function, which can be changed by the user so that if they wish to have a different material on a second isosurface they
+          simply specify a different material name for the two isosurfaces?
+    """
     name = f"{prefix}_{isovalue}"
     mesh = bpy.data.meshes.new(name=name)
     mesh.from_pydata(verts, [], faces, shade_flat=False)
@@ -151,34 +173,49 @@ def create_isosurface(
     scene = bpy.context.scene
     scene.collection.objects.link(obj)
 
-    if assign_material_based_on_sign:
+    if color == "sign":
         assign_isosurface_material_based_on_sign(obj, isovalue, alpha=alpha)
+    else:
+        mat = create_material("Isosurface", color, alpha=alpha)
+        obj.data.materials.append(mat)
 
 
-def load_ply(filepath, assign_material_based_on_sign=True):
+def load_ply(filepath, color: str = "sign", alpha=manifest["isosurface_alpha"]):
     bpy.ops.wm.ply_import(filepath=filepath)
     bpy.ops.object.shade_smooth()
-
-    if not assign_material_based_on_sign:
-        return
 
     obj = bpy.context.view_layer.objects.active
 
     isovalue = float(os.path.splitext(filepath)[0].split("_")[-1])
-    assign_isosurface_material_based_on_sign(obj, isovalue)
+    if color == "sign":
+        assign_isosurface_material_based_on_sign(obj, isovalue)
+    else:
+        mat = create_material("Isosurface", color, alpha=alpha)
+        obj.data.materials.append(mat)
 
 
 def assign_isosurface_material_based_on_sign(
-    isosurface_obj: object, isovalue: float, alpha: float = 0.5
+    isosurface_obj: object,
+    isovalue: float,
+    alpha=manifest["isosurface_alpha"],
 ) -> None:
     # Perhaps add a positive or negative lobe material to it, depending on whether there's a '-' in the filepath
+
     if isovalue < 0:
         # Negative lobe material
-        mat = create_material("Negative Lobe", "FF7743", alpha=alpha)
+        mat = create_material(
+            "Negative Lobe",
+            manifest["isosurface_color_negative"],
+            alpha=alpha,
+        )
         isosurface_obj.data.materials.append(mat)
     else:
         # Positive lobe material
-        mat = create_material("Positive Lobe", "53B9FF", alpha=alpha)
+        mat = create_material(
+            "Positive Lobe",
+            manifest["isosurface_color_positive"],
+            alpha=alpha,
+        )
         isosurface_obj.data.materials.append(mat)
 
 
@@ -260,15 +297,34 @@ def get_object_by_name(name: str) -> object:
     Args:
         name (str): name of object to obtain
 
-    Retursn:
-        object: object in Blender scene with the name 'name'
+    Returns:
+        object: object in Blender scene with the name ``name``
     """
     return bpy.context.scene.objects[name]
 
 
 def create_cylinder(
-    location, angle, thickness, length, resolution="medium", name="Cylinder"
+    location: np.ndarray,
+    angle: float,
+    thickness: float,
+    length: float,
+    resolution: str = "medium",
+    name: str = "Cylinder",
 ) -> object:
+    """Create a cylinder in the Blender scene.
+
+    Args:
+        location (np.ndarray): midpoint position of cylinder
+        angle (float): angle with z-axis in radians
+        thickness (float): radius of created cylinder
+        length (float): length of created cylinder
+        resolution (str): desired object resolution.
+            One of ``['verylow', 'low', 'medium', 'high', 'veryhigh']``.
+        name (str): name of created cylinder
+
+    Returns:
+        obj (object): Blender object
+    """
     nvertices = scale_vertices(64, resolution=resolution)
 
     scale = (thickness, thickness, length)
@@ -353,10 +409,24 @@ def put_cap_on_cylinder(cylinder):
     pass
 
 
-def scale_vertices(*args, resolution="medium"):
+def scale_vertices(*args, resolution="medium") -> int | tuple[int]:
+    """Scale number of vertices according to resolution
+
+    Args:
+        *args: number of vertices. Can also be multiple arguments.
+        resolution (str): desired object resolution.
+            One of ``['verylow', 'low', 'medium', 'high', 'veryhigh']``.
+
+    Returns:
+        int | tuple: scaled number of vertices. The same number of return values as the number of ``*args``.
+    """
+    if not isinstance(resolution, str):
+        raise TypeError(
+            f"resolution should be of type str, but was of type {type(resolution)}"
+        )
     resolution = resolution.lower()
     if resolution not in ["verylow", "low", "medium", "high", "veryhigh"]:
-        msg = f"renderResolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{resolution}'"
+        msg = f"resolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{resolution}'"
         raise ValueError(msg)
 
     if resolution == "verylow":
@@ -378,6 +448,7 @@ def scale_vertices(*args, resolution="medium"):
         raise ValueError()
 
 
-def deselect_all_selected():
+def deselect_all_selected() -> None:
+    """Deselect all selected objects"""
     for obj in bpy.context.selected_objects:
         obj.select_set(False)

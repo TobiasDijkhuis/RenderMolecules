@@ -225,9 +225,30 @@ class Trajectory(Geometry):
         use_vibrations: bool = True,
         use_geometry_optimization: bool = False,
         vibration_nr: str | int = "imag",
-        n_frames_per_oscillation: float = 20,
+        n_frames_per_oscillation: int = 20,
         amplitude: float = 0.5,
     ):
+        """Get a Trajectory from an ORCA output file.
+
+        Args:
+            filepath (str): filepath of ORCA output file
+            use_vibrations (bool): whether to use the vibrations
+            use_geometry_optimization (bool):
+            vibration_nr (str | int): vibration number index, or string 
+                (then has to be one of ``['i', 'im', 'imag', 'imaginary']``). Vibration number index
+                is 0-indexed (i.e. 0 is the first vibrational mode, 1 is the second, etc.)
+            n_frames_per_oscillation (int): number of keyframes per full vibrational oscillation (phase= :math:`2\\pi`)
+            amplitude (float): amplitude of vibrations. 0.5 seems to be a good default value.
+
+        Notes:
+            * Tries to find imaginary mode from the output. If multiple imaginary modes are found, 
+              will raise an error. Please investigate the output file manually to see which one
+              you want to visualize, and give the integer index to this function instead.
+            * Calculates the vibrational trajectory from the normal modes. ORCA outputs the translational
+              and rotational modes as vibrations too, meaning that often the first 6 vibrations
+              (so up to and including ``vibration_nr=5``) have no displacements, 
+              and the resulting Trajectory will show no movement.
+        """
         # Get trajectory corresponding to either vibrations of the normal modes or the geometry optimization
         if use_vibrations == use_geometry_optimization:
             raise ValueError(

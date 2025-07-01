@@ -22,7 +22,6 @@ def color_srgb_to_scene_linear(c: float) -> float:
     else:
         return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
 
-
 def find_first_string_in_list_of_strings(
     string_to_find: str | list[str],
     list_of_strings: list[str],

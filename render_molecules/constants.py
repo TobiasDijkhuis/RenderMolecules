@@ -3,10 +3,10 @@ from __future__ import annotations
 BOHR_TO_ANGSTROM = 0.5291177249
 """Angstrom per Bohr"""
 
-ANGSTROM_TO_BOHR = 1 / BOHR_TO_ANGSTROM 
+ANGSTROM_TO_BOHR = 1 / BOHR_TO_ANGSTROM
 """Bohr per Angstrom"""
 
-BOHR_TO_METERS = 5.2917721067121e-11 
+BOHR_TO_METERS = 5.2917721067121e-11
 """Meter per Bohr"""
 
 METERS_TO_BOHR = 1 / BOHR_TO_METERS
@@ -29,7 +29,7 @@ KGM2_TO_AMU_ANGSTROM2 = KG_TO_AMU * METERS_TO_ANGSTROM * METERS_TO_ANGSTROM
 
 HYDROGEN_BOND_LENGTH = 3.5
 """Maximum hydrogen bond length"""
-HYDROGEN_BOND_ANGLE = 35.
+HYDROGEN_BOND_ANGLE = 35.0
 """Maximum hydrogen bond angle"""
 
 SPHERE_SCALE = 0.3
