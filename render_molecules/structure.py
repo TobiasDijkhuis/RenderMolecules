@@ -916,6 +916,10 @@ class CUBEfile(Structure):
         vertices_4d = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
         vertices = (self._affine_matrix @ vertices_4d.T).T[:, :3]
 
+        # Blender has opposite clockwise-ness (handedness) that skimage has, so backface culling is incorrect
+        # Flip order of faces, e.g. [0 1 2] -> [0 1 2]
+        faces = np.flip(faces, axis=1)
+
         return vertices, faces, normals, values
 
     def _check_isovalue(self, isovalue: float) -> None:
