@@ -7,8 +7,8 @@ import bpy
 import numpy as np
 
 from .constants import SPHERE_SCALE
-from .other_utils import hex2rgbtuple, color_srgb_to_scene_linear
 from .element_data import element_list, manifest, vdw_radii
+from .other_utils import color_srgb_to_scene_linear, hex2rgbtuple
 
 
 def create_uv_sphere(
@@ -88,7 +88,7 @@ def create_material(
     mat.use_nodes = True
 
     matsettings = {
-        "Base Color": hex_to_rgb_tuple(color),
+        "Base Color": hex2rgbtuple(color),
         "Subsurface": 0.2,
         "Subsurface Radius": (0.3, 0.3, 0.3),
         "Subsurface Color": manifest["subsurface_color"],
