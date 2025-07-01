@@ -285,6 +285,8 @@
         <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Isosurface&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">surface_render_method</span> <span class="o">=</span> <span class="s2">&quot;BLENDED&quot;</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">use_transparency_overlap</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
@@ -302,6 +304,8 @@
         <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Isosurface&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">surface_render_method</span> <span class="o">=</span> <span class="s2">&quot;BLENDED&quot;</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">use_transparency_overlap</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
@@ -322,6 +326,8 @@
             <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_color_negative&quot;</span><span class="p">],</span>
             <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">surface_render_method</span> <span class="o">=</span> <span class="s2">&quot;BLENDED&quot;</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">use_transparency_overlap</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Positive lobe material</span>
@@ -330,6 +336,8 @@
             <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_color_positive&quot;</span><span class="p">],</span>
             <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">surface_render_method</span> <span class="o">=</span> <span class="s2">&quot;BLENDED&quot;</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">use_transparency_overlap</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">isosurface_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span></div>
 
 
