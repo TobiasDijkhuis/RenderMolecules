@@ -105,6 +105,25 @@
     <span class="k">return</span> <span class="n">obj</span></div>
 
 
+<div class="viewcode-block" id="get_all_materials">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.get_all_materials">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_materials</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span></div>
+
+
+<div class="viewcode-block" id="delete_all_materials">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.delete_all_materials">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_all_materials</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">materials</span> <span class="o">=</span> <span class="n">get_all_materials</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="p">:</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">material</span><span class="p">,</span> <span class="n">do_unlink</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">object</span><span class="o">.</span><span class="n">material_slots</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+
 
 <div class="viewcode-block" id="create_mesh_of_atoms">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_mesh_of_atoms">[docs]</a>
