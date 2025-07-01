@@ -79,8 +79,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPHERE_SCALE</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">hex2rgbtuple</span><span class="p">,</span> <span class="n">color_srgb_to_scene_linear</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">element_list</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">vdw_radii</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">color_srgb_to_scene_linear</span><span class="p">,</span> <span class="n">hex2rgbtuple</span>
 
 
 <div class="viewcode-block" id="create_uv_sphere">
@@ -171,7 +171,7 @@
     <span class="n">mat</span><span class="o">.</span><span class="n">use_nodes</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="n">matsettings</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;Base Color&quot;</span><span class="p">:</span> <span class="n">hex_to_rgb_tuple</span><span class="p">(</span><span class="n">color</span><span class="p">),</span>
+        <span class="s2">&quot;Base Color&quot;</span><span class="p">:</span> <span class="n">hex2rgbtuple</span><span class="p">(</span><span class="n">color</span><span class="p">),</span>
         <span class="s2">&quot;Subsurface&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="s2">&quot;Subsurface Radius&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
         <span class="s2">&quot;Subsurface Color&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;subsurface_color&quot;</span><span class="p">],</span>
