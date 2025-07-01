@@ -43,13 +43,18 @@ class Structure(Geometry):
         resolution="medium",
         create_mesh=True,
         force_material_creation: bool = False,
+        atom_colors: dict = manifest["atom_colors"],
     ) -> None:
         """Create the atoms in the scene
 
         Args:
-            resoltion (str):
-            create_mesh (str):
-            force_material_creation (bool):
+            resolution (str): resolution of created spheres.
+                One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            create_mesh (str): create mesh of vertices. saves memory, but atom positions cannot be animated
+            force_material_creation (bool): force creation of new materials with element names,
+                even though materials with that name already exist. This is useful for if you want to
+                change the atom colors
+            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
         """
         if not create_mesh:
             # This is an old, naive method where we create a lot more spheres
@@ -62,7 +67,7 @@ class Structure(Geometry):
                 )
                 mat = create_material(
                     atom.get_element(),
-                    manifest["atom_colors"][atom.get_element()],
+                    atom_colors[atom.get_element()],
                     force=force_material_creation,
                 )
                 obj.data.materials.append(mat)
@@ -84,7 +89,7 @@ class Structure(Geometry):
             obj = create_uv_sphere(
                 atom_type, np.array([0, 0, 0]), resolution=resolution
             )
-            mat = create_material(atom_type, manifest["atom_colors"][atom_type])
+            mat = create_material(atom_type, atom_colors[atom_type])
             obj.data.materials.append(mat)
 
             create_mesh_of_atoms(atom_vertices[atom_type], obj, atom_type)
@@ -473,6 +478,8 @@ class Structure(Geometry):
         bonds: list[Bond],
         split_bond_to_atom_materials: bool = True,
         resolution: str = "medium",
+        atom_colors: dict = manifest["atom_colors"],
+        force_material_creation: bool = False,
     ) -> None:
         """Create the bonds in the Blender scene
 
@@ -480,6 +487,10 @@ class Structure(Geometry):
             bonds (list[Bond]): list of bonds to be drawn
             split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
             resolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
+            force_material_creation (bool): force creation of new materials with element names,
+                even though materials with that name already exist. This is useful for if you want to
+                change the atom colors
         """
         all_elements = [atom.get_element() for atom in self._atoms]
 
@@ -500,7 +511,9 @@ class Structure(Geometry):
 
                 if atom1_element == atom2_element:
                     mat1 = create_material(
-                        atom1_element, manifest["atom_colors"][atom1_element]
+                        atom1_element,
+                        atom_colors[atom1_element],
+                        force=force_material_creation,
                     )
                     obj = create_cylinder(
                         bond_midpoint,
@@ -520,9 +533,7 @@ class Structure(Geometry):
                 # Because of how we calculate the bonds, the first cylinder (where we subtract the direction
                 # from the midpoint) will be the one closest to the atom with the higher index.
                 # So, we take the element and material from that one, and assign it to the first cylinder.
-                mat2 = create_material(
-                    atom2_element, manifest["atom_colors"][atom2_element]
-                )
+                mat2 = create_material(atom2_element, atom_colors[atom2_element])
 
                 # First cylinder
                 obj = create_cylinder(
@@ -536,7 +547,9 @@ class Structure(Geometry):
                 obj.data.materials.append(mat2)
 
                 mat1 = create_material(
-                    atom1_element, manifest["atom_colors"][atom1_element]
+                    atom1_element,
+                    atom_colors[atom1_element],
+                    force=force_material_creation,
                 )
 
                 # First cylinder
