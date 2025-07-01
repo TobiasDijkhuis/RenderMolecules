@@ -125,13 +125,18 @@
         <span class="n">resolution</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
         <span class="n">create_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            resoltion (str):</span>
-<span class="sd">            create_mesh (str):</span>
-<span class="sd">            force_material_creation (bool):</span>
+<span class="sd">            resolution (str): resolution of created spheres.</span>
+<span class="sd">                One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            create_mesh (str): create mesh of vertices. saves memory, but atom positions cannot be animated</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
+<span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create_mesh</span><span class="p">:</span>
             <span class="c1"># This is an old, naive method where we create a lot more spheres</span>
@@ -144,7 +149,7 @@
                 <span class="p">)</span>
                 <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
                     <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
-                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()],</span>
+                    <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()],</span>
                     <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
@@ -166,7 +171,7 @@
             <span class="n">obj</span> <span class="o">=</span> <span class="n">create_uv_sphere</span><span class="p">(</span>
                 <span class="n">atom_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span>
             <span class="p">)</span>
-            <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="n">atom_type</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom_type</span><span class="p">])</span>
+            <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="n">atom_type</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom_type</span><span class="p">])</span>
             <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
 
             <span class="n">create_mesh_of_atoms</span><span class="p">(</span><span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom_type</span><span class="p">],</span> <span class="n">obj</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">)</span>
@@ -600,6 +605,8 @@
         <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">],</span>
         <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">],</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the bonds in the Blender scene</span>
 
@@ -607,6 +614,10 @@
 <span class="sd">            bonds (list[Bond]): list of bonds to be drawn</span>
 <span class="sd">            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them</span>
 <span class="sd">            resolution (str): render resolution. One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
 
@@ -627,7 +638,9 @@
 
                 <span class="k">if</span> <span class="n">atom1_element</span> <span class="o">==</span> <span class="n">atom2_element</span><span class="p">:</span>
                     <span class="n">mat1</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
-                        <span class="n">atom1_element</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom1_element</span><span class="p">]</span>
+                        <span class="n">atom1_element</span><span class="p">,</span>
+                        <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom1_element</span><span class="p">],</span>
+                        <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
                         <span class="n">bond_midpoint</span><span class="p">,</span>
@@ -647,9 +660,7 @@
                 <span class="c1"># Because of how we calculate the bonds, the first cylinder (where we subtract the direction</span>
                 <span class="c1"># from the midpoint) will be the one closest to the atom with the higher index.</span>
                 <span class="c1"># So, we take the element and material from that one, and assign it to the first cylinder.</span>
-                <span class="n">mat2</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
-                    <span class="n">atom2_element</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom2_element</span><span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">mat2</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="n">atom2_element</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom2_element</span><span class="p">])</span>
 
                 <span class="c1"># First cylinder</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
@@ -663,7 +674,9 @@
                 <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat2</span><span class="p">)</span>
 
                 <span class="n">mat1</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
-                    <span class="n">atom1_element</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">atom1_element</span><span class="p">]</span>
+                    <span class="n">atom1_element</span><span class="p">,</span>
+                    <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom1_element</span><span class="p">],</span>
+                    <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
                 <span class="p">)</span>
 
                 <span class="c1"># First cylinder</span>
