@@ -1,0 +1,1197 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>render_molecules.structure &mdash; render_molecules 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            render_molecules
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community_guidelines.html">Community Guidelines</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">render_molecules</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div style="text-align: right;">
+<a href="https://github.com/TobiasDijkhuis/RenderMolecules/" target="_blank"><i class="fa fa-github"></i> GitHub</a>
+</div>
+<hr>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for render_molecules.structure</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_cylinder</span><span class="p">,</span>
+    <span class="n">create_material</span><span class="p">,</span>
+    <span class="n">create_mesh_of_atoms</span><span class="p">,</span>
+    <span class="n">create_uv_sphere</span><span class="p">,</span>
+    <span class="n">deselect_all_selected</span><span class="p">,</span>
+    <span class="n">get_object_by_name</span><span class="p">,</span>
+    <span class="n">join_cylinders</span><span class="p">,</span>
+    <span class="n">put_cap_on_cylinder</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AMU_TO_KG</span><span class="p">,</span>
+    <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span>
+    <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span>
+    <span class="n">BOHR_TO_METERS</span><span class="p">,</span>
+    <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
+    <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">bond_lengths</span><span class="p">,</span> <span class="n">manifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">angle_between</span><span class="p">,</span> <span class="n">check_3d_vector</span><span class="p">,</span> <span class="n">rotation_matrix</span>
+
+
+<div class="viewcode-block" id="Structure">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Structure</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">],</span> <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span> <span class="o">=</span> <span class="n">atoms</span>
+
+        <span class="k">if</span> <span class="n">bonds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="n">bonds</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_displacements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affine_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Structure.get_atoms">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_atoms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of all atoms in the structure&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_atom_positions">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_atom_positions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_atom_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of all atom positions&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Structure.create_atoms">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_atoms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_atoms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">create_mesh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resolution (str): resolution of created spheres.</span>
+<span class="sd">                One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
+<span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
+<span class="sd">                If None, use the ``element_data.manifest[&#39;atom_colors&#39;]``. Can also be partially filled,</span>
+<span class="sd">                e.g. only contain ``{&#39;H&#39;: &#39;FFFFFF&#39;}`` for H2O, and then the color of O atoms</span>
+<span class="sd">                will be filled by the values in ``element_data.manifest[&#39;atom_colors&#39;]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">atom_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_atom_colors</span><span class="p">(</span><span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">create_mesh</span><span class="p">:</span>
+            <span class="c1"># This is an old, naive method where we create a lot more spheres</span>
+            <span class="c1"># It is still necessary for animations, since we cannot move vertex instances</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">create_uv_sphere</span><span class="p">(</span>
+                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
+                    <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">(),</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+                    <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
+                    <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()],</span>
+                    <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Create a dictionary, with keys the atom element, and values a list of</span>
+        <span class="c1"># all positions of atoms with that element.</span>
+        <span class="n">atom_vertices</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">in</span> <span class="n">atom_vertices</span><span class="p">:</span>
+                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()]</span>
+
+        <span class="c1"># For each element, create a reference UV sphere at the origin</span>
+        <span class="c1"># Then, create a mesh with vertices at the positions and using vertex instancing,</span>
+        <span class="c1"># copy the UV sphere to each of the vertices.</span>
+        <span class="k">for</span> <span class="n">atom_type</span> <span class="ow">in</span> <span class="n">atom_vertices</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">create_uv_sphere</span><span class="p">(</span>
+                <span class="n">atom_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span>
+            <span class="p">)</span>
+            <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+                <span class="n">atom_type</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom_type</span><span class="p">],</span> <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span>
+            <span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+
+            <span class="n">create_mesh_of_atoms</span><span class="p">(</span><span class="n">atom_vertices</span><span class="p">[</span><span class="n">atom_type</span><span class="p">],</span> <span class="n">obj</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">)</span>
+        <span class="n">deselect_all_selected</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Structure.find_bonds_from_distances">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.find_bonds_from_distances">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_bonds_from_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry&quot;&quot;&quot;</span>
+        <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
+        <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
+
+        <span class="c1"># More efficient</span>
+        <span class="n">all_positions_tuples</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_positions</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">all_positions_tuples</span>
+
+        <span class="c1"># Keep track of all indices that are marked as connected, so we do not bond them again</span>
+        <span class="n">connecting_indices</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Can we skip looping over the last atom?</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">):</span>
+            <span class="n">central_pos</span> <span class="o">=</span> <span class="n">all_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">central_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># All possible bond types from the central element</span>
+            <span class="n">bond_types</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">central_element</span><span class="p">,</span> <span class="n">other_element</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">other_element</span> <span class="ow">in</span> <span class="n">all_elements</span>
+            <span class="p">]</span>
+            <span class="n">allowed_bond_lengths_squared</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">bond_lengths</span><span class="p">[</span><span class="n">bond_type</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">bond_type</span> <span class="ow">in</span> <span class="n">bond_types</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Calculate squared distance to all other atoms</span>
+            <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">central_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">dist_squared</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">+</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">dz</span>
+
+            <span class="c1"># Atoms are bonded to the central atom if the distance squared is</span>
+            <span class="c1"># less than the allowed squared distance for the corresponding bond type</span>
+            <span class="n">is_bonded_to_central</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+                <span class="n">dist_squared</span> <span class="o">&lt;=</span> <span class="n">allowed_bond_lengths_squared</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Loop over all bonds, and create Bond instances for them</span>
+            <span class="k">for</span> <span class="n">atom_index</span> <span class="ow">in</span> <span class="n">is_bonded_to_central</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">atom_index</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="c1"># Do not allow atoms to bond to themselves</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">)</span> <span class="ow">in</span> <span class="n">connecting_indices</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">atom_index</span><span class="p">,</span>
+                    <span class="n">i</span><span class="p">,</span>
+                <span class="p">)</span> <span class="ow">in</span> <span class="n">connecting_indices</span><span class="p">:</span>
+                    <span class="c1"># If this bond was already made, continue</span>
+                    <span class="k">continue</span>
+                <span class="n">bond_midpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">all_positions</span><span class="p">[</span><span class="n">atom_index</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span>
+                <span class="n">bond_length</span> <span class="o">=</span> <span class="n">dist_squared</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="n">bond_vector</span> <span class="o">=</span> <span class="n">all_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">all_positions</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]</span>
+                <span class="n">new_bond</span> <span class="o">=</span> <span class="n">Bond</span><span class="p">(</span>
+                    <span class="n">i</span><span class="p">,</span>
+                    <span class="n">atom_index</span><span class="p">,</span>
+                    <span class="n">bond_types</span><span class="p">[</span><span class="n">atom_index</span><span class="p">],</span>
+                    <span class="n">bond_length</span><span class="p">,</span>
+                    <span class="n">bond_vector</span><span class="p">,</span>
+                    <span class="n">bond_midpoint</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">(),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]</span><span class="o">.</span><span class="n">get_position</span><span class="p">(),</span>
+                    <span class="p">),</span>
+                    <span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">connecting_indices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">atom_index</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_bond</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span></div>
+
+
+<div class="viewcode-block" id="Structure.generate_bond_order_bond">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.generate_bond_order_bond">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_bond_order_bond</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bond</span><span class="p">:</span> <span class="n">Bond</span><span class="p">,</span>
+        <span class="n">bond_order</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">camera_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">displacement_scaler</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bond_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">bond_vector</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_interatomic_vector</span><span class="p">()</span>
+
+        <span class="c1"># Get a vector that is perpendicular to the plane given by the bondVector and vector between camera and bond midpoint.</span>
+        <span class="n">displacement_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span>
+            <span class="n">bond_vector</span><span class="p">,</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_midpoint</span><span class="p">()</span> <span class="o">-</span> <span class="n">camera_position</span>
+        <span class="p">)</span>
+        <span class="n">displacement_vector</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">displacement_vector</span><span class="p">)</span>
+
+        <span class="c1"># If bond_order is odd, then we also have displacementMag of 0.</span>
+        <span class="k">if</span> <span class="n">bond_order</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">displacement_magnitude</span> <span class="o">=</span> <span class="o">-</span><span class="n">displacement_scaler</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">bond_order</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">displacement_magnitude</span> <span class="o">=</span> <span class="o">-</span><span class="n">displacement_scaler</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">bond_order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create the bonds, and add them to self._bonds</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bond_order</span><span class="p">):</span>  <span class="c1"># noqa: B007</span>
+            <span class="n">bond_adjusted</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+            <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">set_midpoint</span><span class="p">(</span>
+                <span class="n">bond_adjusted</span><span class="o">.</span><span class="n">get_midpoint</span><span class="p">()</span>
+                <span class="o">+</span> <span class="n">displacement_vector</span> <span class="o">*</span> <span class="n">displacement_magnitude</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bond_adjusted</span><span class="p">)</span>
+            <span class="n">displacement_magnitude</span> <span class="o">+=</span> <span class="n">displacement_scaler</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_bonds">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_bonds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all bonds in the system&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_center_of_mass">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_center_of_mass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the center of mass position vector&quot;&quot;&quot;</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span>
+        <span class="n">atom_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
+        <span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">masses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">atom_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span><span class="p">))</span>
+            <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">com</span></div>
+
+
+<div class="viewcode-block" id="Structure.set_center_of_mass">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.set_center_of_mass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_center_of_mass</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the Center Of Mass (COM) of the whole system to a new position</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_center_of_mass (ndarray): new COM position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_center_of_mass</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_center_of_mass</span><span class="p">)</span>
+        <span class="n">translation_vector</span> <span class="o">=</span> <span class="n">new_center_of_mass</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_center_of_mass</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.set_average_position">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.set_average_position">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_average_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_average_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the average position of all atoms to a new position&quot;&quot;&quot;</span>
+        <span class="n">new_average_position</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_average_position</span><span class="p">)</span>
+        <span class="n">current_average_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">translation_vector</span> <span class="o">=</span> <span class="n">new_average_position</span> <span class="o">-</span> <span class="n">current_average_position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.translate">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.translate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translation_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate every atom in the Structure along a vector</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            translationVector (ndarray): vector to translate every atom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">translation_vector</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">)</span>
+
+        <span class="n">new_affine_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">new_affine_matrix</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">translation_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_transformation</span><span class="p">(</span><span class="n">new_affine_matrix</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="o">+</span> <span class="n">translation_vector</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_total_charge">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_total_charge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total charge in the system</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            total_charge (int): total charge of the system</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">charges</span> <span class="o">=</span> <span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_charge</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">charge</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">charges</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The charges of atoms are not all of type &#39;int&#39; or &#39;float&#39;&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">total_charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">charges</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">total_charge</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_nr_electrons">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_nr_electrons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nr_electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total amount of electrons in the system</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            total_electrons (int): total number of electrons in the system</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_electrons_if_neutral</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">get_atomic_number</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span>
+        <span class="p">)</span>
+        <span class="n">total_electrons</span> <span class="o">=</span> <span class="n">total_electrons_if_neutral</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_charge</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">total_electrons</span></div>
+
+
+<div class="viewcode-block" id="Structure.is_radical">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.is_radical">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_radical</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the studied structure is a radical (has an uneven amount of electrons)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: whether the system is a radical or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nr_electrons</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="Structure.rotate_around_axis">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.rotate_around_axis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_around_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the structure around a certain axis</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            axis (ndarray): 3D vector around which to rotate the structure</span>
+<span class="sd">            angle (float): angle with which to rotate the structure. Given in angles, counterclockwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rot_matrix</span> <span class="o">=</span> <span class="n">rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+        <span class="c1"># create 4x4 matrix from the 3x3 rotation matrix</span>
+        <span class="n">new_affine_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">new_affine_matrix</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rot_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_transformation</span><span class="p">(</span><span class="n">new_affine_matrix</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
+            <span class="n">current_position</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+            <span class="n">rotated_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span> <span class="n">current_position</span><span class="p">)</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">rotated_position</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_inertia_tensor">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_inertia_tensor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_inertia_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the moment of inertia tensor</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            inertiaTensor (ndarray): inertia tensor in kg m^2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># https://en.wikipedia.org/wiki/Moment_of_inertia#Inertia_tensor</span>
+        <span class="n">center_of_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_center_of_mass</span><span class="p">()</span>
+
+        <span class="n">inertia_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">:</span>
+            <span class="c1"># Calculate moments of inertia to axes wrt COM</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="o">-</span> <span class="n">center_of_mass</span>
+
+            <span class="n">mass</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="o">*</span> <span class="n">AMU_TO_KG</span>  <span class="c1"># Mass in kg</span>
+
+            <span class="c1"># Convert coordinates to meters</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">is_angstrom</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">*=</span> <span class="n">ANGSTROM_TO_METERS</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">*=</span> <span class="n">BOHR_TO_METERS</span>
+
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mass</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mass</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mass</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">inertia_tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">inertia_tensor</span></div>
+
+
+<div class="viewcode-block" id="Structure.get_principal_moments_of_inertia">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_principal_moments_of_inertia">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_principal_moments_of_inertia</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the principal moments of inertia and the principal axes</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            principalMoments (ndarray): array of length 3 with the three principal moments of inertia in kg m^2</span>
+<span class="sd">            principalAxes (ndarray): matrix of shape 3x3 with three principal moment axes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inertia_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_inertia_tensor</span><span class="p">()</span>
+        <span class="n">principal_moments</span><span class="p">,</span> <span class="n">principal_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">inertia_tensor</span><span class="p">)</span>
+        <span class="n">indeces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">principal_moments</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">principal_moments</span><span class="p">[</span><span class="n">indeces</span><span class="p">],</span> <span class="n">principal_axes</span><span class="p">[</span><span class="n">indeces</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Structure.create_hydrogen_bonds">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_hydrogen_bonds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_hydrogen_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds hydrogen bonds to each molecule&quot;&quot;&quot;</span>
+        <span class="n">hbond_forming_elements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span>
+
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">hbond_curves</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">at1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hbond_forming_elements</span><span class="p">:</span>
+                <span class="c1"># If the atom is a C, it can not form a hydrogen bond (in our system at least), so skip</span>
+                <span class="k">continue</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="n">at1</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+            <span class="n">atom1_bound_indices</span> <span class="o">=</span> <span class="n">at1</span><span class="o">.</span><span class="n">find_bound_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">at2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>  <span class="c1"># Skip same atom</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">atom1_bound_indices</span><span class="p">:</span>  <span class="c1"># If j is bound to i, skip</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hbond_forming_elements</span>
+                <span class="p">):</span>  <span class="c1"># Skip if atom 2 cannot form hydrogen bonds</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="o">==</span> <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span>
+                <span class="p">):</span>  <span class="c1"># OO, HH or NN cannot form hydrogen bonds.</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;O&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+                <span class="p">]:</span>
+                    <span class="c1"># Assume that a C, N or O atom cannot form a hydrogen bond to another C, N or O atom</span>
+                    <span class="k">continue</span>
+                <span class="n">r2</span> <span class="o">=</span> <span class="n">at2</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_distance&quot;</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">atom2_bound_indices</span> <span class="o">=</span> <span class="n">at2</span><span class="o">.</span><span class="n">find_bound_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
+                    <span class="c1"># Use some boolean arithmetic to find the position of the O/C/N that the H is bonded to</span>
+                    <span class="n">bonded_atom_position</span> <span class="o">=</span> <span class="n">atoms</span><span class="p">[</span><span class="n">atom2_bound_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+
+                    <span class="c1"># Calculate intramolecular vector</span>
+                    <span class="n">intramol_vector</span> <span class="o">=</span> <span class="n">bonded_atom_position</span> <span class="o">-</span> <span class="n">r2</span>
+                <span class="k">elif</span> <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
+                    <span class="n">bonded_atom_position</span> <span class="o">=</span> <span class="n">atoms</span><span class="p">[</span><span class="n">atom1_bound_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+
+                    <span class="c1"># Calculate intramolecular vector</span>
+                    <span class="n">intramol_vector</span> <span class="o">=</span> <span class="n">bonded_atom_position</span> <span class="o">-</span> <span class="n">r1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">angle_between</span><span class="p">(</span><span class="n">intramol_vector</span><span class="p">,</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
+
+                <span class="c1"># create a hydrogen bond when the interatomic distance and O-H----O angle are less than the specified threshold value</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">180</span> <span class="o">-</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_angle&quot;</span><span class="p">]:</span>
+                    <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+                        <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                        <span class="n">angle</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+                        <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="p">)</span>
+
+                    <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">curve</span><span class="o">.</span><span class="n">primitive_nurbs_path_add</span><span class="p">(</span>
+                        <span class="n">enter_editmode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">align</span><span class="o">=</span><span class="s2">&quot;WORLD&quot;</span><span class="p">,</span>
+                        <span class="n">location</span><span class="o">=</span><span class="nb">tuple</span><span class="p">((</span><span class="n">r1</span> <span class="o">+</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.35</span><span class="p">),</span>
+                    <span class="p">)</span>
+
+                    <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">view_layer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">active</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_thickness&quot;</span><span class="p">],</span>
+                        <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_thickness&quot;</span><span class="p">],</span>
+                        <span class="n">dist</span> <span class="o">*</span> <span class="mf">2.2</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">rotation_mode</span> <span class="o">=</span> <span class="s2">&quot;AXIS_ANGLE&quot;</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+                    <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Hbond-</span><span class="si">%s</span><span class="s2">-</span><span class="si">%03i</span><span class="s2">-</span><span class="si">%s</span><span class="s2">-</span><span class="si">%03i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
+                        <span class="n">i</span><span class="p">,</span>
+                        <span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">(),</span>
+                        <span class="n">j</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">hbond_curves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">hbond_material</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;H-bond&quot;</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_color&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">hbond_curves</span><span class="p">:</span>
+            <span class="n">rot_axis</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">rotation_axis_angle</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">surface</span><span class="o">.</span><span class="n">primitive_nurbs_surface_cylinder_add</span><span class="p">(</span>
+                <span class="n">enter_editmode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">align</span><span class="o">=</span><span class="s2">&quot;WORLD&quot;</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">view_layer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">active</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Hbond_cyl&quot;</span>
+
+            <span class="n">obj</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_thickness&quot;</span><span class="p">],</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_thickness&quot;</span><span class="p">],</span> <span class="mf">0.1</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hbond_material</span><span class="p">)</span>
+
+            <span class="n">obj</span><span class="o">.</span><span class="n">rotation_mode</span> <span class="o">=</span> <span class="s2">&quot;AXIS_ANGLE&quot;</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="n">rot_axis</span>
+
+            <span class="n">_</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;ARRAY&quot;</span><span class="p">)</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">modifiers</span><span class="p">[</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fit_type</span> <span class="o">=</span> <span class="s2">&quot;FIT_CURVE&quot;</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">modifiers</span><span class="p">[</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">curve</span> <span class="o">=</span> <span class="n">o</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">modifiers</span><span class="p">[</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">relative_offset_displace</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">modifiers</span><span class="p">[</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">relative_offset_displace</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">modifiers</span><span class="p">[</span><span class="s2">&quot;FollowCurve&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">relative_offset_displace</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">1.3</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_atom_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">element_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">atom_colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">atom_colors</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="n">element_types</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="n">atom_colors</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;element_data.manifest[&#39;atom_colors&#39;] dictionary needs to contain all elements in Structure, but did not contain element </span><span class="si">{</span><span class="n">element_type</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Alternatively, pass a custom atom_colors dictionary that contains all the elements in the Structure.&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="n">element_types</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="n">atom_colors</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">element_type</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">]:</span>
+                    <span class="n">atom_colors</span><span class="p">[</span><span class="n">element_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">][</span><span class="n">element_type</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;atom_colors dictionary needs to contain all elements in Structure, but did not contain element </span><span class="si">{</span><span class="n">element_type</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;The element was also not found in element_data.manifest[&#39;atom_colors&#39;] dictionary, so could not fill it.&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">atom_colors</span>
+
+<div class="viewcode-block" id="Structure.create_bonds">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_bonds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_bonds</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">],</span>
+        <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the bonds in the Blender scene</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bonds (list[Bond]): list of bonds to be drawn</span>
+<span class="sd">            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them</span>
+<span class="sd">            resolution (str): render resolution. One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
+<span class="sd">                If None, use the ``element_data.manifest[&#39;atom_colors&#39;]``. Can also be partially filled,</span>
+<span class="sd">                e.g. only contain ``{&#39;H&#39;: &#39;FFFFFF&#39;}`` for H2O, and then the color of O atoms</span>
+<span class="sd">                will be filled by the values in ``element_data.manifest[&#39;atom_colors&#39;]``.</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atom_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_atom_colors</span><span class="p">(</span><span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">)</span>
+
+        <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+            <span class="n">axis_angle_with_z</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_axis_angle_with_z</span><span class="p">()</span>
+            <span class="n">bond_length</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_length</span><span class="p">()</span>
+            <span class="n">bond_midpoint</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_midpoint</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">split_bond_to_atom_materials</span><span class="p">:</span>
+                <span class="c1"># We will move the two cylinders according to their vdw radii, such that each atom</span>
+                <span class="c1"># has about the same of its material shown in the bond. This means that for, e.g.</span>
+                <span class="c1"># an O-H bond, the cylinder closer to O will move less than the cylinder closer to H</span>
+                <span class="n">atom1_index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom1_index</span><span class="p">()</span>
+                <span class="n">atom1_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">atom1_index</span><span class="p">]</span>
+
+                <span class="n">atom2_index</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom2_index</span><span class="p">()</span>
+                <span class="n">atom2_element</span> <span class="o">=</span> <span class="n">all_elements</span><span class="p">[</span><span class="n">atom2_index</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">atom1_element</span> <span class="o">==</span> <span class="n">atom2_element</span><span class="p">:</span>
+                    <span class="n">mat1</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+                        <span class="n">atom1_element</span><span class="p">,</span>
+                        <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom1_element</span><span class="p">],</span>
+                        <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
+                        <span class="n">bond_midpoint</span><span class="p">,</span>
+                        <span class="n">axis_angle_with_z</span><span class="p">,</span>
+                        <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
+                        <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
+                        <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat1</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">vdw_weighted_midpoints</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_vdw_weighted_cylinder_midpoints</span><span class="p">(</span>
+                    <span class="n">atom1_element</span><span class="p">,</span> <span class="n">atom2_element</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Because of how we calculate the bonds, the first cylinder (where we subtract the direction</span>
+                <span class="c1"># from the midpoint) will be the one closest to the atom with the higher index.</span>
+                <span class="c1"># So, we take the element and material from that one, and assign it to the first cylinder.</span>
+                <span class="n">mat2</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="n">atom2_element</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom2_element</span><span class="p">])</span>
+
+                <span class="c1"># First cylinder</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
+                    <span class="n">vdw_weighted_midpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">axis_angle_with_z</span><span class="p">,</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat2</span><span class="p">)</span>
+
+                <span class="n">mat1</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span>
+                    <span class="n">atom1_element</span><span class="p">,</span>
+                    <span class="n">atom_colors</span><span class="p">[</span><span class="n">atom1_element</span><span class="p">],</span>
+                    <span class="n">force</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># First cylinder</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
+                    <span class="n">vdw_weighted_midpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">axis_angle_with_z</span><span class="p">,</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">create_cylinder</span><span class="p">(</span>
+                    <span class="n">bond_midpoint</span><span class="p">,</span>
+                    <span class="n">axis_angle_with_z</span><span class="p">,</span>
+                    <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;bond_thickness&quot;</span><span class="p">],</span>
+                    <span class="n">bond_length</span> <span class="o">*</span> <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bond-</span><span class="si">{</span><span class="n">atom1_index</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">atom2_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="n">deselect_all_selected</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Structure.create_structure">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_structure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_structure</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">create_mesh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms and bond in the scene</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resolution (str): resolution of created spheres.</span>
+<span class="sd">                One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
+<span class="sd">            create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
+<span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
+<span class="sd">                If None, use the ``element_data.manifest[&#39;atom_colors&#39;]``. Can also be partially filled,</span>
+<span class="sd">                e.g. only contain ``{&#39;H&#39;: &#39;FFFFFF&#39;}`` for H2O, and then the color of O atoms</span>
+<span class="sd">                will be filled by the values in ``element_data.manifest[&#39;atom_colors&#39;]``.</span>
+<span class="sd">            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them</span>
+<span class="sd">            force_material_creation (bool): force creation of new materials with element names,</span>
+<span class="sd">                even though materials with that name already exist. This is useful for if you want to</span>
+<span class="sd">                change the atom colors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_atoms</span><span class="p">(</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> 
+            <span class="n">create_mesh</span><span class="o">=</span><span class="n">create_mesh</span><span class="p">,</span> 
+            <span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">,</span>
+            <span class="n">force_material_creation</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">bonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_bonds_from_distances</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_bonds</span><span class="p">(</span>
+            <span class="n">bonds</span><span class="p">,</span> 
+            <span class="n">split_bond_to_atom_materials</span><span class="o">=</span><span class="n">split_bond_to_atom_materials</span><span class="p">,</span> 
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> 
+            <span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">,</span> 
+            <span class="n">force_material_creation</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.join_bonds">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.join_bonds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">join_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Join bonds. DOES NOT WORK YET&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">atom_index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">):</span>
+            <span class="n">bonds_to_join</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">bond</span><span class="o">.</span><span class="n">get_atom1_index</span><span class="p">()</span> <span class="o">==</span> <span class="n">atom_index</span>
+                    <span class="ow">or</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_atom2_index</span><span class="p">()</span> <span class="o">==</span> <span class="n">atom_index</span>
+                <span class="p">):</span>
+                    <span class="n">bonds_to_join</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_object_by_name</span><span class="p">(</span><span class="n">bond</span><span class="o">.</span><span class="n">getName</span><span class="p">()))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">bonds_to_join</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds_to_join</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># This also needs to extend the cylinder somehow to the atom position</span>
+                <span class="c1"># Maybe by creating a second, very narrow cylinder at the atom position,</span>
+                <span class="c1"># joining that with the original cylinder and then putting the cap on that?</span>
+                <span class="n">put_cap_on_cylinder</span><span class="p">(</span><span class="n">bonds_to_join</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">join_cylinders</span><span class="p">(</span>
+                    <span class="n">bonds_to_join</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">(),</span> <span class="n">atom</span><span class="o">.</span><span class="n">get_vdw_radius</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="Structure.displace_atoms">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.displace_atoms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">displace_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displacements</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Displace all atoms along different displacement vectors</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            displacements (ndarray): matrix of shape natoms * 3, vectors to displace atoms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">displacements</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">):</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span> <span class="o">+</span> <span class="n">displacements</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span></div>
+
+
+<div class="viewcode-block" id="Structure.from_xyz">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xyz">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Structure from an XYZ file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): XYZ file to read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">_natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_natoms</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_natoms</span><span class="p">):</span>
+            <span class="n">_atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="mi">2</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_atoms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.from_sdf">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_sdf">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an SDF file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): SDF file to read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">_natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_natoms</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_natoms</span><span class="p">):</span>
+            <span class="n">_atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">from_sdf_string</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># SDF already contains connectivity, so maybe we can somehow read them and create the Bond instances?</span>
+        <span class="n">_bonds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_atoms</span><span class="p">,</span> <span class="n">_bonds</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Structure.from_xsf">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xsf">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xsf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an XSF file. To be tested</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath(str): XSF file to read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># http://www.xcrysden.org/doc/XSF.html#__toc__2</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">joined_lines</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_lines</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;CRYSTAL&quot;</span> <span class="ow">in</span> <span class="n">joined_lines</span><span class="p">:</span>
+            <span class="n">is_periodic</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="s2">&quot;ANIMSTEPS&quot;</span> <span class="ow">in</span> <span class="n">joined_lines</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Structure class cannot read changing structures. Use Trajectory for that&quot;</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_periodic</span><span class="p">:</span>
+            <span class="c1"># Does not use that it is periodic, but just reads differently</span>
+            <span class="c1"># (at least for now)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="s2">&quot;PRIMVEC&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">primvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;CONVVEC&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">convvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;PRIMCOORD&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">_natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_natoms</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_natoms</span><span class="p">):</span>
+                        <span class="n">_atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">j</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="s2">&quot;ATOMS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">while</span> <span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="c1"># If we&#39;re still able to convert the first column to an integer,</span>
+                            <span class="c1"># there&#39;s still a new atom. If not, the atom list is done</span>
+                            <span class="c1"># and we need to stop the reading.</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="n">_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atom</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">j</span><span class="p">]))</span>
+                        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_atoms</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Structure with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span><span class="si">}</span><span class="s2"> atoms&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="CUBEfile">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CUBEfile</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">natoms</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">natoms</span> <span class="o">=</span> <span class="o">-</span><span class="n">natoms</span>
+
+        <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="n">atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">from_cube_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">6</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">position_bohr_to_angstrom</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CUBEfile.read_volumetric_data">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.read_volumetric_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_volumetric_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the volumetric data in the CUBE file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_origin_vector</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]])</span> <span class="o">*</span> <span class="n">BOHR_TO_ANGSTROM</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="n">BOHR_TO_ANGSTROM</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span><span class="p">))</span>
+            <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span>
+        <span class="p">):</span>
+            <span class="n">warning</span> <span class="o">=</span> <span class="s2">&quot;WARNING: Volumetric data axis vectors are not diagonal. Not sure if this works&quot;</span>
+            <span class="n">warning</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot; Volumetric data axis vectors:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="p">:]</span>
+                    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                <span class="n">count</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="mi">7</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="p">:]</span>
+                    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                <span class="n">count</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span><span class="p">))</span></div>
+
+
+        <span class="c1"># Old, much slower way to read the data.</span>
+        <span class="c1"># volumetricLines = &quot; &quot;.join(</span>
+        <span class="c1">#     line.strip() for line in self._lines[6 + self._natoms :]</span>
+        <span class="c1"># ).split()</span>
+
+        <span class="c1"># self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))</span>
+        <span class="c1"># for ix in range(self._NX):</span>
+        <span class="c1">#     for iy in range(self._NY):</span>
+        <span class="c1">#         for iz in range(self._NZ):</span>
+        <span class="c1">#             dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz</span>
+        <span class="c1">#             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])</span>
+
+<div class="viewcode-block" id="CUBEfile.get_volumetric_origin_vector">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.get_volumetric_origin_vector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumetric_origin_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the origin vector of the volumetric data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: np.ndarray of length 3 corresponding to x, y and z coordinates of volumetric origin</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_origin_vector</span></div>
+
+
+<div class="viewcode-block" id="CUBEfile.get_volumetric_axis_vectors">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.get_volumetric_axis_vectors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumetric_axis_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the axis vectors of the volumetric data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: np.ndarray of length 3 corresponding to i, j and k axis vectors of volumetric data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span></div>
+
+
+<div class="viewcode-block" id="CUBEfile.get_volumetric_data">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.get_volumetric_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumetric_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the volumetric data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: matrix of shape NX*NY*NZ containing volumetric data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span></div>
+
+
+<div class="viewcode-block" id="CUBEfile.write_ply">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.write_ply">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_ply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the volumetric data to a filepath</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str):</span>
+<span class="sd">            isovalue (float):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pytessel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyTessel</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_isovalue</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
+
+        <span class="n">pytessel</span> <span class="o">=</span> <span class="n">PyTessel</span><span class="p">()</span>
+
+        <span class="n">unit_cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="c1"># Flatten the volumetric data such that X is the fastest moving index, according to the PyTessel documentation.</span>
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">pytessel</span><span class="o">.</span><span class="n">marching_cubes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">),</span>
+            <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+            <span class="n">unit_cell</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+            <span class="n">isovalue</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">vertices</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">unit_cell</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_origin_vector</span>
+
+        <span class="n">nvertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">vertices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vertices_4d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">vertices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nvertices</span><span class="p">,</span> <span class="mi">1</span><span class="p">))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_affine_matrix</span> <span class="o">@</span> <span class="n">vertices_4d</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">pytessel</span><span class="o">.</span><span class="n">write_ply</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CUBEfile.calculate_isosurface">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.calculate_isosurface">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_isosurface</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the isosurface from the volumetric data and an isovalue</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isovalue (float): value where to calculate the isosurface</span>
+<span class="sd">            step_size (int): step size in the grid. Larger values result in coarser, but quicker, results. Default = 1</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            vertices (ndarray): Vx3 array of floats corresponding to vertex positions</span>
+<span class="sd">            faces (ndarray): Fx3 array of integers corresponding to vertex indices</span>
+<span class="sd">            normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex</span>
+<span class="sd">            values (ndarray): Vx1 array of maximum value in data close to each vertex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">skimage.measure</span><span class="w"> </span><span class="kn">import</span> <span class="n">marching_cubes</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_isovalue</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
+
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">marching_cubes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="n">isovalue</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span><span class="p">),</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">vertices</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_origin_vector</span>
+
+        <span class="n">nvertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">vertices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vertices_4d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">vertices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nvertices</span><span class="p">,</span> <span class="mi">1</span><span class="p">))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_affine_matrix</span> <span class="o">@</span> <span class="n">vertices_4d</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># Blender has opposite clockwise-ness (handedness) that skimage has, so backface culling is incorrect</span>
+        <span class="c1"># Flip order of faces, e.g. [0 1 2] -&gt; [0 1 2]</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">values</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_isovalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the supplied isovalue is valid</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isovalue (float): value where to draw the isosurface</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if the supplied isovalue is below the minimum value in the volumetric data, or above the maximum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">isovalue</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Set isovalue (</span><span class="si">{</span><span class="n">isovalue</span><span class="si">}</span><span class="s2">) was less than or equal to the minimum value in the volumetric data (</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">)</span><span class="si">}</span><span class="s2">). This will result in an empty isosurface. Set a larger isovalue.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isovalue</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Set isovalue (</span><span class="si">{</span><span class="n">isovalue</span><span class="si">}</span><span class="s2">) was more than or equal to the maximum value in the volumetric data (</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_data</span><span class="p">)</span><span class="si">}</span><span class="s2">). This will result in an empty isosurface. Set a smaller isovalue.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="JSONfile">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.JSONfile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JSONfile</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;WORK IN PROGRESS&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tobias Dijkhuis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
