@@ -462,11 +462,11 @@
 
         <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">base_structure</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_frames_per_oscillation</span><span class="p">)]</span>
         <span class="c1"># Displace atoms in structure according to phase.</span>
-        <span class="c1"># We do not need to loop over the first and last frame (i.e. phase = 0 and 2*pi),</span>
-        <span class="c1"># since the displacement will be np.sin(0)=np.sin(2pi)=0,</span>
+        <span class="c1"># We do not need to loop over the first (i.e. phase = 0),</span>
+        <span class="c1"># since the displacement will be np.sin(0)=0,</span>
         <span class="c1"># so the baseStructure is unaltered.</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames_per_oscillation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">phase</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_frames_per_oscillation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_frames_per_oscillation</span><span class="p">):</span>
+            <span class="n">phase</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_frames_per_oscillation</span><span class="p">)</span>
             <span class="n">frames</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">displace_atoms</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span> <span class="o">*</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">mass_weighed_displacements</span>
             <span class="p">)</span>
