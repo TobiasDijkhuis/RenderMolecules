@@ -649,7 +649,7 @@ class Structure(Geometry):
         self.create_atoms(
             resolution=resolution, 
             create_mesh=create_mesh, 
-            atom_colors=atom_colors
+            atom_colors=atom_colors,
             force_material_creation=force_material_creation,
         )
 
