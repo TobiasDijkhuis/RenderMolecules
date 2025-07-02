@@ -216,3 +216,7 @@ __marimo__/
 
 # Ignore pngs that have a white background. Those have been created purely for visuals.
 **/*_white.png
+
+# Ignore pngs created for animations
+examples/vibrations/*.png
+examples/animation/*.png

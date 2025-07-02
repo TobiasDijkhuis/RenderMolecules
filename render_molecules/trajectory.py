@@ -362,11 +362,11 @@ class Trajectory(Geometry):
 
         frames = [deepcopy(base_structure) for i in range(n_frames_per_oscillation)]
         # Displace atoms in structure according to phase.
-        # We do not need to loop over the first and last frame (i.e. phase = 0 and 2*pi),
-        # since the displacement will be np.sin(0)=np.sin(2pi)=0,
+        # We do not need to loop over the first (i.e. phase = 0),
+        # since the displacement will be np.sin(0)=0,
         # so the baseStructure is unaltered.
-        for i in range(1, n_frames_per_oscillation - 1):
-            phase = i * 2.0 * np.pi / (n_frames_per_oscillation - 1)
+        for i in range(1, n_frames_per_oscillation):
+            phase = i * 2.0 * np.pi / (n_frames_per_oscillation)
             frames[i].displace_atoms(
                 np.sin(phase) * amplitude * mass_weighed_displacements
             )
