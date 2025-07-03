@@ -123,36 +123,30 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-   <span class="n">delete_all_objects</span><span class="p">()</span>
-
-   <span class="c1"># Read the CUBE file</span>
-   <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
-   <span class="n">CUBEpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/isosurface/CH3OH_OPT.eldens.cube&quot;</span><span class="p">)</span>
-   <span class="n">CUBE</span> <span class="o">=</span> <span class="n">CUBEfile</span><span class="p">(</span><span class="n">CUBEpath</span><span class="p">)</span>
-
-   <span class="c1"># Read the electron density in the CUBE file</span>
-   <span class="n">CUBE</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
-
-   <span class="c1"># Set center of mass to origin</span>
-   <span class="n">CUBE</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-
-   <span class="c1"># Create the atoms</span>
-   <span class="n">CUBE</span><span class="o">.</span><span class="n">create_atoms</span><span class="p">()</span>
-
-   <span class="c1"># Find bonds based on distances between atoms</span>
-   <span class="n">bonds</span> <span class="o">=</span> <span class="n">CUBE</span><span class="o">.</span><span class="n">find_bonds_from_distances</span><span class="p">()</span>
-
-   <span class="c1"># Create the bonds</span>
-   <span class="n">CUBE</span><span class="o">.</span><span class="n">create_bonds</span><span class="p">(</span><span class="n">bonds</span><span class="p">)</span>
-
-   <span class="c1"># Calculate and render the isosurface</span>
-   <span class="n">isovalue</span> <span class="o">=</span> <span class="mf">0.025</span>
-   <span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">CUBE</span><span class="o">.</span><span class="n">calculate_isosurface</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
-   <span class="n">create_isosurface</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="s2">&quot;CH3OH&quot;</span><span class="p">)</span>
-   <span class="k">return</span>
+    <span class="n">delete_all_objects</span><span class="p">()</span>
+    
+    <span class="c1"># Read the CUBE file</span>
+    <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
+    <span class="n">CUBEpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/isosurface/CH3OH_OPT.eldens.cube&quot;</span><span class="p">)</span>
+    <span class="n">CUBE</span> <span class="o">=</span> <span class="n">CUBEfile</span><span class="p">(</span><span class="n">CUBEpath</span><span class="p">)</span>
+    
+    <span class="c1"># Read the electron density in the CUBE file</span>
+    <span class="n">CUBE</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
+    
+    <span class="c1"># Set center of mass to origin</span>
+    <span class="n">CUBE</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># Create the atoms and bonds</span>
+    <span class="n">CUBE</span><span class="o">.</span><span class="n">create_structure</span><span class="p">()</span>
+    
+    <span class="c1"># Calculate and render the isosurface</span>
+    <span class="n">isovalue</span> <span class="o">=</span> <span class="mf">0.025</span>
+    <span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">CUBE</span><span class="o">.</span><span class="n">calculate_isosurface</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
+    <span class="n">create_isosurface</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="s2">&quot;CH3OH&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-   <span class="n">main</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
@@ -164,25 +158,25 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-   <span class="n">delete_all_objects</span><span class="p">()</span>
-
-   <span class="c1"># Read the xyz file</span>
-   <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
-   <span class="n">xyz_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/animation/CH3OH_OPT_trj.xyz&quot;</span><span class="p">)</span>
-   <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_xyz</span><span class="p">(</span><span class="n">xyz_path</span><span class="p">)</span>
-
-   <span class="c1"># Set center of mass to origin</span>
-   <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-
-   <span class="c1"># Create the atoms</span>
-   <span class="n">trajectory</span><span class="o">.</span><span class="n">create_animation</span><span class="p">()</span>
-   <span class="k">return</span>
+    <span class="n">delete_all_objects</span><span class="p">()</span>
+    
+    <span class="c1"># Read the xyz file</span>
+    <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
+    <span class="n">xyzPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/animation/CH3OH_OPT_trj.xyz&quot;</span><span class="p">)</span>
+    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_xyz</span><span class="p">(</span><span class="n">xyzPath</span><span class="p">)</span>
+    
+    <span class="c1"># Set center of mass to origin</span>
+    <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># Create the animation</span>
+    <span class="n">trajectory</span><span class="o">.</span><span class="n">create_animation</span><span class="p">()</span>
+    <span class="k">return</span> 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-   <span class="n">main</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <figure  class="sphinx-contrib-video-container align-left"><video autoplay="True" loop="True" muted="True" preload="auto" width="100%" playsinline="True"><source src="_images/CH3OH_optimization.mp4" type="video/mp4"></video><figcaption class="align-center"><p style="text-align: left; display:inline-block"><span class="caption-text">GIF of geometry optimization of methanol</span></p></figcaption></figure></section>
@@ -195,22 +189,29 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-   <span class="n">delete_all_objects</span><span class="p">()</span>
-
-   <span class="c1"># ORCA output file</span>
-   <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
-   <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/vibrations/CH3OH.out&quot;</span><span class="p">)</span>
-
-   <span class="c1"># Use vibrations (and not geometry optimization), index (starting from 0) of vibrational mode.</span>
-   <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_orca</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">use_vibrations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vibration_nr</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">n_frames_per_oscillation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-   <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-
-   <span class="c1"># Create the animation</span>
-   <span class="n">trajectory</span><span class="o">.</span><span class="n">create_animation</span><span class="p">()</span>
-   <span class="k">return</span>
+    <span class="n">delete_all_objects</span><span class="p">()</span>
+    
+    <span class="c1"># ORCA output file</span>
+    <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/vibrations/CH3OH.out&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Use vibrations (and not geometry optimization), index (starting from 0) of vibrational mode.</span>
+    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_orca</span><span class="p">(</span>
+        <span class="n">out_path</span><span class="p">,</span> 
+        <span class="n">use_vibrations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">vibration_nr</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+        <span class="n">n_frames_per_oscillation</span><span class="o">=</span><span class="mi">100</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Set center of mass to origin</span>
+    <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># Create the animation</span>
+    <span class="n">trajectory</span><span class="o">.</span><span class="n">create_animation</span><span class="p">()</span>
+    <span class="k">return</span>  
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-   <span class="n">main</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <figure  class="sphinx-contrib-video-container align-left"><video autoplay="True" loop="True" muted="True" preload="auto" width="100%" playsinline="True"><source src="_images/CH3OH_vibration.mp4" type="video/mp4"></video><figcaption class="align-center"><p style="text-align: left; display:inline-block"><span class="caption-text">GIF of geometry optimization of methanol</span></p></figcaption></figure></section>
