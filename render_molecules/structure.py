@@ -620,6 +620,49 @@ class Structure(Geometry):
                 )
         deselect_all_selected()
 
+    def create_structure(
+        self, 
+        resolution: str = "medium",
+        create_mesh: bool = True,
+        atom_colors: dict | None = None,
+        split_bond_to_atom_materials: bool = True,
+        force_material_creation: bool = False
+    ) -> None:
+        """Create the atoms and bond in the scene
+
+        Args:
+            resolution (str): resolution of created spheres.
+                One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated
+            force_material_creation (bool): force creation of new materials with element names,
+                even though materials with that name already exist. This is useful for if you want to
+                change the atom colors
+            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
+                If None, use the ``element_data.manifest['atom_colors']``. Can also be partially filled,
+                e.g. only contain ``{'H': 'FFFFFF'}`` for H2O, and then the color of O atoms
+                will be filled by the values in ``element_data.manifest['atom_colors']``.
+            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
+            force_material_creation (bool): force creation of new materials with element names,
+                even though materials with that name already exist. This is useful for if you want to
+                change the atom colors
+        """
+        self.create_atoms(
+            resolution=resolution, 
+            create_mesh=create_mesh, 
+            atom_colors=atom_colors,
+            force_material_creation=force_material_creation,
+        )
+
+        bonds = self.find_bonds_from_distances()
+
+        self.create_bonds(
+            bonds, 
+            split_bond_to_atom_materials=split_bond_to_atom_materials, 
+            resolution=resolution, 
+            atom_colors=atom_colors, 
+            force_material_creation=force_material_creation,
+        )
+
     def join_bonds(self):
         """Join bonds. DOES NOT WORK YET"""
         for atom_index, atom in enumerate(self._atoms):
@@ -915,6 +958,10 @@ class CUBEfile(Structure):
         nvertices = np.shape(vertices)[0]
         vertices_4d = np.concatenate([vertices, np.ones((nvertices, 1))], axis=1)
         vertices = (self._affine_matrix @ vertices_4d.T).T[:, :3]
+
+        # Blender has opposite clockwise-ness (handedness) that skimage has, so backface culling is incorrect
+        # Flip order of faces, e.g. [0 1 2] -> [0 1 2]
+        faces = np.flip(faces, axis=1)
 
         return vertices, faces, normals, values
 
