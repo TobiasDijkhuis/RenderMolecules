@@ -78,7 +78,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_by_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_by_name</span><span class="p">,</span> <span class="n">set_frame_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAME_STEP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">find_all_string_in_list_of_strings</span><span class="p">,</span>
                           <span class="n">find_first_string_in_list_of_strings</span><span class="p">)</span>
@@ -133,9 +134,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the animation of the trajectory in the Blender scene&quot;&quot;&quot;</span>
         <span class="c1"># At the moment, this looks a bit weird if bond lengths change a lot.</span>
         <span class="c1"># Also, does not support bond creation/destruction.</span>
-        <span class="n">frame_step</span> <span class="o">=</span> <span class="mi">10</span>
-        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_step</span> <span class="o">=</span> <span class="n">frame_step</span>
-        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_end</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">frame_step</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">set_frame_step</span><span class="p">(</span><span class="n">FRAME_STEP</span><span class="p">)</span>
+        <span class="n">set_frame_end</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">FRAME_STEP</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="n">initial_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -156,7 +156,7 @@
         <span class="n">starting_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">bond</span><span class="o">.</span><span class="n">get_length</span><span class="p">()</span> <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">initial_bonds</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frames</span><span class="p">):</span>
-            <span class="n">current_frame_nr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">frame_step</span>
+            <span class="n">current_frame_nr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">FRAME_STEP</span>
             <span class="n">current_positions</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_elements</span><span class="p">)):</span>
                 <span class="n">object_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;atom-</span><span class="si">{</span><span class="n">all_elements</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -334,19 +334,19 @@
 <span class="sd">            filepath (str): filepath of ORCA output file</span>
 <span class="sd">            use_vibrations (bool): whether to use the vibrations</span>
 <span class="sd">            use_geometry_optimization (bool):</span>
-<span class="sd">            vibration_nr (str | int): vibration number index, or string </span>
+<span class="sd">            vibration_nr (str | int): vibration number index, or string</span>
 <span class="sd">                (then has to be one of ``[&#39;i&#39;, &#39;im&#39;, &#39;imag&#39;, &#39;imaginary&#39;]``). Vibration number index</span>
 <span class="sd">                is 0-indexed (i.e. 0 is the first vibrational mode, 1 is the second, etc.)</span>
 <span class="sd">            n_frames_per_oscillation (int): number of keyframes per full vibrational oscillation (phase= :math:`2\\pi`)</span>
 <span class="sd">            amplitude (float): amplitude of vibrations. 0.5 seems to be a good default value.</span>
 
 <span class="sd">        Notes:</span>
-<span class="sd">            * Tries to find imaginary mode from the output. If multiple imaginary modes are found, </span>
+<span class="sd">            * Tries to find imaginary mode from the output. If multiple imaginary modes are found,</span>
 <span class="sd">              will raise an error. Please investigate the output file manually to see which one</span>
 <span class="sd">              you want to visualize, and give the integer index to this function instead.</span>
 <span class="sd">            * Calculates the vibrational trajectory from the normal modes. ORCA outputs the translational</span>
 <span class="sd">              and rotational modes as vibrations too, meaning that often the first 6 vibrations</span>
-<span class="sd">              (so up to and including ``vibration_nr=5``) have no displacements, </span>
+<span class="sd">              (so up to and including ``vibration_nr=5``) have no displacements,</span>
 <span class="sd">              and the resulting Trajectory will show no movement.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get trajectory corresponding to either vibrations of the normal modes or the geometry optimization</span>

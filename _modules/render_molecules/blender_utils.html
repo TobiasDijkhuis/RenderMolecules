@@ -70,15 +70,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for render_molecules.blender_utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">bmesh</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">bpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPHERE_SCALE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAME_STEP</span><span class="p">,</span> <span class="n">SPHERE_SCALE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">element_list</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">vdw_radii</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">color_srgb_to_scene_linear</span><span class="p">,</span> <span class="n">hex2rgbtuple</span>
 
@@ -105,10 +103,12 @@
     <span class="k">return</span> <span class="n">obj</span></div>
 
 
+
 <div class="viewcode-block" id="get_all_materials">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.get_all_materials">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_all_materials</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span></div>
+
 
 
 <div class="viewcode-block" id="delete_all_materials">
@@ -121,7 +121,6 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">object</span><span class="o">.</span><span class="n">material_slots</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
-
 
 
 
@@ -163,7 +162,7 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.create_material">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_material</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">obj</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a new material</span>
 
@@ -613,6 +612,90 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deselect all selected objects&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">selected_objects</span><span class="p">:</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">select_set</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="orbit_camera">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.orbit_camera">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">orbit_camera</span><span class="p">(</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">set_active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">nframes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span>
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">scene</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">camera</span>
+
+    <span class="n">set_frame_step</span><span class="p">(</span><span class="n">FRAME_STEP</span><span class="p">)</span>
+    <span class="n">end_frame</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">FRAME_STEP</span> <span class="o">*</span> <span class="p">(</span><span class="n">nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">set_frame_end</span><span class="p">(</span><span class="n">end_frame</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cam</span><span class="p">:</span>
+        <span class="n">cam_data</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cameras</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Camera&quot;</span><span class="p">)</span>
+        <span class="n">cam</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Camera&quot;</span><span class="p">,</span> <span class="n">cam_data</span><span class="p">)</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
+
+        <span class="c1"># Set position of camera to be at a certain radius away from origin and height</span>
+        <span class="n">cam</span><span class="o">.</span><span class="n">delta_location</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+
+        <span class="c1"># But still make it point at origin</span>
+        <span class="n">cam</span><span class="o">.</span><span class="n">delta_rotation_euler</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">radius</span> <span class="o">/</span> <span class="n">height</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;EMPTY FOR CAMERA ORBIT&quot;</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="s2">&quot;EMPTY FOR CAMERA ORBIT&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">empty_add</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">object</span>
+        <span class="n">mt</span><span class="o">.</span><span class="n">empty_display_type</span> <span class="o">=</span> <span class="s2">&quot;SPHERE&quot;</span>
+        <span class="n">mt</span><span class="o">.</span><span class="n">empty_display_size</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="c1"># Give it a distinctive name so that it can be found later</span>
+        <span class="n">mt</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;EMPTY FOR CAMERA ORBIT&quot;</span>
+
+        <span class="c1"># Hide the orbit in the viewport</span>
+        <span class="n">mt</span><span class="o">.</span><span class="n">hide_set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;ORBITING CAMERA&quot;</span> <span class="ow">in</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">cam2</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="s2">&quot;ORBITING CAMERA&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Copy other camera</span>
+        <span class="n">cam2</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">cam2</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORBITING CAMERA&quot;</span>
+
+        <span class="c1"># Set parent of cam2 to the created empty, so that if the empty rotates,</span>
+        <span class="c1"># the camera does as well</span>
+        <span class="n">cam2</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">mt</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">cam2</span><span class="p">)</span>
+
+    <span class="c1"># Set active scene to camera2</span>
+    <span class="k">if</span> <span class="n">set_active</span><span class="p">:</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">cam2</span>
+
+    <span class="c1"># Add keyframes for animation and rotation</span>
+    <span class="c1"># end_frame + 1 so that the final keyframe is also created</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">end_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">FRAME_STEP</span><span class="p">)</span>
+
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">driver_add</span><span class="p">(</span><span class="s2">&quot;rotation_euler&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">driver</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;2 * pi * (frame - 1) / </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+        <span class="n">mt</span><span class="o">.</span><span class="n">keyframe_insert</span><span class="p">(</span><span class="s2">&quot;rotation_euler&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_frame_step">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.set_frame_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_frame_step</span><span class="p">(</span><span class="n">frame_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_step</span> <span class="o">=</span> <span class="n">frame_step</span></div>
+
+
+
+<div class="viewcode-block" id="set_frame_end">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.blender_utils.set_frame_end">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_frame_end</span><span class="p">(</span><span class="n">frame_end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">frame_end</span> <span class="o">=</span> <span class="n">frame_end</span></div>
 
 </pre></div>
 
