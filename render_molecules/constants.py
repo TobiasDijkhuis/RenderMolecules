@@ -40,3 +40,5 @@ CYLINDER_LENGTH_FRACTION_SPLIT = 1.0 / 4.0
 
 CYLINDER_LENGTH_FRACTION = 1.0 / 2.0
 """Cylinder length fraction for a bond"""
+
+FRAME_STEP = 10

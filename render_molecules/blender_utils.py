@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 import os
 
 import bmesh
 import bpy
 import numpy as np
 
-from .constants import SPHERE_SCALE
+from .constants import FRAME_STEP, SPHERE_SCALE
 from .element_data import element_list, manifest, vdw_radii
 from .other_utils import color_srgb_to_scene_linear, hex2rgbtuple
 
@@ -30,8 +28,10 @@ def create_uv_sphere(
     try_autosmooth()
     return obj
 
+
 def get_all_materials() -> object:
     return bpy.data.materials
+
 
 def delete_all_materials() -> None:
     materials = get_all_materials()
@@ -41,7 +41,6 @@ def delete_all_materials() -> None:
         if not object.material_slots:
             continue
         object.data.materials.clear()
-
 
 
 def create_mesh_of_atoms(
@@ -74,7 +73,7 @@ def material_exists(mat):
 
 def create_material(
     name: str, color: str, alpha: float = 1.0, force: bool = False
-) -> obj:
+) -> object:
     """
     Build a new material
 
@@ -473,3 +472,78 @@ def deselect_all_selected() -> None:
     """Deselect all selected objects"""
     for obj in bpy.context.selected_objects:
         obj.select_set(False)
+
+
+def orbit_camera(
+    radius: int | None = None,
+    height: int | None = None,
+    set_active: bool = True,
+    nframes: int = 20,
+):
+    context = bpy.context
+    scene = context.scene
+    cam = scene.camera
+
+    set_frame_step(FRAME_STEP)
+    end_frame = 1 + FRAME_STEP * (nframes - 1)
+    set_frame_end(end_frame)
+
+    if not cam:
+        cam_data = bpy.data.cameras.new("Camera")
+        cam = bpy.data.objects.new("Camera", cam_data)
+        bpy.context.collection.objects.link(cam)
+
+        # Set position of camera to be at a certain radius away from origin and height
+        cam.delta_location = (0, radius, height)
+
+        # But still make it point at origin
+        cam.delta_rotation_euler = (np.pi + np.arctan(radius / height), np.pi, 0)
+
+    if "EMPTY FOR CAMERA ORBIT" in bpy.data.objects.keys():
+        mt = bpy.data.objects["EMPTY FOR CAMERA ORBIT"]
+    else:
+        bpy.ops.object.empty_add(location=(0, 0, 0))
+        mt = context.object
+        mt.empty_display_type = "SPHERE"
+        mt.empty_display_size = 4
+
+        # Give it a distinctive name so that it can be found later
+        mt.name = "EMPTY FOR CAMERA ORBIT"
+
+        # Hide the orbit in the viewport
+        mt.hide_set(True)
+
+    if "ORBITING CAMERA" in bpy.data.objects.keys():
+        cam2 = bpy.data.objects["ORBITING CAMERA"]
+    else:
+        # Copy other camera
+        cam2 = cam.copy()
+        cam2.name = "ORBITING CAMERA"
+
+        # Set parent of cam2 to the created empty, so that if the empty rotates,
+        # the camera does as well
+        cam2.parent = mt
+
+        context.collection.objects.link(cam2)
+
+    # Set active scene to camera2
+    if set_active:
+        scene.camera = cam2
+
+    # Add keyframes for animation and rotation
+    # end_frame + 1 so that the final keyframe is also created
+    frames = np.arange(1, end_frame + 1, step=FRAME_STEP)
+
+    driver = mt.driver_add("rotation_euler", 2).driver
+    driver.expression = f"2 * pi * (frame - 1) / {max(frames)}"
+
+    for f in frames:
+        mt.keyframe_insert("rotation_euler", index=2, frame=f)
+
+
+def set_frame_step(frame_step: int) -> None:
+    bpy.context.scene.frame_step = frame_step
+
+
+def set_frame_end(frame_end: int) -> None:
+    bpy.context.scene.frame_end = frame_end

@@ -6,7 +6,8 @@ import bpy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import get_object_by_name
+from .blender_utils import get_object_by_name, set_frame_step
+from .constants import FRAME_STEP
 from .geometry import Geometry
 from .other_utils import (find_all_string_in_list_of_strings,
                           find_first_string_in_list_of_strings)
@@ -48,9 +49,8 @@ class Trajectory(Geometry):
         """Create the animation of the trajectory in the Blender scene"""
         # At the moment, this looks a bit weird if bond lengths change a lot.
         # Also, does not support bond creation/destruction.
-        frame_step = 10
-        bpy.context.scene.frame_step = frame_step
-        bpy.context.scene.frame_end = 1 + frame_step * (self._nframes - 1)
+        set_frame_step(FRAME_STEP)
+        set_frame_end(1 + FRAME_STEP * (self._nframes - 1))
 
         initial_frame = self._frames[0]
 
@@ -71,7 +71,7 @@ class Trajectory(Geometry):
         starting_bond_lengths = [bond.get_length() for bond in initial_bonds]
 
         for i, frame in enumerate(self._frames):
-            current_frame_nr = 1 + i * frame_step
+            current_frame_nr = 1 + i * FRAME_STEP
             current_positions = frame.get_atom_positions()
             for j in range(len(all_elements)):
                 object_name = f"atom-{all_elements[j]}"
@@ -234,19 +234,19 @@ class Trajectory(Geometry):
             filepath (str): filepath of ORCA output file
             use_vibrations (bool): whether to use the vibrations
             use_geometry_optimization (bool):
-            vibration_nr (str | int): vibration number index, or string 
+            vibration_nr (str | int): vibration number index, or string
                 (then has to be one of ``['i', 'im', 'imag', 'imaginary']``). Vibration number index
                 is 0-indexed (i.e. 0 is the first vibrational mode, 1 is the second, etc.)
             n_frames_per_oscillation (int): number of keyframes per full vibrational oscillation (phase= :math:`2\\pi`)
             amplitude (float): amplitude of vibrations. 0.5 seems to be a good default value.
 
         Notes:
-            * Tries to find imaginary mode from the output. If multiple imaginary modes are found, 
+            * Tries to find imaginary mode from the output. If multiple imaginary modes are found,
               will raise an error. Please investigate the output file manually to see which one
               you want to visualize, and give the integer index to this function instead.
             * Calculates the vibrational trajectory from the normal modes. ORCA outputs the translational
               and rotational modes as vibrations too, meaning that often the first 6 vibrations
-              (so up to and including ``vibration_nr=5``) have no displacements, 
+              (so up to and including ``vibration_nr=5``) have no displacements,
               and the resulting Trajectory will show no movement.
         """
         # Get trajectory corresponding to either vibrations of the normal modes or the geometry optimization
