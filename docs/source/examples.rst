@@ -40,6 +40,21 @@ Simple structure
    if __name__ == '__main__':
       main()
 
+Orbiting camera
+---------------
+
+.. literalinclude :: ../../examples/orbit_camera/script.py
+   :language: python
+
+.. video:: _static/CH3OH_orbit_camera.mp4
+   :autoplay:
+   :loop:
+   :muted:
+   :playsinline:
+   :nocontrols:
+   :width: 100%
+   :caption: GIF of camera orbiting around methanol
+
 Isosurface
 ----------
 
