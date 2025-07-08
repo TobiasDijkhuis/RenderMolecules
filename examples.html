@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="user_interface.html">User Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#simple-structure">Simple structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#orbiting-camera">Orbiting camera</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#isosurface">Isosurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#geometry-optimization">Geometry optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vibrations">Vibrations</a></li>
@@ -114,6 +115,36 @@
 </pre></div>
 </div>
 </section>
+<section id="orbiting-camera">
+<h2>Orbiting camera<a class="headerlink" href="#orbiting-camera" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span><span class="p">,</span> <span class="n">orbit_camera</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">delete_all_objects</span><span class="p">()</span>
+    
+    <span class="c1"># Read the CUBE file</span>
+    <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
+    <span class="n">xyz_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/orbit_camera/CH3OH_OPT.xyz&quot;</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_xyz</span><span class="p">(</span><span class="n">xyz_path</span><span class="p">)</span>
+    
+    <span class="c1"># Set center of mass to origin</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># Create the atoms and bonds</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">create_structure</span><span class="p">()</span>
+    
+    <span class="n">orbit_camera</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">set_active</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure  class="sphinx-contrib-video-container align-left"><video autoplay="True" loop="True" muted="True" preload="auto" width="100%" playsinline="True"><source src="_images/CH3OH_orbit_camera.mp4" type="video/mp4"></video><figcaption class="align-center"><p style="text-align: left; display:inline-block"><span class="caption-text">GIF of camera orbiting around methanol</span></p></figcaption></figure></section>
 <section id="isosurface">
 <h2>Isosurface<a class="headerlink" href="#isosurface" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
