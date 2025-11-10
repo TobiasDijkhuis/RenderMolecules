@@ -30,6 +30,12 @@ from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
 
 class Structure(Geometry):
     def __init__(self, atoms: list[Atom], bonds: list[Bond] | None = None):
+        """An easy way to keep track of the geometry of a molecule or system.
+
+        Args:
+            atoms (list[Atom]): list of Atom instances in the structure
+            bonds (list[Bond] | None): list of Bond instances in the structure. Default: None
+        """
         self._natoms = len(atoms)
         self._atoms = atoms
 
@@ -54,7 +60,7 @@ class Structure(Geometry):
         resolution: str = "medium",
         create_mesh: bool = True,
         force_material_creation: bool = False,
-        atom_colors: dict | None = None,
+        atom_colors: dict[str,str] | None = None,
     ) -> None:
         """Create the atoms in the scene
 
@@ -115,7 +121,11 @@ class Structure(Geometry):
         deselect_all_selected()
 
     def find_bonds_from_distances(self) -> list[Bond]:
-        """Create bonds based on the geometry"""
+        """Create bonds based on the geometry
+
+        Returns:
+            list[Bond]: list of bonds in the structure
+        """
         all_positions = self.get_atom_positions()
         all_elements = [atom.get_element() for atom in self._atoms]
 
@@ -194,7 +204,17 @@ class Structure(Geometry):
         camera_position: np.ndarray[float],
         displacement_scaler=0.2,
     ) -> list[Bond]:
-        """Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds."""
+        """Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.
+
+        Args:
+            bond (Bond): bond to change to the desired bond order.
+            bond_order (int): desired bond order. 
+            camera_position (np.ndarray[float]): position of camera.
+            displacement_scaler (float): how much to displace the bonds from eachother. Default = 0.2 Angstrom
+
+        Returns:
+            list[Bond]: bond instances of newly generated bonds
+        """
         if bond_order == 1:
             return self._bonds
         index = self._bonds.index(bond)
@@ -225,11 +245,19 @@ class Structure(Geometry):
         return self._bonds
 
     def get_bonds(self) -> list[Bond]:
-        """Get all bonds in the system"""
+        """Get all bonds in the system
+
+        Returns:
+            list[Bond]: list of bond instances in the Structure
+        """
         return self._bonds
 
     def get_center_of_mass(self) -> np.ndarray[float]:
-        """Get the center of mass position vector"""
+        """Get the center of mass position vector
+
+        Returns:
+            com (np.ndarray): center of mass position vector in Angstrom
+        """
         masses = np.array([atom.get_mass() for atom in self._atoms])
         atom_positions = self.get_atom_positions()
         com = np.array(
@@ -248,7 +276,7 @@ class Structure(Geometry):
         translation_vector = new_center_of_mass - self.get_center_of_mass()
         self.translate(translation_vector)
 
-    def set_average_position(self, new_average_position: np.ndarray | list):
+    def set_average_position(self, new_average_position: np.ndarray | list) -> None:
         """Sets the average position of all atoms to a new position"""
         new_average_position = check_3d_vector(new_average_position)
         current_average_position = np.average(
@@ -512,7 +540,6 @@ class Structure(Geometry):
                     msg = f"atom_colors dictionary needs to contain all elements in Structure, but did not contain element {element_type}."
                     msg += f"The element was also not found in element_data.manifest['atom_colors'] dictionary, so could not fill it."
                     raise ValueError(msg)
-
         return atom_colors
 
     def create_bonds(
@@ -699,7 +726,7 @@ class Structure(Geometry):
             atom.set_position(atom.get_position() + displacements[i, :])
 
     @classmethod
-    def from_xyz(cls, filepath: str):
+    def from_xyz(cls, filepath: str) -> Structure:
         """Create a Structure from an XYZ file
 
         Args:
@@ -717,7 +744,7 @@ class Structure(Geometry):
         return cls(_atoms)
 
     @classmethod
-    def from_sdf(cls, filepath: str):
+    def from_sdf(cls, filepath: str) -> Structure:
         """Creates a Structure from an SDF file
 
         Args:
@@ -737,7 +764,7 @@ class Structure(Geometry):
         return cls(_atoms, _bonds)
 
     @classmethod
-    def from_xsf(cls, filepath: str):
+    def from_xsf(cls, filepath: str) -> Structure:
         """Creates a Structure from an XSF file. To be tested
 
         Args:
@@ -858,18 +885,6 @@ class CUBEfile(Structure):
                 count=-1,
             ).reshape((self._NX, self._NY, self._NZ))
 
-        # Old, much slower way to read the data.
-        # volumetricLines = " ".join(
-        #     line.strip() for line in self._lines[6 + self._natoms :]
-        # ).split()
-
-        # self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))
-        # for ix in range(self._NX):
-        #     for iy in range(self._NY):
-        #         for iz in range(self._NZ):
-        #             dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz
-        #             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])
-
     def get_volumetric_origin_vector(self) -> np.ndarray[float]:
         """Get the origin vector of the volumetric data
 
@@ -898,8 +913,8 @@ class CUBEfile(Structure):
         """Write the volumetric data to a filepath
 
         Args:
-            filepath (str):
-            isovalue (float):
+            filepath (str): filepath to write to
+            isovalue (float): isovalue to use to calculate the isosurface
         """
         from pytessel import PyTessel
 

@@ -46,7 +46,14 @@ class Trajectory(Geometry):
         resolution: str = "medium",
         split_bond_to_atom_materials: bool = True,
     ) -> None:
-        """Create the animation of the trajectory in the Blender scene"""
+        """Create the animation of the trajectory in the Blender scene
+
+        Args:
+            create_bonds (bool): Whether to create the bonds in the scene. Default: True
+            resolution (str): one of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            split_bond_to_atom_materials (bool): Whether to use the same material on the bonds as the atoms. 
+                Default: True
+        """
         # At the moment, this looks a bit weird if bond lengths change a lot.
         # Also, does not support bond creation/destruction.
         set_frame_step(FRAME_STEP)
@@ -152,17 +159,33 @@ class Trajectory(Geometry):
                 obj.keyframe_insert(data_path="scale", frame=current_frame_nr)
 
     def get_frame(self, frame_index: int) -> Structure:
-        """Get the Structure at a certain frame index"""
+        """Get the Structure at a certain frame index
+
+        Args:
+            frame_index (int): index of frame
+
+        Returns:
+            Structure: structure at that frame index
+        """
         return self._frames[frame_index]
 
     def rotate_around_axis(self, axis: np.ndarray, angle: float) -> None:
-        """Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees"""
+        """Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees
+
+        Args:
+            axis (np.ndarray): axis of rotation
+            angle (float): rotation angle in degrees
+        """
         for frame in self._frames:
             frame.rotate_around_axis(axis, angle)
 
     @classmethod
-    def _from_orca_geom_opt(cls, filepath):
-        """Generate a trajectory from an ORCA geometry optimzation output file"""
+    def _from_orca_geom_opt(cls, filepath: str) -> Trajectory:
+        """Generate a trajectory from an ORCA geometry optimzation output file
+
+        Args:
+            filepath (str): filepath of ORCA geometry optimization
+        """
         with open(filepath) as file:
             _lines = file.readlines()
 
@@ -193,8 +216,12 @@ class Trajectory(Geometry):
         return cls(_frames)
 
     @classmethod
-    def from_xyz(cls, filepath: str):
-        """Generate a trajectory from an XYZ file containing multiple frames"""
+    def from_xyz(cls, filepath: str) -> Structure:
+        """Generate a trajectory from an XYZ file containing multiple frames
+
+        Args:
+            filepath (str): filepath of ORCA geometry optimization
+        """
         with open(filepath) as file:
             _lines = file.readlines()
 
@@ -227,7 +254,7 @@ class Trajectory(Geometry):
         vibration_nr: str | int = "imag",
         n_frames_per_oscillation: int = 20,
         amplitude: float = 0.5,
-    ):
+    ) -> Structure:
         """Get a Trajectory from an ORCA output file.
 
         Args:
@@ -269,10 +296,6 @@ class Trajectory(Geometry):
         result_normal = find_first_string_in_list_of_strings("NORMAL MODES", _lines)
         if result_normal is None:
             raise ValueError("No 'NORMAL MODES' found in ORCA output")
-
-        # resultIRspec = findFirstStringInListOfStrings(
-        #     "IR SPECTRUM", _lines, start=result_normal
-        # )
 
         frequencies_lines = _lines[result_frequencies + 5 : result_normal - 3]
         nfreqs = len(frequencies_lines)
@@ -373,5 +396,10 @@ class Trajectory(Geometry):
         return cls(frames)
 
     def translate(self, translation_vector: np.ndarray | list) -> None:
+        """Translate every frame in the trajectory
+
+        Args:
+            translation_vector (np.ndarray): vector to translate each frame by
+        """
         for frame in self._frames:
             frame.translate(translation_vector)
