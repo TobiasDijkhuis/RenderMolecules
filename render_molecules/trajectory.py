@@ -6,7 +6,7 @@ import bpy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import get_object_by_name, set_frame_step
+from .blender_utils import get_object_by_name, set_frame_step, set_frame_end
 from .constants import FRAME_STEP
 from .geometry import Geometry
 from .other_utils import (find_all_string_in_list_of_strings,
