@@ -553,6 +553,15 @@
 <dt class="sig sig-object py" id="render_molecules.structure.Structure">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">render_molecules.structure.</span></span><span class="sig-name descname"><span class="pre">Structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.atom.Atom" title="render_molecules.atom.Atom"><span class="pre">Atom</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><span class="pre">Bond</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#render_molecules.geometry.Geometry" title="render_molecules.geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a></p>
+<p>An easy way to keep track of the geometry of a molecule or system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.atom.Atom" title="render_molecules.atom.Atom"><em>Atom</em></a><em>]</em>) – list of Atom instances in the structure</p></li>
+<li><p><strong>bonds</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><em>Bond</em></a><em>] </em><em>| </em><em>None</em>) – list of Bond instances in the structure. Default: None</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.get_atoms">
 <span class="sig-name descname"><span class="pre">get_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.atom.Atom" title="render_molecules.atom.Atom"><span class="pre">Atom</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.get_atoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.get_atoms" title="Link to this definition"></a></dt>
@@ -567,7 +576,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.create_atoms">
-<span class="sig-name descname"><span class="pre">create_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_material_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.create_atoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.create_atoms" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_material_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.create_atoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.create_atoms" title="Link to this definition"></a></dt>
 <dd><p>Create the atoms in the scene</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -591,24 +600,64 @@ will be filled by the values in <code class="docutils literal notranslate"><span
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.find_bonds_from_distances">
 <span class="sig-name descname"><span class="pre">find_bonds_from_distances</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><span class="pre">Bond</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.find_bonds_from_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.find_bonds_from_distances" title="Link to this definition"></a></dt>
 <dd><p>Create bonds based on the geometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of bonds in the structure</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond">Bond</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.generate_bond_order_bond">
 <span class="sig-name descname"><span class="pre">generate_bond_order_bond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><span class="pre">Bond</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_scaler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><span class="pre">Bond</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.generate_bond_order_bond"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.generate_bond_order_bond" title="Link to this definition"></a></dt>
 <dd><p>Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bond</strong> (<a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><em>Bond</em></a>) – bond to change to the desired bond order.</p></li>
+<li><p><strong>bond_order</strong> (<em>int</em>) – desired bond order.</p></li>
+<li><p><strong>camera_position</strong> (<em>np.ndarray</em><em>[</em><em>float</em><em>]</em>) – position of camera.</p></li>
+<li><p><strong>displacement_scaler</strong> (<em>float</em>) – how much to displace the bonds from eachother. Default = 0.2 Angstrom</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bond instances of newly generated bonds</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond">Bond</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.get_bonds">
 <span class="sig-name descname"><span class="pre">get_bonds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><span class="pre">Bond</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.get_bonds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.get_bonds" title="Link to this definition"></a></dt>
 <dd><p>Get all bonds in the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of bond instances in the Structure</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond">Bond</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.get_center_of_mass">
 <span class="sig-name descname"><span class="pre">get_center_of_mass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.get_center_of_mass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.get_center_of_mass" title="Link to this definition"></a></dt>
 <dd><p>Get the center of mass position vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>center of mass position vector in Angstrom</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>com (np.ndarray)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -624,7 +673,7 @@ will be filled by the values in <code class="docutils literal notranslate"><span
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.set_average_position">
-<span class="sig-name descname"><span class="pre">set_average_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_average_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.set_average_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.set_average_position" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_average_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_average_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.set_average_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.set_average_position" title="Link to this definition"></a></dt>
 <dd><p>Sets the average position of all atoms to a new position</p>
 </dd></dl>
 
@@ -797,7 +846,7 @@ change the atom colors</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.from_xyz">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_xyz" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_xyz" title="Link to this definition"></a></dt>
 <dd><p>Create a Structure from an XYZ file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -808,7 +857,7 @@ change the atom colors</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.from_sdf">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_sdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_sdf" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_sdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_sdf" title="Link to this definition"></a></dt>
 <dd><p>Creates a Structure from an SDF file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -819,7 +868,7 @@ change the atom colors</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.Structure.from_xsf">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xsf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_xsf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_xsf" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xsf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#Structure.from_xsf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.Structure.from_xsf" title="Link to this definition"></a></dt>
 <dd><p>Creates a Structure from an XSF file. To be tested</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -834,6 +883,15 @@ change the atom colors</p></li>
 <dt class="sig sig-object py" id="render_molecules.structure.CUBEfile">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">render_molecules.structure.</span></span><span class="sig-name descname"><span class="pre">CUBEfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
+<p>An easy way to keep track of the geometry of a molecule or system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.atom.Atom" title="render_molecules.atom.Atom"><em>Atom</em></a><em>]</em>) – list of Atom instances in the structure</p></li>
+<li><p><strong>bonds</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><em>Bond</em></a><em>] </em><em>| </em><em>None</em>) – list of Bond instances in the structure. Default: None</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.CUBEfile.read_volumetric_data">
 <span class="sig-name descname"><span class="pre">read_volumetric_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile.read_volumetric_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile.read_volumetric_data" title="Link to this definition"></a></dt>
@@ -889,8 +947,8 @@ change the atom colors</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filepath</strong> (<em>str</em>)</p></li>
-<li><p><strong>isovalue</strong> (<em>float</em>)</p></li>
+<li><p><strong>filepath</strong> (<em>str</em>) – filepath to write to</p></li>
+<li><p><strong>isovalue</strong> (<em>float</em>) – isovalue to use to calculate the isosurface</p></li>
 </ul>
 </dd>
 </dl>
@@ -926,6 +984,15 @@ values (ndarray): Vx1 array of maximum value in data close to each vertex</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">render_molecules.structure.</span></span><span class="sig-name descname"><span class="pre">JSONfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/structure.html#JSONfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.JSONfile" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
 <p>WORK IN PROGRESS</p>
+<p>An easy way to keep track of the geometry of a molecule or system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.atom.Atom" title="render_molecules.atom.Atom"><em>Atom</em></a><em>]</em>) – list of Atom instances in the structure</p></li>
+<li><p><strong>bonds</strong> (<em>list</em><em>[</em><a class="reference internal" href="#render_molecules.bond.Bond" title="render_molecules.bond.Bond"><em>Bond</em></a><em>] </em><em>| </em><em>None</em>) – list of Bond instances in the structure. Default: None</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -965,24 +1032,58 @@ values (ndarray): Vx1 array of maximum value in data close to each vertex</p>
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.create_animation">
 <span class="sig-name descname"><span class="pre">create_animation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_bond_to_atom_materials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.create_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.create_animation" title="Link to this definition"></a></dt>
 <dd><p>Create the animation of the trajectory in the Blender scene</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_bonds</strong> (<em>bool</em>) – Whether to create the bonds in the scene. Default: True</p></li>
+<li><p><strong>resolution</strong> (<em>str</em>) – one of [‘verylow’, ‘low’, ‘medium’, ‘high’, ‘veryhigh’]</p></li>
+<li><p><strong>split_bond_to_atom_materials</strong> (<em>bool</em>) – Whether to use the same material on the bonds as the atoms.
+Default: True</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.get_frame">
 <span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.get_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.get_frame" title="Link to this definition"></a></dt>
 <dd><p>Get the Structure at a certain frame index</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_index</strong> (<em>int</em>) – index of frame</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>structure at that frame index</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure">Structure</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.rotate_around_axis">
 <span class="sig-name descname"><span class="pre">rotate_around_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.rotate_around_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.rotate_around_axis" title="Link to this definition"></a></dt>
 <dd><p>Rotate all frames in the trajectory around an axis counterclockwise with a certain angle in degrees</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>np.ndarray</em>) – axis of rotation</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – rotation angle in degrees</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.from_xyz">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.from_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.from_xyz" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.from_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.from_xyz" title="Link to this definition"></a></dt>
 <dd><p>Generate a trajectory from an XYZ file containing multiple frames</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – filepath of ORCA geometry optimization</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -992,7 +1093,7 @@ values (ndarray): Vx1 array of maximum value in data close to each vertex</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.from_orca">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_orca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vibrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_geometry_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vibration_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'imag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_frames_per_oscillation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.from_orca"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.from_orca" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_orca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vibrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_geometry_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vibration_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'imag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_frames_per_oscillation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#render_molecules.structure.Structure" title="render_molecules.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.from_orca"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.from_orca" title="Link to this definition"></a></dt>
 <dd><p>Get a Trajectory from an ORCA output file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1023,7 +1124,13 @@ and the resulting Trajectory will show no movement.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.trajectory.Trajectory.translate">
 <span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">translation_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/render_molecules/trajectory.html#Trajectory.translate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.trajectory.Trajectory.translate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Translate every frame in the trajectory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>translation_vector</strong> (<em>np.ndarray</em>) – vector to translate each frame by</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

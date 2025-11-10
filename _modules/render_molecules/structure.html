@@ -104,6 +104,12 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Structure</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Atom</span><span class="p">],</span> <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An easy way to keep track of the geometry of a molecule or system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atoms (list[Atom]): list of Atom instances in the structure</span>
+<span class="sd">            bonds (list[Bond] | None): list of Bond instances in the structure. Default: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span> <span class="o">=</span> <span class="n">atoms</span>
 
@@ -136,7 +142,7 @@
         <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
         <span class="n">create_mesh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene</span>
 
@@ -200,7 +206,11 @@
 <div class="viewcode-block" id="Structure.find_bonds_from_distances">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.find_bonds_from_distances">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_bonds_from_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[Bond]: list of bonds in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
 
@@ -282,7 +292,17 @@
         <span class="n">camera_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">displacement_scaler</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Way to generate multiple bonds, for example in CO2 molecule double bonds, or CO triple bonds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bond (Bond): bond to change to the desired bond order.</span>
+<span class="sd">            bond_order (int): desired bond order. </span>
+<span class="sd">            camera_position (np.ndarray[float]): position of camera.</span>
+<span class="sd">            displacement_scaler (float): how much to displace the bonds from eachother. Default = 0.2 Angstrom</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[Bond]: bond instances of newly generated bonds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">bond_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
@@ -316,14 +336,22 @@
 <div class="viewcode-block" id="Structure.get_bonds">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_bonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all bonds in the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all bonds in the system</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[Bond]: list of bond instances in the Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span></div>
 
 
 <div class="viewcode-block" id="Structure.get_center_of_mass">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.get_center_of_mass">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_center_of_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the center of mass position vector&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the center of mass position vector</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            com (np.ndarray): center of mass position vector in Angstrom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">atom</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">])</span>
         <span class="n">atom_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -348,7 +376,7 @@
 
 <div class="viewcode-block" id="Structure.set_average_position">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.set_average_position">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_average_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_average_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_average_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_average_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the average position of all atoms to a new position&quot;&quot;&quot;</span>
         <span class="n">new_average_position</span> <span class="o">=</span> <span class="n">check_3d_vector</span><span class="p">(</span><span class="n">new_average_position</span><span class="p">)</span>
         <span class="n">current_average_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
@@ -637,7 +665,6 @@
                     <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;atom_colors dictionary needs to contain all elements in Structure, but did not contain element </span><span class="si">{</span><span class="n">element_type</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;The element was also not found in element_data.manifest[&#39;atom_colors&#39;] dictionary, so could not fill it.&quot;</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">atom_colors</span>
 
 <div class="viewcode-block" id="Structure.create_bonds">
@@ -838,7 +865,7 @@
 <div class="viewcode-block" id="Structure.from_xyz">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xyz">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Structure from an XYZ file</span>
 
 <span class="sd">        Args:</span>
@@ -859,7 +886,7 @@
 <div class="viewcode-block" id="Structure.from_sdf">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_sdf">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_sdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an SDF file</span>
 
 <span class="sd">        Args:</span>
@@ -882,7 +909,7 @@
 <div class="viewcode-block" id="Structure.from_xsf">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xsf">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_xsf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xsf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an XSF file. To be tested</span>
 
 <span class="sd">        Args:</span>
@@ -1010,18 +1037,6 @@
             <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span><span class="p">))</span></div>
 
 
-        <span class="c1"># Old, much slower way to read the data.</span>
-        <span class="c1"># volumetricLines = &quot; &quot;.join(</span>
-        <span class="c1">#     line.strip() for line in self._lines[6 + self._natoms :]</span>
-        <span class="c1"># ).split()</span>
-
-        <span class="c1"># self._volumetricData = np.zeros((self._NX, self._NY, self._NZ))</span>
-        <span class="c1"># for ix in range(self._NX):</span>
-        <span class="c1">#     for iy in range(self._NY):</span>
-        <span class="c1">#         for iz in range(self._NZ):</span>
-        <span class="c1">#             dataIndex = ix * self._NY * self._NZ + iy * self._NZ + iz</span>
-        <span class="c1">#             self._volumetricData[ix, iy, iz] = float(volumetricLines[dataIndex])</span>
-
 <div class="viewcode-block" id="CUBEfile.get_volumetric_origin_vector">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.get_volumetric_origin_vector">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_volumetric_origin_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
@@ -1061,8 +1076,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the volumetric data to a filepath</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepath (str):</span>
-<span class="sd">            isovalue (float):</span>
+<span class="sd">            filepath (str): filepath to write to</span>
+<span class="sd">            isovalue (float): isovalue to use to calculate the isosurface</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pytessel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyTessel</span>
 
