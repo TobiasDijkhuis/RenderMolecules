@@ -7,15 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>render_molecules.structure &mdash; render_molecules 0.0.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -73,31 +73,24 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">bpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">create_cylinder</span><span class="p">,</span>
-    <span class="n">create_material</span><span class="p">,</span>
-    <span class="n">create_mesh_of_atoms</span><span class="p">,</span>
-    <span class="n">create_uv_sphere</span><span class="p">,</span>
-    <span class="n">deselect_all_selected</span><span class="p">,</span>
-    <span class="n">get_object_by_name</span><span class="p">,</span>
-    <span class="n">join_cylinders</span><span class="p">,</span>
-    <span class="n">put_cap_on_cylinder</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">create_cylinder</span><span class="p">,</span> <span class="n">create_material</span><span class="p">,</span>
+                            <span class="n">create_mesh_of_atoms</span><span class="p">,</span> <span class="n">create_uv_sphere</span><span class="p">,</span>
+                            <span class="n">deselect_all_selected</span><span class="p">,</span> <span class="n">get_object_by_name</span><span class="p">,</span>
+                            <span class="n">join_cylinders</span><span class="p">,</span> <span class="n">put_cap_on_cylinder</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AMU_TO_KG</span><span class="p">,</span>
-    <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span>
-    <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span>
-    <span class="n">BOHR_TO_METERS</span><span class="p">,</span>
-    <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
-    <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">AMU_TO_KG</span><span class="p">,</span> <span class="n">ANGSTROM_TO_METERS</span><span class="p">,</span> <span class="n">BOHR_TO_ANGSTROM</span><span class="p">,</span>
+                        <span class="n">BOHR_TO_METERS</span><span class="p">,</span> <span class="n">CYLINDER_LENGTH_FRACTION</span><span class="p">,</span>
+                        <span class="n">CYLINDER_LENGTH_FRACTION_SPLIT</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.element_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">bond_lengths</span><span class="p">,</span> <span class="n">manifest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">angle_between</span><span class="p">,</span> <span class="n">check_3d_vector</span><span class="p">,</span> <span class="n">rotation_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">find_all_string_in_list_of_strings</span><span class="p">,</span>
+                          <span class="n">find_first_string_in_list_of_strings</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Structure">
@@ -142,7 +135,7 @@
         <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
         <span class="n">create_mesh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms in the scene</span>
 
@@ -296,7 +289,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            bond (Bond): bond to change to the desired bond order.</span>
-<span class="sd">            bond_order (int): desired bond order. </span>
+<span class="sd">            bond_order (int): desired bond order.</span>
 <span class="sd">            camera_position (np.ndarray[float]): position of camera.</span>
 <span class="sd">            displacement_scaler (float): how much to displace the bonds from eachother. Default = 0.2 Angstrom</span>
 
@@ -563,7 +556,7 @@
                 <span class="n">r2</span> <span class="o">=</span> <span class="n">at2</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
 
                 <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_distance&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_max_length&quot;</span><span class="p">]:</span>
                     <span class="k">continue</span>
 
                 <span class="n">atom2_bound_indices</span> <span class="o">=</span> <span class="n">at2</span><span class="o">.</span><span class="n">find_bound_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -585,7 +578,7 @@
                 <span class="n">angle</span> <span class="o">=</span> <span class="n">angle_between</span><span class="p">(</span><span class="n">intramol_vector</span><span class="p">,</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
 
                 <span class="c1"># create a hydrogen bond when the interatomic distance and O-H----O angle are less than the specified threshold value</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">180</span> <span class="o">-</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_angle&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">180</span> <span class="o">-</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_max_angle&quot;</span><span class="p">]:</span>
                     <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
                         <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
@@ -778,12 +771,12 @@
 <div class="viewcode-block" id="Structure.create_structure">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_structure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_structure</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
         <span class="n">create_mesh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">force_material_creation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the atoms and bond in the scene</span>
 
@@ -804,8 +797,8 @@
 <span class="sd">                change the atom colors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_atoms</span><span class="p">(</span>
-            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> 
-            <span class="n">create_mesh</span><span class="o">=</span><span class="n">create_mesh</span><span class="p">,</span> 
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">create_mesh</span><span class="o">=</span><span class="n">create_mesh</span><span class="p">,</span>
             <span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">,</span>
             <span class="n">force_material_creation</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
         <span class="p">)</span>
@@ -813,10 +806,10 @@
         <span class="n">bonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_bonds_from_distances</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_bonds</span><span class="p">(</span>
-            <span class="n">bonds</span><span class="p">,</span> 
-            <span class="n">split_bond_to_atom_materials</span><span class="o">=</span><span class="n">split_bond_to_atom_materials</span><span class="p">,</span> 
-            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> 
-            <span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">,</span> 
+            <span class="n">bonds</span><span class="p">,</span>
+            <span class="n">split_bond_to_atom_materials</span><span class="o">=</span><span class="n">split_bond_to_atom_materials</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">,</span>
             <span class="n">force_material_creation</span><span class="o">=</span><span class="n">force_material_creation</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -865,11 +858,12 @@
 <div class="viewcode-block" id="Structure.from_xyz">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xyz">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xyz</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Structure from an XYZ file</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepath (str): XYZ file to read</span>
+<span class="sd">            filepath (str | Path): XYZ file to read</span>
+<span class="sd">            index (int): index to read. Default: -1, last. TODO: Implement</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -883,14 +877,46 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_atoms</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Structure.from_orca">
+<a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_orca">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_orca</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a structure from an ORCA output file. Reads the</span>
+<span class="sd">        cartesian coordinates in the input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str | Path): orca output file to read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">geometry_blocks</span> <span class="o">=</span> <span class="n">find_all_string_in_list_of_strings</span><span class="p">(</span>
+            <span class="s2">&quot;CARTESIAN COORDINATES (ANGSTROEM)&quot;</span><span class="p">,</span> <span class="n">_lines</span>
+        <span class="p">)</span>
+        <span class="n">geometry_block</span> <span class="o">=</span> <span class="n">geometry_blocks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="n">_natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">_lines</span><span class="p">[</span>
+                <span class="n">find_first_string_in_list_of_strings</span><span class="p">(</span><span class="s2">&quot;Number of atoms&quot;</span><span class="p">,</span> <span class="n">_lines</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_natoms</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_natoms</span><span class="p">):</span>
+            <span class="n">_atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atom</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">_lines</span><span class="p">[</span><span class="n">geometry_block</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_atoms</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Structure.from_sdf">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_sdf">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_sdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an SDF file</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepath (str): SDF file to read</span>
+<span class="sd">            filepath (str | Path): SDF file to read</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -909,11 +935,11 @@
 <div class="viewcode-block" id="Structure.from_xsf">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.from_xsf">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_xsf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xsf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a Structure from an XSF file. To be tested</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepath(str): XSF file to read</span>
+<span class="sd">            filepath (str | Path): XSF file to read</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># http://www.xcrysden.org/doc/XSF.html#__toc__2</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
@@ -1005,9 +1031,9 @@
             <span class="p">)</span>
             <span class="o">*</span> <span class="n">BOHR_TO_ANGSTROM</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span><span class="p">))</span>
-            <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span>
+            <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_volumetric_axis_vectors</span>
         <span class="p">):</span>
             <span class="n">warning</span> <span class="o">=</span> <span class="s2">&quot;WARNING: Volumetric data axis vectors are not diagonal. Not sure if this works&quot;</span>
             <span class="n">warning</span> <span class="o">+=</span> <span class="p">(</span>
