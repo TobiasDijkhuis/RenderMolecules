@@ -51,12 +51,12 @@ class Bond:
 
     def get_midpoint(self) -> np.ndarray[float]:
         """Get the midpoint position of the two atoms"""
-        return self._midpointPosition
+        return self._midpoint_position
 
     def set_midpoint(self, midpoint_position: np.ndarray) -> None:
         """Set the midpoint position of the two atoms"""
         midpoint_position = check_3d_vector(midpoint_position)
-        self._midpointPosition = midpoint_position
+        self._midpoint_position = midpoint_position
 
     def get_direction(self) -> np.ndarray[float]:
         """Get the unit vector in the direction of the bond"""
@@ -73,7 +73,7 @@ class Bond:
     def get_name(self) -> str:
         return self._name
 
-    def set_name(self, name) -> None:
+    def set_name(self, name: str) -> None:
         if not isinstance(name, str):
             raise TypeError(f"name was supposed to be string but was type {type(name)}")
         self._name = name

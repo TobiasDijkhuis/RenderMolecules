@@ -1,31 +1,24 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
 
+import bpy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import (
-    create_cylinder,
-    create_material,
-    create_mesh_of_atoms,
-    create_uv_sphere,
-    deselect_all_selected,
-    get_object_by_name,
-    join_cylinders,
-    put_cap_on_cylinder,
-)
+from .blender_utils import (create_cylinder, create_material,
+                            create_mesh_of_atoms, create_uv_sphere,
+                            deselect_all_selected, get_object_by_name,
+                            join_cylinders, put_cap_on_cylinder)
 from .bond import Bond
-from .constants import (
-    AMU_TO_KG,
-    ANGSTROM_TO_METERS,
-    BOHR_TO_ANGSTROM,
-    BOHR_TO_METERS,
-    CYLINDER_LENGTH_FRACTION,
-    CYLINDER_LENGTH_FRACTION_SPLIT,
-)
+from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
+                        BOHR_TO_METERS, CYLINDER_LENGTH_FRACTION,
+                        CYLINDER_LENGTH_FRACTION_SPLIT)
 from .element_data import bond_lengths, manifest
 from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
+from .other_utils import (find_all_string_in_list_of_strings,
+                          find_first_string_in_list_of_strings)
 
 
 class Structure(Geometry):
@@ -411,7 +404,7 @@ class Structure(Geometry):
                 r2 = at2.get_position()
 
                 dist = np.linalg.norm(r2 - r1)
-                if dist > manifest["hbond_distance"]:
+                if dist > manifest["hbond_max_length"]:
                     continue
 
                 atom2_bound_indices = at2.find_bound_atoms(self)
@@ -433,7 +426,7 @@ class Structure(Geometry):
                 angle = angle_between(intramol_vector, r2 - r1)
 
                 # create a hydrogen bond when the interatomic distance and O-H----O angle are less than the specified threshold value
-                if np.abs(angle) > 180 - manifest["hbond_angle"]:
+                if np.abs(angle) > 180 - manifest["hbond_max_angle"]:
                     axis = np.cross(z, r2 - r1)
                     if np.linalg.norm(axis) < 1e-5:
                         axis = np.array([0, 0, 1])
@@ -621,12 +614,12 @@ class Structure(Geometry):
         deselect_all_selected()
 
     def create_structure(
-        self, 
+        self,
         resolution: str = "medium",
         create_mesh: bool = True,
         atom_colors: dict | None = None,
         split_bond_to_atom_materials: bool = True,
-        force_material_creation: bool = False
+        force_material_creation: bool = False,
     ) -> None:
         """Create the atoms and bond in the scene
 
@@ -647,8 +640,8 @@ class Structure(Geometry):
                 change the atom colors
         """
         self.create_atoms(
-            resolution=resolution, 
-            create_mesh=create_mesh, 
+            resolution=resolution,
+            create_mesh=create_mesh,
             atom_colors=atom_colors,
             force_material_creation=force_material_creation,
         )
@@ -656,10 +649,10 @@ class Structure(Geometry):
         bonds = self.find_bonds_from_distances()
 
         self.create_bonds(
-            bonds, 
-            split_bond_to_atom_materials=split_bond_to_atom_materials, 
-            resolution=resolution, 
-            atom_colors=atom_colors, 
+            bonds,
+            split_bond_to_atom_materials=split_bond_to_atom_materials,
+            resolution=resolution,
+            atom_colors=atom_colors,
             force_material_creation=force_material_creation,
         )
 
@@ -699,11 +692,12 @@ class Structure(Geometry):
             atom.set_position(atom.get_position() + displacements[i, :])
 
     @classmethod
-    def from_xyz(cls, filepath: str):
+    def from_xyz(cls, filepath: str | Path, index: int = -1):
         """Create a Structure from an XYZ file
 
         Args:
             filepath (str): XYZ file to read
+            index (int): index to read. Default: -1, last. TODO: Implement
         """
         with open(filepath) as file:
             _lines = file.readlines()
@@ -717,11 +711,40 @@ class Structure(Geometry):
         return cls(_atoms)
 
     @classmethod
+    def from_orca(cls, filepath: str | Path, index: int = -1):
+        """Create a structure from an ORCA output file. Reads the
+        cartesian coordinates in the input.
+
+        Args:
+            filepath (str | Path): orca output file to read
+        """
+
+        with open(filepath) as file:
+            _lines = file.readlines()
+
+        geometry_blocks = find_all_string_in_list_of_strings(
+            "CARTESIAN COORDINATES (ANGSTROEM)", _lines
+        )
+        geometry_block = geometry_blocks[index]
+
+        _natoms = int(
+            _lines[
+                find_first_string_in_list_of_strings("Number of atoms", _lines)
+            ].split()[-1]
+        )
+        _atoms = [0] * _natoms
+
+        for i in range(_natoms):
+            _atoms[i] = Atom.from_xyz_string(_lines[geometry_block + 2 + i])
+
+        return cls(_atoms)
+
+    @classmethod
     def from_sdf(cls, filepath: str):
         """Creates a Structure from an SDF file
 
         Args:
-            filepath (str): SDF file to read
+            filepath (str | Path): SDF file to read
         """
         with open(filepath) as file:
             _lines = file.readlines()
@@ -827,9 +850,9 @@ class CUBEfile(Structure):
             )
             * BOHR_TO_ANGSTROM
         )
-        if np.all(
+        if not np.all(
             np.diag(np.diagonal(self._volumetric_axis_vectors))
-            != self._volumetric_axis_vectors
+            == self._volumetric_axis_vectors
         ):
             warning = "WARNING: Volumetric data axis vectors are not diagonal. Not sure if this works"
             warning += (

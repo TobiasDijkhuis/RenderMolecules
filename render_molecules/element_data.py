@@ -36,6 +36,8 @@ manifest = {
     "bond_color": "444444",
     "hbond_color": "999999",
     "hbond_thickness": 0.035,
+    "hbond_max_length": 3.5,
+    "hbond_max_angle": 35.0,
     "roughness": 0.5,
     "metallic": 0.0,
     "subsurface_color": "000000",

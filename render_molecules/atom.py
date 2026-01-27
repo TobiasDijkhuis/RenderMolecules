@@ -189,14 +189,14 @@ class Atom:
     def __str__(self):
         return f"Atom with atomic number {self._atomic_number} at position {self._position}"
 
-    # def findBoundAtoms(self, structure: Structure) -> list[int]:
-    #     """Find which Atom indeces are bound to this Atom in the structure"""
-    #     boundAtomIndeces = []
-    #     for i, bond in enumerate(structure.getBonds()):
-    #         atom1Pos = bond.getAtom1Pos()
-    #         atom2Pos = bond.getAtom2Pos()
-    #         if np.all(self._positionVector == atom1Pos):
-    #             boundAtomIndeces.append(bond.getAtom2Index())
-    #         elif np.all(self._positionVector == atom2Pos):
-    #             boundAtomIndeces.append(bond.getAtom1Index())
-    #     return boundAtomIndeces
+    def find_bound_atoms(self, structure: Structure) -> list[int]:
+        """Find which Atom indeces are bound to this Atom in the structure"""
+        bound_atom_indeces = []
+        for i, bond in enumerate(structure.get_bonds()):
+            atom1_pos = bond.get_atom1_position()
+            atom2_pos = bond.get_atom2_position()
+            if np.all(self._position == atom1_pos):
+                bound_atom_indeces.append(bond.get_atom2_index())
+            elif np.all(self._position == atom2_pos):
+                bound_atom_indeces.append(bond.get_atom1_index())
+        return bound_atom_indeces
