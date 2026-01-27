@@ -1,7 +1,7 @@
 import os
 
-from render_molecules.structure import CUBEfile
-from render_molecules.blender_utils import delete_all_objects, create_isosurface
+from render_molecules.structure import Structure
+from render_molecules.blender_utils import delete_all_objects, orbit_camera
 from render_molecules.other_utils import get_render_molecules_dir
 
 def main():
@@ -9,22 +9,16 @@ def main():
     
     # Read the CUBE file
     render_molecules_dir = get_render_molecules_dir()
-    CUBEpath = os.path.join(render_molecules_dir, "../examples/isosurface/CH3OH_OPT.eldens.cube")
-    CUBE = CUBEfile(CUBEpath)
-    
-    # Read the electron density in the CUBE file
-    CUBE.read_volumetric_data()
+    xyz_path = os.path.join(render_molecules_dir, "../examples/orbit_camera/CH3OH_OPT.xyz")
+    structure = Structure.from_xyz(xyz_path)
     
     # Set center of mass to origin
-    CUBE.set_center_of_mass([0, 0,0])
+    structure.set_center_of_mass([0, 0,0])
     
     # Create the atoms and bonds
-    CUBE.create_structure()
+    structure.create_structure()
     
-    # Calculate and render the isosurface
-    isovalue = 0.025
-    verts, edges, _, _ = CUBE.calculate_isosurface(isovalue)
-    create_isosurface(verts, edges, isovalue, "CH3OH")
+    orbit_camera(radius=8, height=4, set_active=True)
     return
 
 if __name__ == '__main__':
