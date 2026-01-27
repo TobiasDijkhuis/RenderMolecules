@@ -202,8 +202,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create bonds based on the geometry</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[Bond]: list of bonds in the structure</span>
+<span class="sd">            list[Bond]: list of bonds in the structure. Cached</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
+
         <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
 
@@ -664,7 +667,7 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.Structure.create_bonds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_bonds</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">],</span>
+        <span class="n">bonds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bond</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
         <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -673,7 +676,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the bonds in the Blender scene</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            bonds (list[Bond]): list of bonds to be drawn</span>
+<span class="sd">            bonds (list[Bond] | None): list of bonds to be drawn, or None. If None, will be determined from</span>
+<span class="sd">                self.find_bonds_from_distances(). Default: None</span>
 <span class="sd">            split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them</span>
 <span class="sd">            resolution (str): render resolution. One of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
 <span class="sd">            atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.</span>
@@ -687,6 +691,9 @@
         <span class="n">atom_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_atom_colors</span><span class="p">(</span><span class="n">atom_colors</span><span class="o">=</span><span class="n">atom_colors</span><span class="p">)</span>
 
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">bonds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_bonds_from_distances</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
             <span class="n">axis_angle_with_z</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_axis_angle_with_z</span><span class="p">()</span>
