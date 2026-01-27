@@ -117,8 +117,11 @@ class Structure(Geometry):
         """Create bonds based on the geometry
 
         Returns:
-            list[Bond]: list of bonds in the structure
+            list[Bond]: list of bonds in the structure. Cached
         """
+        if self._bonds:
+            return self._bonds
+
         all_positions = self.get_atom_positions()
         all_elements = [atom.get_element() for atom in self._atoms]
 
@@ -537,7 +540,7 @@ class Structure(Geometry):
 
     def create_bonds(
         self,
-        bonds: list[Bond],
+        bonds: list[Bond] | None = None,
         split_bond_to_atom_materials: bool = True,
         resolution: str = "medium",
         atom_colors: dict | None = None,
@@ -546,7 +549,8 @@ class Structure(Geometry):
         """Create the bonds in the Blender scene
 
         Args:
-            bonds (list[Bond]): list of bonds to be drawn
+            bonds (list[Bond] | None): list of bonds to be drawn, or None. If None, will be determined from
+                self.find_bonds_from_distances(). Default: None
             split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
             resolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
             atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
@@ -560,6 +564,9 @@ class Structure(Geometry):
         atom_colors = self._check_atom_colors(atom_colors=atom_colors)
 
         all_elements = [atom.get_element() for atom in self._atoms]
+
+        if bonds is None:
+            bonds = self.find_bonds_from_distances()
 
         for bond in bonds:
             axis_angle_with_z = bond.get_axis_angle_with_z()
