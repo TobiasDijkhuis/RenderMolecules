@@ -72,8 +72,9 @@
   <h1>Source code for render_molecules.other_utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
 <div class="viewcode-block" id="hex2rgbtuple">
@@ -83,9 +84,11 @@
 <span class="sd">    Convert 6-digit color hexcode to a tuple of floats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hexcode</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hexcode is supposed to be of type str, but was type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">hexcode</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;hexcode is supposed to be of type str, but was type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">hexcode</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
     <span class="n">hexcode</span> <span class="o">=</span> <span class="n">hexcode</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">hexcode</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hexcode</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">6</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hexcode is supposed to be a string of length 6 (without alpha component), but was length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hexcode</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">hexcode: </span><span class="si">{</span><span class="n">hexcode</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -106,6 +109,7 @@
         <span class="k">return</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">12.92</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">((</span><span class="n">c</span> <span class="o">+</span> <span class="mf">0.055</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">1.055</span><span class="p">))</span> <span class="o">**</span> <span class="mf">2.4</span></div>
+
 
 
 <div class="viewcode-block" id="find_first_string_in_list_of_strings">
@@ -173,10 +177,11 @@
     <span class="k">return</span> <span class="n">result</span></div>
 
 
+
 <div class="viewcode-block" id="get_render_molecules_dir">
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.other_utils.get_render_molecules_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_render_molecules_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the directory that contains all render_molecules python files. </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the directory that contains all render_molecules python files.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: render_molecules directory</span>

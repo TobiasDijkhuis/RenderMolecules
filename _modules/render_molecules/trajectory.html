@@ -74,15 +74,21 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">bpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atom</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_by_name</span><span class="p">,</span> <span class="n">set_frame_step</span><span class="p">,</span> <span class="n">set_frame_end</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RenderResolution</span><span class="p">,</span>
+    <span class="n">get_object_by_name</span><span class="p">,</span>
+    <span class="n">set_frame_end</span><span class="p">,</span>
+    <span class="n">set_frame_step</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAME_STEP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">find_all_string_in_list_of_strings</span><span class="p">,</span>
-                          <span class="n">find_first_string_in_list_of_strings</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">find_all_string_in_list_of_strings</span><span class="p">,</span>
+    <span class="n">find_first_string_in_list_of_strings</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
 
 
@@ -128,15 +134,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">create_animation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">create_bonds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="n">RenderResolution</span> <span class="o">=</span> <span class="n">RenderResolution</span><span class="o">.</span><span class="n">MEDIUM</span><span class="p">,</span>
         <span class="n">split_bond_to_atom_materials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the animation of the trajectory in the Blender scene</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            create_bonds (bool): Whether to create the bonds in the scene. Default: True</span>
-<span class="sd">            resolution (str): one of [&#39;verylow&#39;, &#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;veryhigh&#39;]</span>
-<span class="sd">            split_bond_to_atom_materials (bool): Whether to use the same material on the bonds as the atoms. </span>
+<span class="sd">            resolution (RenderResolution): resolution of created Blender objects</span>
+<span class="sd">            split_bond_to_atom_materials (bool): Whether to use the same material on the bonds as the atoms.</span>
 <span class="sd">                Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># At the moment, this looks a bit weird if bond lengths change a lot.</span>
