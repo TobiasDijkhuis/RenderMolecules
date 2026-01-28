@@ -77,6 +77,8 @@ def create_mesh_of_atoms(
 
     bpy.ops.object.parent_set(type="OBJECT", keep_transform=False)
     bpy.context.object.instance_type = "VERTS"
+
+    # TODO: Does not hide parent instance
     bpy.context.object.show_instancer_for_viewport = False
 
 
@@ -168,8 +170,8 @@ def delete_all_objects():
 def create_isosurface(
     verts: np.ndarray,
     faces: np.ndarray,
-    isovalue: float,
     prefix: str = "isosurface",
+    isovalue: float | None = None,
     color: str = "sign",
     alpha: float = manifest["isosurface_alpha"],
 ) -> None:
@@ -178,10 +180,11 @@ def create_isosurface(
     Args:
         verts (np.ndarray): Vx3 array of floats corresponding to vertex positions
         faces (np.ndarray): Fx3 array of integers corresponding to vertex indices
-        isovalue (float): isovalue used to calculate the isosurface
+        isovalue (float | None): isovalue used to calculate the isosurface. Only necessary
+            if `color="sign"`.
         prefix (str): prefix to put in front of the isovalue to get its name
-        color (str): color of isosurface. Can also be ``"sign"``, and then it is colored using the sign of ``isovalue``,
-            and the ``constants.manifest['isosurface_color_negative']`` or ``constants.manifest['isosurface_color_positive']``.
+        color (str): color of isosurface. Can also be `"sign"`, and then it is colored using the sign of `isovalue`,
+            and the `constants.manifest['isosurface_color_negative']` or `constants.manifest['isosurface_color_positive']`.
         alpha (float): transparency of created isosurface.
 
     Notes:
@@ -202,6 +205,8 @@ def create_isosurface(
     scene.collection.objects.link(obj)
 
     if color == "sign":
+        if isovalue is None:
+            raise ValueError('isovalue must be given if color="sign"')
         assign_isosurface_material_based_on_sign(obj, isovalue, alpha=alpha)
     else:
         mat = create_material("Isosurface", color, alpha=alpha)

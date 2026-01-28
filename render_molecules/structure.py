@@ -1001,6 +1001,9 @@ class CUBEfile(Structure):
         """
         from skimage.measure import marching_cubes
 
+        if not hasattr(self, "_volumetric_data"):
+            self.read_volumetric_data()
+
         self._check_isovalue(isovalue)
 
         vertices, faces, normals, values = marching_cubes(
