@@ -16,22 +16,11 @@ keywords = ["molecules", "chemistry", "blender", "rendering", "quantum"]
 
 [project.urls]
 Repository = "https://github.com/TobiasDijkhuis/RenderMolecules"
-Documentation = "https://tobiasdijkhuis.github.io/render_mlecules"
+Documentation = "https://tobiasdijkhuis.github.io/RenderMolecules"
 Issues = "https://github.com/TobiasDijkhuis/RenderMolecules/issues"
 
 [tool.setuptools]
 package-dir = {"" = "render_molecules"}
-
-[tool.ruff]
-target-version = "py311"
-extend-exclude = [
-    "crates/ty_vendored/vendor/",
-    "crates/ruff/resources/",
-    "crates/ruff_linter/resources/",
-    "crates/ruff_python_formatter/resources/",
-    "crates/ruff_python_parser/resources/",
-    "crates/ruff_python_semantic/resources/"
-]
 
 builtins=['bmesh', 'bpy']
 
