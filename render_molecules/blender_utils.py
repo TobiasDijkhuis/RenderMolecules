@@ -207,12 +207,13 @@ def create_isosurface(
     if color == "sign":
         if isovalue is None:
             raise ValueError('isovalue must be given if color="sign"')
-        assign_isosurface_material_based_on_sign(obj, isovalue, alpha=alpha)
+        mat = assign_isosurface_material_based_on_sign(isovalue, alpha=alpha)
     else:
         mat = create_material("Isosurface", color, alpha=alpha)
-        mat.surface_render_method = "BLENDED"
-        mat.use_transparency_overlap = False
-        obj.data.materials.append(mat)
+
+    mat.surface_render_method = "BLENDED"
+    mat.use_transparency_overlap = False
+    obj.data.materials.append(mat)
 
 
 def load_ply(filepath, color: str = "sign", alpha=manifest["isosurface_alpha"]):
@@ -223,12 +224,12 @@ def load_ply(filepath, color: str = "sign", alpha=manifest["isosurface_alpha"]):
 
     isovalue = float(os.path.splitext(filepath)[0].split("_")[-1])
     if color == "sign":
-        assign_isosurface_material_based_on_sign(obj, isovalue)
+        mat = assign_isosurface_material_based_on_sign(isovalue, alpha=alpha)
     else:
         mat = create_material("Isosurface", color, alpha=alpha)
-        mat.surface_render_method = "BLENDED"
-        mat.use_transparency_overlap = False
-        obj.data.materials.append(mat)
+    mat.surface_render_method = "BLENDED"
+    mat.use_transparency_overlap = False
+    obj.data.materials.append(mat)
 
 
 def assign_isosurface_material_based_on_sign(
@@ -240,24 +241,18 @@ def assign_isosurface_material_based_on_sign(
 
     if isovalue < 0:
         # Negative lobe material
-        mat = create_material(
+        return create_material(
             "Negative Lobe",
             manifest["isosurface_color_negative"],
             alpha=alpha,
         )
-        mat.surface_render_method = "BLENDED"
-        mat.use_transparency_overlap = False
-        isosurface_obj.data.materials.append(mat)
     else:
         # Positive lobe material
-        mat = create_material(
+        return create_material(
             "Positive Lobe",
             manifest["isosurface_color_positive"],
             alpha=alpha,
         )
-        mat.surface_render_method = "BLENDED"
-        mat.use_transparency_overlap = False
-        isosurface_obj.data.materials.append(mat)
 
 
 def try_autosmooth():

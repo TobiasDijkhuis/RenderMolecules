@@ -29,7 +29,7 @@ manifest = {
         "S": "FFFF30",
         "Si": "F0C8A0",
     },
-    "isosurface_color_negative": "#FF7743",
+    "isosurface_color_negative": "#FFA661",
     "isosurface_color_positive": "#53B9FF",
     "isosurface_alpha": 0.5,
     "bond_thickness": 0.2,
