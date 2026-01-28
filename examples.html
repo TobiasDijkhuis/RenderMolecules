@@ -117,11 +117,14 @@
 </section>
 <section id="orbiting-camera">
 <h2>Orbiting camera<a class="headerlink" href="#orbiting-camera" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span><span class="p">,</span> <span class="n">orbit_camera</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">delete_all_objects</span><span class="p">()</span>
@@ -147,36 +150,42 @@
 <figure  class="sphinx-contrib-video-container align-left"><video autoplay="True" loop="True" muted="True" preload="auto" width="100%" playsinline="True"><source src="_images/CH3OH_orbit_camera.mp4" type="video/mp4"></video><figcaption class="align-center"><p style="text-align: left; display:inline-block"><span class="caption-text">GIF of camera orbiting around methanol</span></p></figcaption></figure></section>
 <section id="isosurface">
 <h2>Isosurface<a class="headerlink" href="#isosurface" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">CUBEfile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span><span class="p">,</span> <span class="n">create_isosurface</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_isosurface</span><span class="p">,</span> <span class="n">delete_all_objects</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">CUBEfile</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">delete_all_objects</span><span class="p">()</span>
-    
+
     <span class="c1"># Read the CUBE file</span>
     <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
-    <span class="n">CUBEpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/isosurface/CH3OH_OPT.eldens.cube&quot;</span><span class="p">)</span>
-    <span class="n">CUBE</span> <span class="o">=</span> <span class="n">CUBEfile</span><span class="p">(</span><span class="n">CUBEpath</span><span class="p">)</span>
-    
+    <span class="n">cube_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/isosurface/CH3OH_OPT.eldens.cube&quot;</span>
+    <span class="p">)</span>
+    <span class="n">cube</span> <span class="o">=</span> <span class="n">CUBEfile</span><span class="p">(</span><span class="n">cube_path</span><span class="p">)</span>
+
     <span class="c1"># Read the electron density in the CUBE file</span>
-    <span class="n">CUBE</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
-    
+    <span class="n">cube</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
+
     <span class="c1"># Set center of mass to origin</span>
-    <span class="n">CUBE</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-    
+    <span class="n">cube</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
     <span class="c1"># Create the atoms and bonds</span>
-    <span class="n">CUBE</span><span class="o">.</span><span class="n">create_structure</span><span class="p">()</span>
-    
+    <span class="n">cube</span><span class="o">.</span><span class="n">create_structure</span><span class="p">()</span>
+
     <span class="c1"># Calculate and render the isosurface</span>
     <span class="n">isovalue</span> <span class="o">=</span> <span class="mf">0.025</span>
-    <span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">CUBE</span><span class="o">.</span><span class="n">calculate_isosurface</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
+    <span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">calculate_isosurface</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
     <span class="n">create_isosurface</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="s2">&quot;CH3OH&quot;</span><span class="p">)</span>
     <span class="k">return</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -185,39 +194,48 @@
 <h2>Geometry optimization<a class="headerlink" href="#geometry-optimization" title="Link to this heading"></a></h2>
 <p>Let’s say you did a geometry optimization, and for whatever reason you would like to render the output.</p>
 <p>I have artificially created a structure of methanol, with the O-H bond elongated.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">delete_all_objects</span><span class="p">()</span>
-    
+
     <span class="c1"># Read the xyz file</span>
     <span class="n">render_molecules_dir</span> <span class="o">=</span> <span class="n">get_render_molecules_dir</span><span class="p">()</span>
-    <span class="n">xyzPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/animation/CH3OH_OPT_trj.xyz&quot;</span><span class="p">)</span>
-    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_xyz</span><span class="p">(</span><span class="n">xyzPath</span><span class="p">)</span>
-    
+    <span class="n">xyz_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">render_molecules_dir</span><span class="p">,</span> <span class="s2">&quot;../examples/animation/CH3OH_OPT_trj.xyz&quot;</span>
+    <span class="p">)</span>
+    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_xyz</span><span class="p">(</span><span class="n">xyz_path</span><span class="p">)</span>
+
     <span class="c1"># Set center of mass to origin</span>
-    <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-    
+    <span class="n">trajectory</span><span class="o">.</span><span class="n">set_center_of_mass</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
     <span class="c1"># Create the animation</span>
     <span class="n">trajectory</span><span class="o">.</span><span class="n">create_animation</span><span class="p">()</span>
-    <span class="k">return</span> 
+    <span class="k">return</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <figure  class="sphinx-contrib-video-container align-left"><video autoplay="True" loop="True" muted="True" preload="auto" width="100%" playsinline="True"><source src="_images/CH3OH_optimization.mp4" type="video/mp4"></video><figcaption class="align-center"><p style="text-align: left; display:inline-block"><span class="caption-text">GIF of geometry optimization of methanol</span></p></figcaption></figure></section>
 <section id="vibrations">
 <h2>Vibrations<a class="headerlink" href="#vibrations" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.blender_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_all_objects</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.other_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_render_molecules_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">render_molecules.trajectory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trajectory</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">delete_all_objects</span><span class="p">()</span>
