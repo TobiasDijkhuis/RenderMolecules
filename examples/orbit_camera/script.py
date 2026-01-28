@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import os
 
-from render_molecules.structure import Structure
 from render_molecules.blender_utils import delete_all_objects, orbit_camera
 from render_molecules.other_utils import get_render_molecules_dir
+from render_molecules.structure import Structure
+
 
 def main():
     delete_all_objects()

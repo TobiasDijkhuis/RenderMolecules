@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import os
 
-from render_molecules.trajectory import Trajectory
 from render_molecules.blender_utils import delete_all_objects
 from render_molecules.other_utils import get_render_molecules_dir
+from render_molecules.trajectory import Trajectory
+
 
 def main():
     delete_all_objects()
