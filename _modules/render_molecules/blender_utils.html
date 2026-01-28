@@ -163,6 +163,8 @@
 
     <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">parent_set</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;OBJECT&quot;</span><span class="p">,</span> <span class="n">keep_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">instance_type</span> <span class="o">=</span> <span class="s2">&quot;VERTS&quot;</span>
+
+    <span class="c1"># TODO: Does not hide parent instance</span>
     <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">show_instancer_for_viewport</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
@@ -266,8 +268,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">create_isosurface</span><span class="p">(</span>
     <span class="n">verts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">faces</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;isosurface&quot;</span><span class="p">,</span>
+    <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sign&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;isosurface_alpha&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -276,10 +278,11 @@
 <span class="sd">    Args:</span>
 <span class="sd">        verts (np.ndarray): Vx3 array of floats corresponding to vertex positions</span>
 <span class="sd">        faces (np.ndarray): Fx3 array of integers corresponding to vertex indices</span>
-<span class="sd">        isovalue (float): isovalue used to calculate the isosurface</span>
+<span class="sd">        isovalue (float | None): isovalue used to calculate the isosurface. Only necessary</span>
+<span class="sd">            if `color=&quot;sign&quot;`.</span>
 <span class="sd">        prefix (str): prefix to put in front of the isovalue to get its name</span>
-<span class="sd">        color (str): color of isosurface. Can also be ``&quot;sign&quot;``, and then it is colored using the sign of ``isovalue``,</span>
-<span class="sd">            and the ``constants.manifest[&#39;isosurface_color_negative&#39;]`` or ``constants.manifest[&#39;isosurface_color_positive&#39;]``.</span>
+<span class="sd">        color (str): color of isosurface. Can also be `&quot;sign&quot;`, and then it is colored using the sign of `isovalue`,</span>
+<span class="sd">            and the `constants.manifest[&#39;isosurface_color_negative&#39;]` or `constants.manifest[&#39;isosurface_color_positive&#39;]`.</span>
 <span class="sd">        alpha (float): transparency of created isosurface.</span>
 
 <span class="sd">    Notes:</span>
@@ -300,6 +303,8 @@
     <span class="n">scene</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s2">&quot;sign&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">isovalue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;isovalue must be given if color=&quot;sign&quot;&#39;</span><span class="p">)</span>
         <span class="n">assign_isosurface_material_based_on_sign</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;Isosurface&quot;</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
