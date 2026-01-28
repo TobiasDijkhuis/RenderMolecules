@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .constants import (CYLINDER_LENGTH_FRACTION,
-                        CYLINDER_LENGTH_FRACTION_SPLIT, SPHERE_SCALE)
+from .constants import (
+    CYLINDER_LENGTH_FRACTION_SPLIT,
+    SPHERE_SCALE,
+)
 from .element_data import element_list, vdw_radii
 from .geometry import check_3d_vector
 

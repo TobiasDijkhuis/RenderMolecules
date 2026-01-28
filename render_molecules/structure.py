@@ -7,18 +7,32 @@ import bpy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import (create_cylinder, create_material,
-                            create_mesh_of_atoms, create_uv_sphere,
-                            deselect_all_selected, get_object_by_name,
-                            join_cylinders, put_cap_on_cylinder)
+from .blender_utils import (
+    RenderResolution,
+    create_cylinder,
+    create_material,
+    create_mesh_of_atoms,
+    create_uv_sphere,
+    deselect_all_selected,
+    get_object_by_name,
+    join_cylinders,
+    put_cap_on_cylinder,
+)
 from .bond import Bond
-from .constants import (AMU_TO_KG, ANGSTROM_TO_METERS, BOHR_TO_ANGSTROM,
-                        BOHR_TO_METERS, CYLINDER_LENGTH_FRACTION,
-                        CYLINDER_LENGTH_FRACTION_SPLIT)
+from .constants import (
+    AMU_TO_KG,
+    ANGSTROM_TO_METERS,
+    BOHR_TO_ANGSTROM,
+    BOHR_TO_METERS,
+    CYLINDER_LENGTH_FRACTION,
+    CYLINDER_LENGTH_FRACTION_SPLIT,
+)
 from .element_data import bond_lengths, manifest
 from .geometry import Geometry, angle_between, check_3d_vector, rotation_matrix
-from .other_utils import (find_all_string_in_list_of_strings,
-                          find_first_string_in_list_of_strings)
+from .other_utils import (
+    find_all_string_in_list_of_strings,
+    find_first_string_in_list_of_strings,
+)
 
 
 class Structure(Geometry):
@@ -50,7 +64,7 @@ class Structure(Geometry):
 
     def create_atoms(
         self,
-        resolution: str = "medium",
+        resolution: RenderResolution = RenderResolution.MEDIUM,
         create_mesh: bool = True,
         force_material_creation: bool = False,
         atom_colors: dict[str, str] | None = None,
@@ -58,8 +72,7 @@ class Structure(Geometry):
         """Create the atoms in the scene
 
         Args:
-            resolution (str): resolution of created spheres.
-                One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            resolution (RenderResolution): resolution of created spheres.
             create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated
             force_material_creation (bool): force creation of new materials with element names,
                 even though materials with that name already exist. This is useful for if you want to
@@ -481,12 +494,12 @@ class Structure(Geometry):
                     obj.rotation_mode = "AXIS_ANGLE"
                     obj.rotation_axis_angle = (angle, axis[0], axis[1], axis[2])
 
-                    obj.name = "Hbond-%s-%03i-%s-%03i" % (
-                        at1.get_element(),
-                        i,
-                        at2.get_element(),
-                        j,
-                    )
+                    obj.name = f"Hbond-{at1.get_element()}-{i:0>3}-{at2.get_element()}-{j:0>3}"  # % (
+                    # at1.get_element(),
+                    # i,
+                    # at2.get_element(),
+                    # j,
+                    # )
                     hbond_curves.append(obj)
 
         hbond_material = create_material("H-bond", manifest["hbond_color"])
@@ -517,14 +530,14 @@ class Structure(Geometry):
             )
 
     def _check_atom_colors(self, atom_colors: dict | None = None):
-        element_types = list(set([atom.get_element() for atom in self._atoms]))
+        element_types = list({atom.get_element() for atom in self._atoms})
         if atom_colors is None:
             atom_colors = manifest["atom_colors"]
 
             for element_type in element_types:
-                if not element_type in atom_colors:
+                if element_type not in atom_colors:
                     msg = f"element_data.manifest['atom_colors'] dictionary needs to contain all elements in Structure, but did not contain element {element_type}."
-                    msg += f"Alternatively, pass a custom atom_colors dictionary that contains all the elements in the Structure."
+                    msg += "Alternatively, pass a custom atom_colors dictionary that contains all the elements in the Structure."
                     raise ValueError(msg)
         else:
             for element_type in element_types:
@@ -534,7 +547,7 @@ class Structure(Geometry):
                     atom_colors[element_type] = manifest["atom_colors"][element_type]
                 else:
                     msg = f"atom_colors dictionary needs to contain all elements in Structure, but did not contain element {element_type}."
-                    msg += f"The element was also not found in element_data.manifest['atom_colors'] dictionary, so could not fill it."
+                    msg += "The element was also not found in element_data.manifest['atom_colors'] dictionary, so could not fill it."
                     raise ValueError(msg)
         return atom_colors
 
@@ -542,7 +555,7 @@ class Structure(Geometry):
         self,
         bonds: list[Bond] | None = None,
         split_bond_to_atom_materials: bool = True,
-        resolution: str = "medium",
+        resolution: RenderResolution = RenderResolution.MEDIUM,
         atom_colors: dict | None = None,
         force_material_creation: bool = False,
     ) -> None:
@@ -552,7 +565,7 @@ class Structure(Geometry):
             bonds (list[Bond] | None): list of bonds to be drawn, or None. If None, will be determined from
                 self.find_bonds_from_distances(). Default: None
             split_bond_to_atom_materials (bool): whether to split up the bonds to the two atom materials connecting them
-            resolution (str): render resolution. One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            resolution (RenderResolution): render resolution.
             atom_colors (dict): dictionary of atom colors, with keys elements and values hex-codes.
                 If None, use the ``element_data.manifest['atom_colors']``. Can also be partially filled,
                 e.g. only contain ``{'H': 'FFFFFF'}`` for H2O, and then the color of O atoms
@@ -649,7 +662,7 @@ class Structure(Geometry):
 
     def create_structure(
         self,
-        resolution: str = "medium",
+        resolution: RenderResolution = RenderResolution.MEDIUM,
         create_mesh: bool = True,
         atom_colors: dict | None = None,
         split_bond_to_atom_materials: bool = True,
@@ -658,8 +671,7 @@ class Structure(Geometry):
         """Create the atoms and bond in the scene
 
         Args:
-            resolution (str): resolution of created spheres.
-                One of ['verylow', 'low', 'medium', 'high', 'veryhigh']
+            resolution (RenderResolution): resolution of created spheres.
             create_mesh (bool): create mesh of vertices. saves memory, but atom positions cannot be animated
             force_material_creation (bool): force creation of new materials with element names,
                 even though materials with that name already exist. This is useful for if you want to
@@ -818,9 +830,9 @@ class Structure(Geometry):
                 if line[0] == "#":
                     continue
                 if "PRIMVEC" in line:
-                    primvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)
+                    primvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)  # noqa: F841
                 elif "CONVVEC" in line:
-                    convvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)
+                    convvec = np.fromstring(_lines[i + 1 : i + 4], dtype=float)  # noqa: F841
                 elif "PRIMCOORD" in line:
                     _natoms = int(_lines[i + 1].split()[0])
                     _atoms = [0] * _natoms

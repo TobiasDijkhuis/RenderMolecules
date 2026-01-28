@@ -59,7 +59,7 @@ ignore = [
     # Leave it to the formatter to split long lines and
     # the judgement of all of us.
     "E501",
-    # Ternary statements are fine, but not to much.
+    # Ternary statements are fine, but not too much.
     "SIM108",
 ]
 

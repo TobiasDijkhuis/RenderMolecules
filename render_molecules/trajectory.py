@@ -2,15 +2,21 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-import bpy
 import numpy as np
 
 from .atom import Atom
-from .blender_utils import get_object_by_name, set_frame_step, set_frame_end
+from .blender_utils import (
+    RenderResolution,
+    get_object_by_name,
+    set_frame_end,
+    set_frame_step,
+)
 from .constants import FRAME_STEP
 from .geometry import Geometry
-from .other_utils import (find_all_string_in_list_of_strings,
-                          find_first_string_in_list_of_strings)
+from .other_utils import (
+    find_all_string_in_list_of_strings,
+    find_first_string_in_list_of_strings,
+)
 from .structure import Structure
 
 
@@ -43,15 +49,15 @@ class Trajectory(Geometry):
     def create_animation(
         self,
         create_bonds: bool = True,
-        resolution: str = "medium",
+        resolution: RenderResolution = RenderResolution.MEDIUM,
         split_bond_to_atom_materials: bool = True,
     ) -> None:
         """Create the animation of the trajectory in the Blender scene
 
         Args:
             create_bonds (bool): Whether to create the bonds in the scene. Default: True
-            resolution (str): one of ['verylow', 'low', 'medium', 'high', 'veryhigh']
-            split_bond_to_atom_materials (bool): Whether to use the same material on the bonds as the atoms. 
+            resolution (RenderResolution): resolution of created Blender objects
+            split_bond_to_atom_materials (bool): Whether to use the same material on the bonds as the atoms.
                 Default: True
         """
         # At the moment, this looks a bit weird if bond lengths change a lot.

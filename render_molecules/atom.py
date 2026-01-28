@@ -4,11 +4,20 @@ The Atom class is a useful way of keeping track of properties of an atom, such a
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from .constants import BOHR_TO_ANGSTROM
-from .element_data import (element_mass, get_atomic_number_from_element,
-                           get_element_from_atomic_number, vdw_radii)
+from .element_data import (
+    element_mass,
+    get_atomic_number_from_element,
+    get_element_from_atomic_number,
+    vdw_radii,
+)
+
+if TYPE_CHECKING:
+    from .structure import Structure
 
 
 class Atom:
@@ -192,7 +201,7 @@ class Atom:
     def find_bound_atoms(self, structure: Structure) -> list[int]:
         """Find which Atom indeces are bound to this Atom in the structure"""
         bound_atom_indeces = []
-        for i, bond in enumerate(structure.get_bonds()):
+        for bond in structure.get_bonds():
             atom1_pos = bond.get_atom1_position()
             atom2_pos = bond.get_atom2_position()
             if np.all(self._position == atom1_pos):

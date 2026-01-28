@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from enum import Enum
 
 import bmesh
 import bpy
@@ -6,11 +9,23 @@ import numpy as np
 
 from .constants import FRAME_STEP, SPHERE_SCALE
 from .element_data import element_list, manifest, vdw_radii
-from .other_utils import color_srgb_to_scene_linear, hex2rgbtuple
+from .other_utils import hex2rgbtuple
+
+
+class RenderResolution(Enum):
+    """Convenient way to keep track of scaling"""
+
+    VERY_LOW = 1 / 4
+    LOW = 1 / 2
+    MEDIUM = 1
+    HIGH = 2
+    VERY_HIGH = 4
 
 
 def create_uv_sphere(
-    element: str, position: np.ndarray, resolution: str = "medium"
+    element: str,
+    position: np.ndarray,
+    resolution: RenderResolution = RenderResolution.MEDIUM,
 ) -> object:
     nsegments, nrings = scale_vertices(64, 32, resolution=resolution)
 
@@ -35,7 +50,7 @@ def get_all_materials() -> object:
 
 def delete_all_materials() -> None:
     materials = get_all_materials()
-    for material in bpy.data.materials:
+    for material in materials:
         bpy.data.materials.remove(material, do_unlink=True)
     for object in bpy.context.scene.objects:
         if not object.material_slots:
@@ -62,13 +77,14 @@ def create_mesh_of_atoms(
 
     bpy.ops.object.parent_set(type="OBJECT", keep_transform=False)
     bpy.context.object.instance_type = "VERTS"
+    bpy.context.object.show_instancer_for_viewport = False
 
 
-def material_exists(mat):
+def material_exists(material_name: str) -> bpy.types.Material:
     """Function to determine whether a material already exists. WIP"""
-    for mat_name, mat in bpy.data.materials.items():
-        if mat_name == name:
-            return mat
+    for name, material in bpy.data.materials.items():
+        if name == material_name:
+            return material
 
 
 def create_material(
@@ -328,7 +344,7 @@ def create_cylinder(
     angle: float,
     thickness: float,
     length: float,
-    resolution: str = "medium",
+    resolution: RenderResolution = RenderResolution.MEDIUM,
     name: str = "Cylinder",
 ) -> object:
     """Create a cylinder in the Blender scene.
@@ -338,8 +354,7 @@ def create_cylinder(
         angle (float): angle with z-axis in radians
         thickness (float): radius of created cylinder
         length (float): length of created cylinder
-        resolution (str): desired object resolution.
-            One of ``['verylow', 'low', 'medium', 'high', 'veryhigh']``.
+        resolution (RenderResolution): desired object resolution.
         name (str): name of created cylinder
 
     Returns:
@@ -429,43 +444,26 @@ def put_cap_on_cylinder(cylinder):
     pass
 
 
-def scale_vertices(*args, resolution="medium") -> int | tuple[int]:
+def scale_vertices(
+    *args, resolution: RenderResolution = RenderResolution.MEDIUM
+) -> int | tuple[int]:
     """Scale number of vertices according to resolution
 
     Args:
         *args: number of vertices. Can also be multiple arguments.
-        resolution (str): desired object resolution.
-            One of ``['verylow', 'low', 'medium', 'high', 'veryhigh']``.
+        resolution (RenderResolution): desired object resolution.
 
     Returns:
         int | tuple: scaled number of vertices. The same number of return values as the number of ``*args``.
     """
-    if not isinstance(resolution, str):
-        raise TypeError(
-            f"resolution should be of type str, but was of type {type(resolution)}"
-        )
-    resolution = resolution.lower()
-    if resolution not in ["verylow", "low", "medium", "high", "veryhigh"]:
-        msg = f"resolution should be one of ['verylow', 'low', 'medium', 'high', 'veryhigh'] but was '{resolution}'"
-        raise ValueError(msg)
 
-    if resolution == "verylow":
-        scale = 1 / 4
-    elif resolution == "low":
-        scale = 1 / 2
-    elif resolution == "medium":
-        scale = 1
-    elif resolution == "high":
-        scale = 2
-    elif resolution == "veryhigh":
-        scale = 4
+    if len(args) == 0:
+        raise ValueError("No arguments passed.")
 
     if len(args) == 1:
-        return int(args[0] * scale)
+        return int(args[0] * resolution.value)
     elif len(args) > 1:
-        return tuple([int(arg * scale) for arg in args])
-    else:
-        raise ValueError()
+        return tuple([int(arg * resolution.value) for arg in args])
 
 
 def deselect_all_selected() -> None:
@@ -499,7 +497,7 @@ def orbit_camera(
         # But still make it point at origin
         cam.delta_rotation_euler = (np.pi + np.arctan(radius / height), np.pi, 0)
 
-    if "EMPTY FOR CAMERA ORBIT" in bpy.data.objects.keys():
+    if "EMPTY FOR CAMERA ORBIT" in bpy.data.objects:
         mt = bpy.data.objects["EMPTY FOR CAMERA ORBIT"]
     else:
         bpy.ops.object.empty_add(location=(0, 0, 0))
@@ -513,7 +511,7 @@ def orbit_camera(
         # Hide the orbit in the viewport
         mt.hide_set(True)
 
-    if "ORBITING CAMERA" in bpy.data.objects.keys():
+    if "ORBITING CAMERA" in bpy.data.objects:
         cam2 = bpy.data.objects["ORBITING CAMERA"]
     else:
         # Copy other camera

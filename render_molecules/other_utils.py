@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import numpy as np
 import os
+
+import numpy as np
 
 
 def hex2rgbtuple(hexcode: str) -> tuple[float, float, float]:
@@ -9,9 +10,11 @@ def hex2rgbtuple(hexcode: str) -> tuple[float, float, float]:
     Convert 6-digit color hexcode to a tuple of floats
     """
     if not isinstance(hexcode, str):
-        raise TypeError(f"hexcode is supposed to be of type str, but was type {type(hexcode)}")
+        raise TypeError(
+            f"hexcode is supposed to be of type str, but was type {type(hexcode)}"
+        )
     hexcode = hexcode.replace("#", "")
-    if not len(hexcode) == 6:
+    if len(hexcode) != 6:
         msg = f"hexcode is supposed to be a string of length 6 (without alpha component), but was length {len(hexcode)}."
         msg += f"\nhexcode: {hexcode}"
         raise ValueError(msg)
@@ -29,6 +32,7 @@ def color_srgb_to_scene_linear(c: float) -> float:
         return 0.0 if c < 0.0 else c * (1.0 / 12.92)
     else:
         return ((c + 0.055) * (1.0 / 1.055)) ** 2.4
+
 
 def find_first_string_in_list_of_strings(
     string_to_find: str | list[str],
@@ -89,8 +93,9 @@ def find_all_string_in_list_of_strings(
     result.pop()
     return result
 
+
 def get_render_molecules_dir() -> str:
-    """Get the directory that contains all render_molecules python files. 
+    """Get the directory that contains all render_molecules python files.
 
     Returns:
         str: render_molecules directory
