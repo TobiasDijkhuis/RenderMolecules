@@ -22,6 +22,7 @@ Issues = "https://github.com/TobiasDijkhuis/RenderMolecules/issues"
 [tool.setuptools]
 package-dir = {"" = "render_molecules"}
 
+[tool.ruff]
 builtins=['bmesh', 'bpy']
 
 [tool.ruff.lint]
