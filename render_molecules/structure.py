@@ -46,10 +46,7 @@ class Structure(Geometry):
         self._natoms = len(atoms)
         self._atoms = atoms
 
-        if bonds is None:
-            self._bonds = []
-        else:
-            self._bonds = bonds
+        self._bonds = bonds
 
         self._displacements = []
         self._affine_matrix = np.identity(4)
@@ -132,8 +129,9 @@ class Structure(Geometry):
         Returns:
             list[Bond]: list of bonds in the structure. Cached
         """
-        if self._bonds:
+        if self._bonds is not None:
             return self._bonds
+        self._bonds = []
 
         all_positions = self.get_atom_positions()
         all_elements = [atom.get_element() for atom in self._atoms]
@@ -224,6 +222,9 @@ class Structure(Geometry):
         Returns:
             list[Bond]: bond instances of newly generated bonds
         """
+        if self._bonds is None:
+            raise ValueError("First must find the bonds by Structure.find_bonds_from_distances()")
+
         if bond_order == 1:
             return self._bonds
         index = self._bonds.index(bond)
@@ -495,11 +496,6 @@ class Structure(Geometry):
                     obj.rotation_axis_angle = (angle, axis[0], axis[1], axis[2])
 
                     obj.name = f"Hbond-{at1.get_element()}-{i:0>3}-{at2.get_element()}-{j:0>3}"  # % (
-                    # at1.get_element(),
-                    # i,
-                    # at2.get_element(),
-                    # j,
-                    # )
                     hbond_curves.append(obj)
 
         hbond_material = create_material("H-bond", manifest["hbond_color"])
@@ -529,7 +525,7 @@ class Structure(Geometry):
                 1.3
             )
 
-    def _check_atom_colors(self, atom_colors: dict | None = None):
+    def _check_atom_colors(self, atom_colors: dict[str, str] | None = None) -> dict[str, str]:
         element_types = list({atom.get_element() for atom in self._atoms})
         if atom_colors is None:
             atom_colors = manifest["atom_colors"]
@@ -883,6 +879,10 @@ class CUBEfile(Structure):
 
     def read_volumetric_data(self) -> None:
         """Read the volumetric data in the CUBE file"""
+
+        if hasattr(self, "_volumetric_data"):
+            return
+
         self._NX, self._NY, self._NZ = (
             int(self._lines[i].split()[0].strip()) for i in [3, 4, 5]
         )
@@ -986,7 +986,7 @@ class CUBEfile(Structure):
         self,
         isovalue: float,
         step_size: int = 1,
-    ) -> tuple[np.ndarray, np.ndarray, int]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Calculate the isosurface from the volumetric data and an isovalue
 
         Args:
@@ -994,15 +994,14 @@ class CUBEfile(Structure):
             step_size (int): step size in the grid. Larger values result in coarser, but quicker, results. Default = 1
 
         Returns:
-            vertices (ndarray): Vx3 array of floats corresponding to vertex positions
-            faces (ndarray): Fx3 array of integers corresponding to vertex indices
-            normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex
-            values (ndarray): Vx1 array of maximum value in data close to each vertex
+            vertices (np.ndarray): Vx3 array of floats corresponding to vertex positions
+            faces (np.ndarray): Fx3 array of integers corresponding to vertex indices
+            normals (np.ndarray): Vx3 array of floats corresponding to normal direction at each vertex
+            values (np.ndarray): Vx1 array of maximum value in data close to each vertex
         """
         from skimage.measure import marching_cubes
 
-        if not hasattr(self, "_volumetric_data"):
-            self.read_volumetric_data()
+        self.read_volumetric_data()
 
         self._check_isovalue(isovalue)
 
