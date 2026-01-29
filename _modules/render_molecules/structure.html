@@ -120,10 +120,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span> <span class="o">=</span> <span class="n">atoms</span>
 
-        <span class="k">if</span> <span class="n">bonds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="n">bonds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="n">bonds</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_displacements</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_affine_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -217,8 +214,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            list[Bond]: list of bonds in the structure. Cached</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">all_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_positions</span><span class="p">()</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">]</span>
@@ -312,6 +310,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            list[Bond]: bond instances of newly generated bonds</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;First must find the bonds by Structure.find_bonds_from_distances()&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">bond_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bonds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
@@ -619,11 +620,6 @@
                     <span class="n">obj</span><span class="o">.</span><span class="n">rotation_axis_angle</span> <span class="o">=</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
                     <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Hbond-</span><span class="si">{</span><span class="n">at1</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">0&gt;3</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">at2</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">j</span><span class="si">:</span><span class="s2">0&gt;3</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># % (</span>
-                    <span class="c1"># at1.get_element(),</span>
-                    <span class="c1"># i,</span>
-                    <span class="c1"># at2.get_element(),</span>
-                    <span class="c1"># j,</span>
-                    <span class="c1"># )</span>
                     <span class="n">hbond_curves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
         <span class="n">hbond_material</span> <span class="o">=</span> <span class="n">create_material</span><span class="p">(</span><span class="s2">&quot;H-bond&quot;</span><span class="p">,</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;hbond_color&quot;</span><span class="p">])</span>
@@ -654,7 +650,7 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_check_atom_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_atom_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_colors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">element_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">atom</span><span class="o">.</span><span class="n">get_element</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoms</span><span class="p">})</span>
         <span class="k">if</span> <span class="n">atom_colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">atom_colors</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;atom_colors&quot;</span><span class="p">]</span>
@@ -1037,6 +1033,10 @@
 <a class="viewcode-back" href="../../user_interface.html#render_molecules.structure.CUBEfile.read_volumetric_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_volumetric_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the volumetric data in the CUBE file&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_volumetric_data&quot;</span><span class="p">):</span>
+            <span class="k">return</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_NX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NZ</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
         <span class="p">)</span>
@@ -1155,7 +1155,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the isosurface from the volumetric data and an isovalue</span>
 
 <span class="sd">        Args:</span>
@@ -1163,15 +1163,14 @@
 <span class="sd">            step_size (int): step size in the grid. Larger values result in coarser, but quicker, results. Default = 1</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            vertices (ndarray): Vx3 array of floats corresponding to vertex positions</span>
-<span class="sd">            faces (ndarray): Fx3 array of integers corresponding to vertex indices</span>
-<span class="sd">            normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex</span>
-<span class="sd">            values (ndarray): Vx1 array of maximum value in data close to each vertex</span>
+<span class="sd">            vertices (np.ndarray): Vx3 array of floats corresponding to vertex positions</span>
+<span class="sd">            faces (np.ndarray): Fx3 array of integers corresponding to vertex indices</span>
+<span class="sd">            normals (np.ndarray): Vx3 array of floats corresponding to normal direction at each vertex</span>
+<span class="sd">            values (np.ndarray): Vx1 array of maximum value in data close to each vertex</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">skimage.measure</span><span class="w"> </span><span class="kn">import</span> <span class="n">marching_cubes</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_volumetric_data&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_volumetric_data</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_isovalue</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
 

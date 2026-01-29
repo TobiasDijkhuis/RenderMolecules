@@ -986,7 +986,7 @@ cartesian coordinates in the input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="render_molecules.structure.CUBEfile.calculate_isosurface">
-<span class="sig-name descname"><span class="pre">calculate_isosurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isovalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile.calculate_isosurface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile.calculate_isosurface" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_isosurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isovalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/render_molecules/structure.html#CUBEfile.calculate_isosurface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#render_molecules.structure.CUBEfile.calculate_isosurface" title="Link to this definition"></a></dt>
 <dd><p>Calculate the isosurface from the volumetric data and an isovalue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -997,12 +997,12 @@ cartesian coordinates in the input.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Vx3 array of floats corresponding to vertex positions
-faces (ndarray): Fx3 array of integers corresponding to vertex indices
-normals (ndarray): Vx3 array of floats corresponding to normal direction at each vertex
-values (ndarray): Vx1 array of maximum value in data close to each vertex</p>
+faces (np.ndarray): Fx3 array of integers corresponding to vertex indices
+normals (np.ndarray): Vx3 array of floats corresponding to normal direction at each vertex
+values (np.ndarray): Vx1 array of maximum value in data close to each vertex</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>vertices (ndarray)</p>
+<dd class="field-odd"><p>vertices (np.ndarray)</p>
 </dd>
 </dl>
 </dd></dl>
